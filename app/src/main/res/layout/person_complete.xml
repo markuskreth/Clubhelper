@@ -16,14 +16,20 @@
             android:id="@+id/lblPrename"
             android:layout_column="0"
             android:layout_gravity="center"
-            android:padding="5dp" />
+            android:padding="5dp"
+            android:editable="false" />
 
-        <TextView
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/textPreName"
-            android:layout_column="1" />
+            android:layout_column="1"
+            android:inputType="textPersonName"
+            android:elegantTextHeight="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:singleLine="true" />
 
     </TableRow>
 
@@ -41,18 +47,23 @@
             android:layout_gravity="center"
             android:padding="5dp" />
 
-        <TextView
+        <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/textSurName"
-            android:layout_column="1" />
+            android:layout_column="1"
+            android:inputType="textPersonName"
+            android:elegantTextHeight="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:singleLine="true" />
 
     </TableRow>
 
     <TableRow
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -75,7 +86,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageButton"
-            android:layout_column="2" />
+            android:layout_column="2"
+            android:src="@drawable/ic_stat_name" />
 
     </TableRow>
 

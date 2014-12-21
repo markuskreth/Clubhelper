@@ -1,5 +1,6 @@
 package de.kreth.clubhelper.dao;
 
+import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -7,6 +8,8 @@ import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
 
 import de.kreth.clubhelper.Person;
 
@@ -32,6 +35,7 @@ public class PersonDao extends AbstractDao<Person, Long> {
 
     private DaoSession daoSession;
 
+    private Query<Person> relative_PersonListQuery;
 
     public PersonDao(DaoConfig config) {
         super(config);
@@ -153,4 +157,18 @@ public class PersonDao extends AbstractDao<Person, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "personList" to-many relationship of Relative. */
+    public List<Person> _queryRelative_PersonList(Long id) {
+        synchronized (this) {
+            if (relative_PersonListQuery == null) {
+                QueryBuilder<Person> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.Id.eq(null));
+                relative_PersonListQuery = queryBuilder.build();
+            }
+        }
+        Query<Person> query = relative_PersonListQuery.forCurrentThread();
+        query.setParameter(0, id);
+        return query.list();
+    }
+
 }

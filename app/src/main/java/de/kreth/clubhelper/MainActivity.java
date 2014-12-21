@@ -30,7 +30,7 @@ import de.kreth.clubhelper.widgets.PersonAdapter;
 
 public class MainActivity extends ActionBarActivity {
 
-    private DaoSession session;
+    public static DaoSession session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void initDb() {
         SQLiteDatabase db = new DaoMaster.DevOpenHelper(this, "clubdatabase.db", null).getWritableDatabase();
-        session = new DaoMaster(db).newSession();
+        DaoMaster daoMaster = new DaoMaster(db);
+        session = daoMaster.newSession();
 
     }
 
@@ -60,13 +61,14 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
         session.clear();
         session.getDatabase().close();
+        session = null;
     }
 
     private void insertDummyPerson() {
-        // Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
+        Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
         PersonDao personDao = session.getPersonDao();
-        personDao.deleteByKey((long) 2);
-        personDao.deleteByKey((long) 4);
+        personDao.insertOrReplace(jb);
+        personDao.insertOrReplace(new Person(null, "Markus", "Kreth", PersonType.ACITVE.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime()));
     }
 
 
@@ -139,6 +141,7 @@ public class MainActivity extends ActionBarActivity {
                             person.setSurname(p.getTxtSurname().toString());
                             person.getBirth().setTime(p.getBirthday().getTimeInMillis());
                             personDao.update(person);
+                            adapter.notifyDataSetChanged();
                         }
                     });
 
