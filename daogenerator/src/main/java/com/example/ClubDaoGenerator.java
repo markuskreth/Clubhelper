@@ -10,47 +10,83 @@ import de.greenrobot.daogenerator.Schema;
 
 public class ClubDaoGenerator {
 
-    public static void main(String[] args) throws Exception {
-        Schema schema = new Schema(1, "de.kreth.clubhelper");
+    private Schema schema;
+    private Entity person;
+    private Entity contact;
+    private Entity attendance;
+    private Property personIdAttend;
+    private Property personIdContact;
+
+    public void generate() throws Exception {
+
+        schema = new Schema(1, "de.kreth.clubhelper");
         schema.setDefaultJavaPackageTest("de.kreth.clubhelper.test");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
 
-        Entity person = schema.addEntity("Person");
-        person.addIdProperty();
-
-        Index index = new Index();
-        index.setName("idx_name");
-        Property.PropertyBuilder property = person.addStringProperty("prename");
-        index.addProperty(property.getProperty());
-        property = person.addStringProperty("surname");
-        index.addProperty(property.getProperty());
-        person.addIndex(index);
-        person.addStringProperty("type").index();
-        person.addDateProperty("birth");
-
-        person.implementsSerializable();
-
-        Entity contact = schema.addEntity("Contact");
-        contact.addIdProperty();
-        contact.addStringProperty("type");
-        contact.addStringProperty("value");
-        Property personId = contact.addLongProperty("personId").getProperty();
-        contact.addToMany(person, personId);
-
-        Index idxAtt = new Index();
-        idxAtt.setName("idxAttendance");
-
-        Entity attendance = schema.addEntity("Attendance");
-        idxAtt.addProperty(attendance.addDateProperty("onDate").getProperty());
-        personId = attendance.addLongProperty("personId").getProperty();
-        idxAtt.addProperty(personId);
-        contact.addToMany(attendance, personId);
+        createPerson();
+        createContact();
+        createAttendance();
+        connectPersonWithContactAndAttendance();
 
         DaoGenerator daoGenerator = new DaoGenerator();
         File f = new File(".");
         System.out.println("Current Dir:");
         System.out.println(f.getAbsolutePath());
         daoGenerator.generateAll(schema, "app/src/main/java", "app/src/androidTest/java");
+    }
+
+    private void connectPersonWithContactAndAttendance() {
+        person.addToMany(contact, personIdContact);
+        person.addToMany(attendance, personIdAttend);
+    }
+
+    private void createAttendance() {
+        Index idxAtt = new Index();
+        idxAtt.setName("idxAttendance");
+
+        attendance = schema.addEntity("Attendance");
+        attendance.addIdProperty().columnName("_id");
+        idxAtt.addProperty(attendance.addDateProperty("onDate").getProperty());
+
+        personIdAttend = attendance.addLongProperty("personId").notNull().getProperty();
+        idxAtt.addProperty(personIdAttend);
+        // contact.addToOne(attendance, personIdAttend);
+        attendance.addIndex(idxAtt);
+    }
+
+    private void createContact() {
+
+        contact = schema.addEntity("Contact");
+        contact.addIdProperty().columnName("_id");
+        contact.addStringProperty("type");
+        contact.addStringProperty("value");
+        personIdContact = contact.addLongProperty("personId").notNull().getProperty();
+        // contact.addToOne(person, personIdContact);
+    }
+
+    private void createPerson() {
+
+        person = schema.addEntity("Person");
+        person.implementsSerializable();
+        person.addIdProperty().columnName("_id");
+
+        Index index = new Index();
+        index.setName("idx_name");
+
+        Property.PropertyBuilder property = person.addStringProperty("prename");
+        index.addProperty(property.getProperty());
+
+        property = person.addStringProperty("surname");
+        index.addProperty(property.getProperty());
+
+        person.addIndex(index);
+        person.addStringProperty("type").index();
+        person.addDateProperty("birth");
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        new ClubDaoGenerator().generate();
     }
 }

@@ -1,5 +1,7 @@
 package de.kreth.clubhelper;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -11,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.Calendar;
@@ -21,6 +24,7 @@ import de.greenrobot.dao.identityscope.IdentityScopeType;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.widgets.PersonAdapter;
 
 
@@ -31,24 +35,38 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SQLiteDatabase db = new DaoMaster.DevOpenHelper(this, "clubdatabase.db", null).getWritableDatabase();
 
-        session = new DaoMaster(db).newSession(IdentityScopeType.Session);
+        initDb();
 
-        insertDummyPerson();
+//        insertDummyPerson();
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new PlaceholderFragment().setSession(session))
                     .commit();
         }
     }
 
+    private void initDb() {
+        SQLiteDatabase db = new DaoMaster.DevOpenHelper(this, "clubdatabase.db", null).getWritableDatabase();
+        session = new DaoMaster(db).newSession();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        session.clear();
+        session.getDatabase().close();
+    }
+
     private void insertDummyPerson() {
-        Person mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        // Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
         PersonDao personDao = session.getPersonDao();
-        personDao.insertOrReplace(mk);
+        personDao.deleteByKey((long) 2);
+        personDao.deleteByKey((long) 4);
     }
 
 
@@ -79,26 +97,63 @@ public class MainActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        private DaoSession session;
         private List<Person> persons;
         private PersonAdapter adapter;
+        private DaoSession session;
 
         public PlaceholderFragment() {
-
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            PersonDao personDao = session.getPersonDao();
+            final PersonDao personDao = session.getPersonDao();
             persons = personDao.loadAll();
 
             adapter = new PersonAdapter(getActivity(), persons);
 
             ListView listView = (ListView)rootView.findViewById(R.id.listView);
             listView.setAdapter(adapter);
+
+            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                    // final Person person = personDao.load(id);
+                    final Person person = persons.get(position);
+
+                    AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
+
+                    ViewGroup view1 = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.person_complete, null);
+                    dlg.setView(view1);
+                    dlg.setNegativeButton(R.string.lblCancel, null);
+
+                    final PersonDialog p = new PersonDialog(view1, person);
+
+                    dlg.setPositiveButton(R.string.lblSave, new AlertDialog.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            person.setPrename(p.getPrename().toString());
+                            person.setSurname(p.getTxtSurname().toString());
+                            person.getBirth().setTime(p.getBirthday().getTimeInMillis());
+                            personDao.update(person);
+                        }
+                    });
+
+                    dlg.show();
+
+                    return true;
+                }
+            });
             return rootView;
         }
+
+        public PlaceholderFragment setSession(DaoSession session) {
+            this.session = session;
+            return this;
+        }
+
     }
 }

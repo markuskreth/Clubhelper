@@ -1,6 +1,5 @@
 package de.kreth.clubhelper.dao;
 
-import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -8,8 +7,6 @@ import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.DaoConfig;
-import de.greenrobot.dao.query.Query;
-import de.greenrobot.dao.query.QueryBuilder;
 
 import de.kreth.clubhelper.Person;
 
@@ -31,10 +28,10 @@ public class PersonDao extends AbstractDao<Person, Long> {
         public final static Property Surname = new Property(2, String.class, "surname", false, "SURNAME");
         public final static Property Type = new Property(3, String.class, "type", false, "TYPE");
         public final static Property Birth = new Property(4, java.util.Date.class, "birth", false, "BIRTH");
-        public final static Property PersonId = new Property(5, Long.class, "personId", false, "PERSON_ID");
     };
 
-    private Query<Person> contact_PersonListQuery;
+    private DaoSession daoSession;
+
 
     public PersonDao(DaoConfig config) {
         super(config);
@@ -42,6 +39,7 @@ public class PersonDao extends AbstractDao<Person, Long> {
     
     public PersonDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -52,8 +50,7 @@ public class PersonDao extends AbstractDao<Person, Long> {
                 "'PRENAME' TEXT," + // 1: prename
                 "'SURNAME' TEXT," + // 2: surname
                 "'TYPE' TEXT," + // 3: type
-                "'BIRTH' INTEGER," + // 4: birth
-                "'PERSON_ID' INTEGER);"); // 5: personId
+                "'BIRTH' INTEGER);"); // 4: birth
         // Add Indexes
         db.execSQL("CREATE INDEX " + constraint + "idx_name ON PERSON" +
                 " (PRENAME,SURNAME);");
@@ -96,6 +93,12 @@ public class PersonDao extends AbstractDao<Person, Long> {
         if (birth != null) {
             stmt.bindLong(5, birth.getTime());
         }
+    }
+
+    @Override
+    protected void attachEntity(Person entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     /** @inheritdoc */
@@ -150,18 +153,4 @@ public class PersonDao extends AbstractDao<Person, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "personList" to-many relationship of Contact. */
-    public List<Person> _queryContact_PersonList(Long personId) {
-        synchronized (this) {
-            if (contact_PersonListQuery == null) {
-                QueryBuilder<Person> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.PersonId.eq(null));
-                contact_PersonListQuery = queryBuilder.build();
-            }
-        }
-        Query<Person> query = contact_PersonListQuery.forCurrentThread();
-        query.setParameter(0, personId);
-        return query.list();
-    }
-
 }

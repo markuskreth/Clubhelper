@@ -9,8 +9,9 @@ package de.kreth.clubhelper;
  */
 public class Attendance {
 
+    private Long id;
     private java.util.Date onDate;
-    private Long personId;
+    private long personId;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -18,9 +19,22 @@ public class Attendance {
     public Attendance() {
     }
 
-    public Attendance(java.util.Date onDate, Long personId) {
+    public Attendance(Long id) {
+        this.id = id;
+    }
+
+    public Attendance(Long id, java.util.Date onDate, long personId) {
+        this.id = id;
         this.onDate = onDate;
         this.personId = personId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public java.util.Date getOnDate() {
@@ -31,11 +45,11 @@ public class Attendance {
         this.onDate = onDate;
     }
 
-    public Long getPersonId() {
+    public long getPersonId() {
         return personId;
     }
 
-    public void setPersonId(Long personId) {
+    public void setPersonId(long personId) {
         this.personId = personId;
     }
 

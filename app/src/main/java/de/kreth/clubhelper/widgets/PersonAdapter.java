@@ -20,12 +20,23 @@ public class PersonAdapter extends ArrayAdapter<Person> {
     }
 
     @Override
+    public long getItemId(int position) {
+        return super.getItem(position).getId();
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Person item = getItem(position);
         TextView view;
 
         if(convertView == null) {
             view = new TextView(getContext());
+            view.setTag(item.getId());
         } else
             view = (TextView) convertView;
         view.setText(item.getSurname() + ", " + item.getPrename());
