@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -76,8 +77,6 @@ public class MainActivity extends ActionBarActivity {
         Relative rel = new Relative(null, jb.getId(), mk.getId(), RelationType.RELATIONSHIP.name(), RelationType.RELATIONSHIP.name());
 
         relativeDao.insert(rel);
-        jb.getRelativeList().add(rel);
-        mk.getRelativeList().add(rel);
         personDao.update(jb);
         personDao.update(mk);
         Calendar calendar = Calendar.getInstance();
@@ -89,8 +88,6 @@ public class MainActivity extends ActionBarActivity {
 
         rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.MOTHER.name(), RelationType.CHILD.name());
         relativeDao.insert(rel);
-        anna.getRelativeList().add(rel);
-        birgitt.getRelativeList().add(rel);
     }
 
 
@@ -140,6 +137,34 @@ public class MainActivity extends ActionBarActivity {
             ListView listView = (ListView)rootView.findViewById(R.id.listView);
             listView.setAdapter(adapter);
 
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                    final Person person = persons.get(position);
+                    StringBuilder txt = new StringBuilder(person.toString());
+                    List<Person.RelativeType> relations = person.getRelations();
+                    for(Person.RelativeType r: relations) {
+                        txt.append("\n");
+                        switch (r.getType()){
+
+                            case MOTHER:
+                                txt.append("Mutter: ");
+                                break;
+                            case FATHER:
+                                txt.append("Vater: ");
+                                break;
+                            case CHILD:
+                                txt.append("Kind: ");
+                                break;
+                            case RELATIONSHIP:
+                                txt.append("Freund(-in): ");
+                                break;
+                        }
+                        txt.append(r.getRel().getId()).append(": ").append(r.getRel().getPrename()).append(" ").append(r.getRel().getSurname());
+                    }
+                    Toast.makeText(getActivity(), txt.toString(), Toast.LENGTH_LONG).show();
+                }
+            });
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
                 @Override

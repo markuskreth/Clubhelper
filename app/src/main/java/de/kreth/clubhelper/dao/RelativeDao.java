@@ -1,6 +1,5 @@
 package de.kreth.clubhelper.dao;
 
-import java.util.List;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -8,8 +7,6 @@ import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.DaoConfig;
-import de.greenrobot.dao.query.Query;
-import de.greenrobot.dao.query.QueryBuilder;
 
 import de.kreth.clubhelper.Relative;
 
@@ -33,9 +30,6 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         public final static Property ToPerson1Relation = new Property(4, String.class, "toPerson1Relation", false, "TO_PERSON1_RELATION");
     };
 
-    private DaoSession daoSession;
-
-    private Query<Relative> person_RelativeListQuery;
 
     public RelativeDao(DaoConfig config) {
         super(config);
@@ -43,7 +37,6 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
     
     public RelativeDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
-        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -87,12 +80,6 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         if (toPerson1Relation != null) {
             stmt.bindString(5, toPerson1Relation);
         }
-    }
-
-    @Override
-    protected void attachEntity(Relative entity) {
-        super.attachEntity(entity);
-        entity.__setDaoSession(daoSession);
     }
 
     /** @inheritdoc */
@@ -147,18 +134,4 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         return true;
     }
     
-    /** Internal query to resolve the "relativeList" to-many relationship of Person. */
-    public List<Relative> _queryPerson_RelativeList(long person1) {
-        synchronized (this) {
-            if (person_RelativeListQuery == null) {
-                QueryBuilder<Relative> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.Person1.eq(null));
-                person_RelativeListQuery = queryBuilder.build();
-            }
-        }
-        Query<Relative> query = person_RelativeListQuery.forCurrentThread();
-        query.setParameter(0, person1);
-        return query.list();
-    }
-
 }

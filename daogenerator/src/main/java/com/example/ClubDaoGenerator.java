@@ -54,8 +54,6 @@ public class ClubDaoGenerator {
         relative.addStringProperty("toPerson2Relation");
         relative.addStringProperty("toPerson1Relation");
 
-        person.addToMany(relative, person1);
-        relative.addToMany(person2, person, personId);
     }
 
     private void createAdress() {
