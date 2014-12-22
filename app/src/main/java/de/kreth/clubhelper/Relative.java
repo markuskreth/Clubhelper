@@ -16,6 +16,7 @@ import de.kreth.clubhelper.dao.RelativeDao;
  */
 public class Relative {
 
+    private Long id;
     private long person1;
     private long person2;
     private String toPerson2Relation;
@@ -35,12 +36,12 @@ public class Relative {
     public Relative() {
     }
 
-    public Relative(long person1, long person2) {
-        this.person1 = person1;
-        this.person2 = person2;
+    public Relative(Long id) {
+        this.id = id;
     }
 
-    public Relative(long person1, long person2, String toPerson2Relation, String toPerson1Relation) {
+    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation) {
+        this.id = id;
         this.person1 = person1;
         this.person2 = person2;
         this.toPerson2Relation = toPerson2Relation;
@@ -51,6 +52,14 @@ public class Relative {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getRelativeDao() : null;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public long getPerson1() {

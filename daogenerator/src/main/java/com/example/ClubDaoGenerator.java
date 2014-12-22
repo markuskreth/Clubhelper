@@ -20,7 +20,7 @@ public class ClubDaoGenerator {
 
     public void generate() throws Exception {
 
-        schema = new Schema(2, "de.kreth.clubhelper");
+        schema = new Schema(3, "de.kreth.clubhelper");
         schema.setDefaultJavaPackageTest("de.kreth.clubhelper.test");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
@@ -40,9 +40,16 @@ public class ClubDaoGenerator {
 
     private void createRelatives() {
         relative = schema.addEntity("Relative");
+        relative.addIdProperty();
 
-        Property person1 = relative.addLongProperty("person1").notNull().primaryKey().getProperty();
-        Property person2 = relative.addLongProperty("person2").notNull().primaryKey().getProperty();
+        Property person1 = relative.addLongProperty("person1").notNull().getProperty();
+        Property person2 = relative.addLongProperty("person2").notNull().getProperty();
+
+        Index unique = new Index();
+        unique.makeUnique();
+        unique.addProperty(person1);
+        unique.addProperty(person2);
+        relative.addIndex(unique);
 
         relative.addStringProperty("toPerson2Relation");
         relative.addStringProperty("toPerson1Relation");

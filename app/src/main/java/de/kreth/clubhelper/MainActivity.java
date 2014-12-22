@@ -24,6 +24,7 @@ import de.greenrobot.dao.identityscope.IdentityScopeType;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.widgets.PersonAdapter;
 
@@ -66,9 +67,30 @@ public class MainActivity extends ActionBarActivity {
 
     private void insertDummyPerson() {
         Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
+        Person mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
         PersonDao personDao = session.getPersonDao();
         personDao.insertOrReplace(jb);
-        personDao.insertOrReplace(new Person(null, "Markus", "Kreth", PersonType.ACITVE.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime()));
+        personDao.insertOrReplace(mk);
+
+        RelativeDao relativeDao = session.getRelativeDao();
+        Relative rel = new Relative(null, jb.getId(), mk.getId(), RelationType.RELATIONSHIP.name(), RelationType.RELATIONSHIP.name());
+
+        relativeDao.insert(rel);
+        jb.getRelativeList().add(rel);
+        mk.getRelativeList().add(rel);
+        personDao.update(jb);
+        personDao.update(mk);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(0);
+        Person anna = new Person(null, "Anna", "Langenhagen", PersonType.ACITVE.name(), new GregorianCalendar(2006, Calendar.APRIL, 28).getTime());
+        Person birgitt = new Person(null, "Birgitt", "Langenhagen", PersonType.RELATIVE.name(), calendar.getTime());
+        personDao.insert(anna);
+        personDao.insert(birgitt);
+
+        rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.MOTHER.name(), RelationType.CHILD.name());
+        relativeDao.insert(rel);
+        anna.getRelativeList().add(rel);
+        birgitt.getRelativeList().add(rel);
     }
 
 
@@ -123,7 +145,6 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                    // final Person person = personDao.load(id);
                     final Person person = persons.get(position);
 
                     AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());

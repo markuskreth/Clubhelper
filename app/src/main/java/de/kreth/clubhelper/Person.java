@@ -1,5 +1,6 @@
 package de.kreth.clubhelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
@@ -226,6 +227,40 @@ public class Person implements java.io.Serializable {
     @Override
     public String toString() {
         return id + ": " + prename + " " + surname;
+    }
+
+    public List<RelativeType> getRelations() {
+        List<Relative> relativeList1 = getRelativeList();
+        List<RelativeType> result = new ArrayList<>();
+        for(Relative r : relativeList1) {
+            RelativeType t = new RelativeType();
+            if(r.getPerson1()==getId()){
+                t.rel = myDao.load(r.getPerson2());
+                t.type = RelationType.valueOf(r.getToPerson2Relation());
+            } else if(r.getPerson2() == getId()){
+                t.rel = myDao.load(r.getPerson1());
+                t.type = RelationType.valueOf(r.getToPerson1Relation());
+            } else{
+                throw new IllegalArgumentException(r + " is not connected to this Person " + toString());
+            }
+            result.add(t);
+        }
+        return result;
+    }
+
+    public class RelativeType {
+        private RelationType type;
+        private Person rel;
+
+        private RelativeType() {}
+
+        public Person getRel() {
+            return rel;
+        }
+
+        public RelationType getType() {
+            return type;
+        }
     }
     // KEEP METHODS END
 

@@ -25,4 +25,5 @@ dependencies {
     compile('de.greenrobot:greendao:1.3.0') {
         exclude group: 'com.google.android', module: 'support-v4'
     }
+    compile files('libs/DateCalc.jar')
 }
