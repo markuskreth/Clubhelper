@@ -13,6 +13,8 @@
     <string name="lblYes">Ja</string>
     <string name="lblNo">Nein</string>
     <string name="lblSearch">Suche</string>
+    <string name="lblAdd">Hinzufügen</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_hint">Filtere Personen</string>
 
 </resources>

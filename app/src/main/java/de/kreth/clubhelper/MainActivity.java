@@ -1,30 +1,23 @@
 package de.kreth.clubhelper;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-
-import de.kreth.clubhelper.activity.*;
+import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.RelativeDao;
-import de.kreth.clubhelper.dialogs.PersonDialog;
-
 
 public class MainActivity extends ActionBarActivity {
 
-    public static DaoSession session;
-    private MainFragment frgmt;
+    private static DaoSession session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +29,12 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            frgmt = new MainFragment();
+            MainFragment fragment = new MainFragment().setSession(session);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, frgmt.setSession(session))
+                    .add(R.id.container, fragment)
                     .commit();
         }
+
     }
 
     private void initDb() {
@@ -48,26 +42,6 @@ public class MainActivity extends ActionBarActivity {
         DaoMaster daoMaster = new DaoMaster(db);
         session = daoMaster.newSession();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        Enumeration<Driver> drivers = DriverManager.getDrivers();
-//
-//        boolean hasSqlite = false;
-//        String dbPath = "jdbc:sqlite:" + session.getDatabase().getPath();
-//        while(drivers.hasMoreElements()){
-//            try {
-//                if(drivers.nextElement().acceptsURL(dbPath)) {
-//                    hasSqlite = true;
-//                    break;
-//                }
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        new AlertDialog.Builder(this).setMessage("Driver für "+dbPath+" in Drivermanager gefunden=" + hasSqlite).setNeutralButton("OK", null).show();
     }
 
     @Override
@@ -115,13 +89,9 @@ public class MainActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        switch (id) {
+        switch (item.getItemId()) {
             case R.id.action_settings:
-                return true;
-            case R.id.action_addPerson:
-                frgmt.createNewPerson();
                 return true;
             default:
 

@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/imageButton"
             android:layout_column="2"
-            android:src="@drawable/ic_stat_name" />
+            android:src="@android:drawable/ic_menu_my_calendar" />
 
     </TableRow>
 

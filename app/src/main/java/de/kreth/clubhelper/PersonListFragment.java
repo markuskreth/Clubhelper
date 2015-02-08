@@ -41,8 +41,7 @@ public class PersonListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
+
     }
 
     @Override
@@ -52,7 +51,6 @@ public class PersonListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_person_list, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             PersonListFragmentEvent ev = new PersonListFragmentEvent();
