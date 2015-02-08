@@ -3,36 +3,28 @@ package de.kreth.clubhelper;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 
-import de.greenrobot.dao.identityscope.IdentityScopeType;
+
+import de.kreth.clubhelper.activity.*;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.dialogs.PersonDialog;
-import de.kreth.clubhelper.widgets.PersonAdapter;
 
 
 public class MainActivity extends ActionBarActivity {
 
     public static DaoSession session;
+    private MainFragment frgmt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +36,9 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-
+            frgmt = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment().setSession(session))
+                    .add(R.id.container, frgmt.setSession(session))
                     .commit();
         }
     }
@@ -56,6 +48,26 @@ public class MainActivity extends ActionBarActivity {
         DaoMaster daoMaster = new DaoMaster(db);
         session = daoMaster.newSession();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        Enumeration<Driver> drivers = DriverManager.getDrivers();
+//
+//        boolean hasSqlite = false;
+//        String dbPath = "jdbc:sqlite:" + session.getDatabase().getPath();
+//        while(drivers.hasMoreElements()){
+//            try {
+//                if(drivers.nextElement().acceptsURL(dbPath)) {
+//                    hasSqlite = true;
+//                    break;
+//                }
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        new AlertDialog.Builder(this).setMessage("Driver für "+dbPath+" in Drivermanager gefunden=" + hasSqlite).setNeutralButton("OK", null).show();
     }
 
     @Override
@@ -105,104 +117,16 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_addPerson:
+                frgmt.createNewPerson();
+                return true;
+            default:
 
+        }
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        private List<Person> persons;
-        private PersonAdapter adapter;
-        private DaoSession session;
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            final PersonDao personDao = session.getPersonDao();
-            persons = personDao.loadAll();
-
-            adapter = new PersonAdapter(getActivity(), persons);
-
-            ListView listView = (ListView)rootView.findViewById(R.id.listView);
-            listView.setAdapter(adapter);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                    final Person person = persons.get(position);
-                    StringBuilder txt = new StringBuilder(person.toString());
-                    List<Person.RelativeType> relations = person.getRelations();
-                    for(Person.RelativeType r: relations) {
-                        txt.append("\n");
-                        switch (r.getType()){
-
-                            case MOTHER:
-                                txt.append("Mutter: ");
-                                break;
-                            case FATHER:
-                                txt.append("Vater: ");
-                                break;
-                            case CHILD:
-                                txt.append("Kind: ");
-                                break;
-                            case RELATIONSHIP:
-                                txt.append("Freund(-in): ");
-                                break;
-                        }
-                        txt.append(r.getRel().getId()).append(": ").append(r.getRel().getPrename()).append(" ").append(r.getRel().getSurname());
-                    }
-                    Toast.makeText(getActivity(), txt.toString(), Toast.LENGTH_LONG).show();
-                }
-            });
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-                    final Person person = persons.get(position);
-
-                    AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
-
-                    ViewGroup view1 = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.person_complete, null);
-                    dlg.setView(view1);
-                    dlg.setNegativeButton(R.string.lblCancel, null);
-
-                    final PersonDialog p = new PersonDialog(view1, person);
-
-                    dlg.setPositiveButton(R.string.lblSave, new AlertDialog.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            person.setPrename(p.getPrename().toString());
-                            person.setSurname(p.getTxtSurname().toString());
-                            person.getBirth().setTime(p.getBirthday().getTimeInMillis());
-                            personDao.update(person);
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
-
-                    dlg.show();
-
-                    return true;
-                }
-            });
-            return rootView;
-        }
-
-        public PlaceholderFragment setSession(DaoSession session) {
-            this.session = session;
-            return this;
-        }
-
-    }
 }

@@ -12,5 +12,7 @@
     <string name="lblCancel">Abbrechen</string>
     <string name="lblYes">Ja</string>
     <string name="lblNo">Nein</string>
+    <string name="lblSearch">Suche</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
