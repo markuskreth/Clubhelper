@@ -29,7 +29,7 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property OnDate = new Property(1, java.util.Date.class, "onDate", false, "ON_DATE");
         public final static Property PersonId = new Property(2, long.class, "personId", false, "PERSON_ID");
-    };
+    }
 
     private Query<Attendance> person_AttendanceListQuery;
 

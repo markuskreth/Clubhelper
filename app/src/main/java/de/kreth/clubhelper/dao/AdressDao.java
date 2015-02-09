@@ -32,7 +32,7 @@ public class AdressDao extends AbstractDao<Adress, Long> {
         public final static Property Plz = new Property(3, String.class, "plz", false, "PLZ");
         public final static Property City = new Property(4, String.class, "city", false, "CITY");
         public final static Property PersonId = new Property(5, long.class, "personId", false, "PERSON_ID");
-    };
+    }
 
     private Query<Adress> person_AdressListQuery;
 

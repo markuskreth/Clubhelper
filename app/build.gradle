@@ -26,4 +26,5 @@ dependencies {
         exclude group: 'com.google.android', module: 'support-v4'
     }
     compile files('libs/DateCalc.jar')
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.2.1'
 }

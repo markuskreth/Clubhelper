@@ -30,7 +30,7 @@ public class ContactDao extends AbstractDao<Contact, Long> {
         public final static Property Type = new Property(1, String.class, "type", false, "TYPE");
         public final static Property Value = new Property(2, String.class, "value", false, "VALUE");
         public final static Property PersonId = new Property(3, long.class, "personId", false, "PERSON_ID");
-    };
+    }
 
     private Query<Contact> person_ContactListQuery;
 

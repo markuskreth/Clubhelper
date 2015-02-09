@@ -55,7 +55,9 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
 
         dialog = view;
         this.person = person;
-        this.contactList = new ArrayList<>(person.getContactList());
+        this.contactList = new ArrayList<>();
+        if(person.getId()!=null)
+            this.contactList.addAll(person.getContactList());
         df = DateFormat.getDateFormat(view.getContext());
         initComponents();
         initPersonView();
@@ -71,7 +73,7 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
     }
 
     private void initContacts() {
-        for(Contact c : person.getContactList()) {
+        for(Contact c : this.contactList) {
             addContactToDialog(c);
         }
     }

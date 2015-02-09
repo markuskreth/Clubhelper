@@ -13,9 +13,9 @@ public class AdressTest extends AbstractDaoTestLongPk<AdressDao, Adress> {
 
     @Override
     protected Adress createEntity(Long key) {
+
         Adress entity = new Adress();
         entity.setId(key);
-        entity.setPersonId();
         return entity;
     }
 
