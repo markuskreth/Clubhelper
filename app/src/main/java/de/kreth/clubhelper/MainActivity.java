@@ -2,6 +2,8 @@ package de.kreth.clubhelper;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -12,15 +14,19 @@ import java.util.GregorianCalendar;
 import java.util.ResourceBundle;
 
 import de.kreth.clubhelper.activity.MainFragment;
+import de.kreth.clubhelper.activity.PersonEditFragment;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.RelativeDao;
+import de.kreth.clubhelper.datahelper.SessionHolder;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
    public static String DBNAME = "clubdatabase.db";
-   private static DaoSession session;
+   public static final String PERSONID = "personId";
+
+   private static DaoSession session = null;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +37,22 @@ public class MainActivity extends ActionBarActivity {
 
       setContentView(R.layout.activity_main);
       if (savedInstanceState == null) {
-         MainFragment fragment = new MainFragment().setSession(session);
+         MainFragment fragment = new MainFragment();
          getSupportFragmentManager().beginTransaction()
                  .add(R.id.container, fragment)
                  .commit();
       }
 
+   }
+
+   public static SessionHolder getSessionHolder() {
+      return new SessionHolder() {
+
+         @Override
+         public DaoSession getSession() {
+            return session;
+         }
+      };
    }
 
    private void initDb() {
@@ -107,4 +123,32 @@ public class MainActivity extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
    }
 
+   @Override
+   public void onBackPressed() {
+      FragmentManager fragmentManager = getSupportFragmentManager();
+      int backStackEntryCount = fragmentManager.getBackStackEntryCount();
+      if(backStackEntryCount>0)
+         fragmentManager.popBackStack();
+      else
+         super.onBackPressed();
+   }
+
+   @Override
+   public DaoSession getSession() {
+      return session;
+   }
+
+   @Override
+   public void editPerson(long personId) {
+
+      PersonEditFragment personEditFragment = new PersonEditFragment();
+      Bundle args = new Bundle();
+      args.putLong(MainActivity.PERSONID, personId);
+      personEditFragment.setArguments(args);
+
+      FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+      tx.replace(R.id.container, personEditFragment);
+      tx.addToBackStack(personEditFragment.getClass().getName());
+      tx.commit();
+   }
 }

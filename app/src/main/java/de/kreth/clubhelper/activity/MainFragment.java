@@ -1,9 +1,12 @@
 package de.kreth.clubhelper.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -16,28 +19,33 @@ import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.PersonEditActivity;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.datahelper.PersonRelationHelper;
+import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.widgets.PersonAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements AdapterView.OnItemLongClickListener {
 
    private List<Person> persons;
    private PersonAdapter adapter;
    private DaoSession session;
+   private OnMainFragmentEventListener listener;
 
    public MainFragment() {
    }
@@ -49,16 +57,38 @@ public class MainFragment extends Fragment {
    }
 
    @Override
+   public void onAttach(Activity activity) {
+      super.onAttach(activity);
+      if(activity instanceof OnMainFragmentEventListener)
+         listener = (OnMainFragmentEventListener)activity;
+      else
+         throw new ClassCastException(activity.getClass().getName() + " must implement " + OnMainFragmentEventListener.class.getName());
+   }
+
+   @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                             Bundle savedInstanceState) {
       View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-      PersonDao personDao = session.getPersonDao();
-      persons = personDao.loadAll();
+      session = ((SessionHolder)getActivity()).getSession();
+      persons = new ArrayList<>();
 
       adapter = new PersonAdapter(getActivity(), persons);
       setupListView(rootView);
       setupSearch(rootView);
       return rootView;
+   }
+
+   @Override
+   public void onStart() {
+      super.onStart();
+      loadPersons();
+   }
+
+   private void loadPersons() {
+      PersonDao personDao = session.getPersonDao();
+      persons.clear();
+      persons.addAll(personDao.loadAll());
+
    }
 
    private void setupSearch(View rootView) {
@@ -102,46 +132,16 @@ public class MainFragment extends Fragment {
             Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
          }
       });
-      listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+      listView.setOnItemLongClickListener(this);
+   }
 
-         @Override
-         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position,
-                                        long id) {
+   @Override
+   public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position,
+                                  long id) {
 
-            final Person person = persons.get(position);
-
-            AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
-
-            ViewGroup view1 = (ViewGroup) getActivity().getLayoutInflater().inflate(
-                    R.layout.person_complete, null);
-            dlg.setView(view1);
-            dlg.setNegativeButton(R.string.lblCancel, null);
-            final PersonDao personDao = session.getPersonDao();
-            final PersonDialog p = new PersonDialog(view1, person);
-
-            dlg.setPositiveButton(R.string.lblSave, new AlertDialog.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialogInterface, int i) {
-                  ContactDao contactDao = session.getContactDao();
-                  for (Contact c : p.getContactList()) {
-                     if (c.getId() == null)
-                        contactDao.insertOrReplace(c);
-                     else
-                        contactDao.update(c);
-                  }
-                  person.setPrename(p.getPrename().toString());
-                  person.setSurname(p.getTxtSurname().toString());
-                  person.getBirth().setTime(p.getBirthday().getTimeInMillis());
-                  personDao.update(person);
-                  adapter.notifyDataSetChanged();
-               }
-            });
-
-            dlg.show();
-
-            return true;
-         }
-      });
+      final Person person = persons.get(position);
+      listener.editPerson(person.getId());
+      return true;
    }
 
    @Override
@@ -191,9 +191,7 @@ public class MainFragment extends Fragment {
       dlg.show();
    }
 
-   public MainFragment setSession(DaoSession session) {
-      this.session = session;
-      return this;
+   public interface OnMainFragmentEventListener {
+      void editPerson(long personId);
    }
-
 }
