@@ -35,11 +35,16 @@ import de.kreth.clubhelper.datahelper.SessionHolder;
  */
 public class PersonEditFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
 
+   public static final String TAG = PersonEditFragment.class.getName();
+
    private DaoSession session;
    private Person person;
    private EditText preName;
    private EditText surName;
    private TextView txtBirth;
+
+   private List<View> contactViews = new ArrayList<>();
+   private List<View> relationViews = new ArrayList<>();
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,12 +56,10 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
       View rootView = inflater.inflate(R.layout.fragment_person_edit, container, false);
       initViews(rootView);
+
       initTabs(rootView);
       return rootView;
    }
-
-   private List<View> contactViews = new ArrayList<>();
-   private List<View> relationViews = new ArrayList<>();
 
    private void initTabs(View rootView) {
       final TableLayout table = (TableLayout) rootView;
@@ -167,6 +170,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
       person.getBirth().setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
       this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
               person.getBirth()));
+      session.getPersonDao().update(person);
    }
 
    @Override
@@ -179,6 +183,5 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
       DatePickerDialog dlg = new DatePickerDialog(getActivity(), this, year, month, day);
       dlg.show();
    }
-
 
 }

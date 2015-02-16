@@ -7,6 +7,7 @@ import android.widget.ListView;
 import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import de.kreth.clubhelper.Contact;
@@ -114,5 +115,38 @@ public class PersonEditFragmentTest  extends ActivityInstrumentationTestCase2<Ma
       solo.searchText(persons.get(0).getPrename(), true);
       solo.searchText(persons.get(0).getSurname(), true);
       solo.clickOnText("Kontakte");
+   }
+
+   public void testSetBirthdate() {
+
+      solo.waitForActivity(MainActivity.class);
+      solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+
+      ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+      assertEquals(1, currentViews.size());
+
+      ListView listView = currentViews.get(0);
+      assertEquals(0, listView.getAdapter().getCount());
+
+      View actionAdd = solo.getView(R.id.action_addPerson);
+      solo.clickOnView(actionAdd);
+      solo.waitForDialogToOpen();
+
+      solo.typeText(0, "Eine");
+      solo.typeText(1, "Testperson");
+      solo.clickOnButton("Speichern");
+      assertTrue(solo.waitForDialogToClose());
+      assertEquals(1, listView.getAdapter().getCount());
+
+      solo.clickLongInList(1);
+      assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
+      solo.clickOnImageButton(0);
+      solo.waitForDialogToOpen();
+      solo.setDatePicker(0, 1973, Calendar.AUGUST, 21);
+      solo.clickOnButton(0);
+      solo.waitForDialogToClose();
+      solo.searchText("1973");
+      solo.searchText("21");
+
    }
 }

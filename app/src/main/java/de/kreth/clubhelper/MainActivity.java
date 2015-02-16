@@ -147,7 +147,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
       personEditFragment.setArguments(args);
 
       FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-      tx.replace(R.id.container, personEditFragment);
+      tx.replace(R.id.container, personEditFragment, PersonEditFragment.TAG);
+      tx.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+
       tx.addToBackStack(personEditFragment.getClass().getName());
       tx.commit();
    }
