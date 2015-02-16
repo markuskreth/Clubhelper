@@ -62,8 +62,9 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
       assertEquals(1, listView.getAdapter().getCount());
       solo.clickLongInList(1);
       solo.waitForDialogToOpen();
-      EditText eine = solo.getEditText("Eine");
-      EditText testperson = solo.getEditText("Testperson");
-      solo.clickOnButton("Abbrechen");
+      solo.getEditText("Eine");
+
+      solo.getEditText("Testperson");
+      solo.goBack();
    }
 }
