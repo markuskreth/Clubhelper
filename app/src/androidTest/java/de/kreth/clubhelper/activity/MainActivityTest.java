@@ -42,7 +42,8 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
       super.tearDown();
    }
 
-   public void testAppStartSimple() {
+
+   public void testInsertAndSelectPerson() {
       solo.waitForActivity(MainActivity.class);
       solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
       ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);

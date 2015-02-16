@@ -62,6 +62,7 @@ public class MainFragment extends Fragment {
    }
 
    private void setupSearch(View rootView) {
+
       final EditText edtText = (EditText) rootView.findViewById(R.id.searchInput);
       edtText.addTextChangedListener(new TextWatcher() {
          @Override
@@ -90,6 +91,7 @@ public class MainFragment extends Fragment {
    private void setupListView(View rootView) {
 
       ListView listView = (ListView) rootView.findViewById(R.id.listView);
+      listView.setTextFilterEnabled(true);
       listView.setAdapter(adapter);
 
       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
