@@ -16,5 +16,10 @@
     <string name="lblAdd">Hinzufügen</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Filtere Personen</string>
+    <string name="title_activity_person_edit">PersonEditActivity</string>
+    <string name="MOTHER">Mutter</string>
+    <string name="FATHER">Vater</string>
+    <string name="CHILD">Kind von</string>
+    <string name="RELATIONSHIP">Lebensabschnittpartner</string>
 
 </resources>

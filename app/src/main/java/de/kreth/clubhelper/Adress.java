@@ -4,86 +4,87 @@ package de.kreth.clubhelper;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
+
 /**
  * Entity mapped to table ADRESS.
  */
 public class Adress {
 
-    private Long id;
-    private String adress1;
-    private String adress2;
-    private String plz;
-    private String city;
-    private long personId;
+   private Long id;
+   private String adress1;
+   private String adress2;
+   private String plz;
+   private String city;
+   private long personId;
 
-    // KEEP FIELDS - put your custom fields here
-    // KEEP FIELDS END
+   // KEEP FIELDS - put your custom fields here
+   // KEEP FIELDS END
 
-    public Adress() {
-    }
+   public Adress() {
+   }
 
-    public Adress(Long id) {
-        this.id = id;
-    }
+   public Adress(Long id) {
+      this.id = id;
+   }
 
-    public Adress(Long id, String adress1, String adress2, String plz, String city, long personId) {
-        this.id = id;
-        this.adress1 = adress1;
-        this.adress2 = adress2;
-        this.plz = plz;
-        this.city = city;
-        this.personId = personId;
-    }
+   public Adress(Long id, String adress1, String adress2, String plz, String city, long personId) {
+      this.id = id;
+      this.adress1 = adress1;
+      this.adress2 = adress2;
+      this.plz = plz;
+      this.city = city;
+      this.personId = personId;
+   }
 
-    public Long getId() {
-        return id;
-    }
+   public Long getId() {
+      return id;
+   }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+   public void setId(Long id) {
+      this.id = id;
+   }
 
-    public String getAdress1() {
-        return adress1;
-    }
+   public String getAdress1() {
+      return adress1;
+   }
 
-    public void setAdress1(String adress1) {
-        this.adress1 = adress1;
-    }
+   public void setAdress1(String adress1) {
+      this.adress1 = adress1;
+   }
 
-    public String getAdress2() {
-        return adress2;
-    }
+   public String getAdress2() {
+      return adress2;
+   }
 
-    public void setAdress2(String adress2) {
-        this.adress2 = adress2;
-    }
+   public void setAdress2(String adress2) {
+      this.adress2 = adress2;
+   }
 
-    public String getPlz() {
-        return plz;
-    }
+   public String getPlz() {
+      return plz;
+   }
 
-    public void setPlz(String plz) {
-        this.plz = plz;
-    }
+   public void setPlz(String plz) {
+      this.plz = plz;
+   }
 
-    public String getCity() {
-        return city;
-    }
+   public String getCity() {
+      return city;
+   }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+   public void setCity(String city) {
+      this.city = city;
+   }
 
-    public long getPersonId() {
-        return personId;
-    }
+   public long getPersonId() {
+      return personId;
+   }
 
-    public void setPersonId(long personId) {
-        this.personId = personId;
-    }
+   public void setPersonId(long personId) {
+      this.personId = personId;
+   }
 
-    // KEEP METHODS - put your custom methods here
-    // KEEP METHODS END
+   // KEEP METHODS - put your custom methods here
+   // KEEP METHODS END
 
 }

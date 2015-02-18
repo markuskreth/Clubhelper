@@ -2,8 +2,12 @@ package de.kreth.clubhelper.activity;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ListView;
 
 import com.robotium.solo.Solo;
+
+import java.util.ArrayList;
 
 import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.R;
@@ -13,36 +17,54 @@ import de.kreth.clubhelper.R;
  */
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private Solo solo;
+   private final static String DBNAME = MainActivityTest.class.getSimpleName() + ".sqlite";
+   private Solo solo;
 
-    public MainActivityTest() {
-        super(MainActivity.class);
-    }
+   public MainActivityTest() {
+      super(MainActivity.class);
+   }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        solo = new Solo(getInstrumentation(), getActivity());
-    }
+   String originalDbName;
 
-    @Override
-    protected void tearDown() throws Exception {
-        solo.finishOpenedActivities();
-        super.tearDown();
-    }
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      originalDbName = MainActivity.DBNAME;
+      MainActivity.DBNAME = DBNAME;
+      solo = new Solo(getInstrumentation(), getActivity());
+   }
 
-    public void testAppStartSimple() {
-        solo.waitForActivity(MainActivity.class);
-        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
-        solo.clickLongInList(1);
-        solo.waitForDialogToOpen();
-        solo.clickOnButton("Abbrechen");
-        View actionAdd = solo.getView(R.id.action_addPerson);
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
+   @Override
+   protected void tearDown() throws Exception {
+      MainActivity.DBNAME = originalDbName;
+      solo.finishOpenedActivities();
+      boolean deleted = getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
+      super.tearDown();
+   }
 
-        solo.typeText(0, "Eine");
-        solo.typeText(1, "Testperson");
-        solo.clickOnButton("Abbrechen");
-    }
+
+   public void testInsertAndSelectPerson() {
+      solo.waitForActivity(MainActivity.class);
+      solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+      ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+      assertEquals(1, currentViews.size());
+
+      ListView listView = currentViews.get(0);
+
+      View actionAdd = solo.getView(R.id.action_addPerson);
+      solo.clickOnView(actionAdd);
+      solo.waitForDialogToOpen();
+
+      solo.typeText(0, "Eine");
+      solo.typeText(1, "Testperson");
+      solo.clickOnButton("Speichern");
+      assertTrue(solo.waitForDialogToClose());
+      assertEquals(1, listView.getAdapter().getCount());
+      solo.clickLongInList(1);
+      solo.waitForDialogToOpen();
+      solo.getEditText("Eine");
+
+      solo.getEditText("Testperson");
+      solo.goBack();
+   }
 }
