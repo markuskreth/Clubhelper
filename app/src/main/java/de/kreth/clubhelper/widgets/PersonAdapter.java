@@ -27,16 +27,17 @@ public class PersonAdapter extends ArrayAdapter<Person> implements Filterable {
    final private DateFormat df = new SimpleDateFormat("yyyy");
    final private List<Person> objects;
    final private PersonAdapterFilter filter;
+   private CharSequence lastConstraint = "";
 
    public PersonAdapter(Context context, List<Person> objects) {
       super(context, 0, objects);
-      this.objects = objects;
+      this.objects = new ArrayList<>(objects);
       filter = new PersonAdapterFilter(objects);
    }
 
    @Override
    public long getItemId(int position) {
-      return super.getItem(position).getId();
+      return getItem(position).getId();
    }
 
    @Override
@@ -45,7 +46,18 @@ public class PersonAdapter extends ArrayAdapter<Person> implements Filterable {
    }
 
    @Override
+   public Person getItem(int position) {
+      return objects.get(position);
+   }
+
+   @Override
+   public void notifyDataSetChanged() {
+      filter.filter(lastConstraint);
+   }
+
+   @Override
    public View getView(int position, View convertView, ViewGroup parent) {
+
       Person item = getItem(position);
 
       long age = DateDiff.calcDiff(item.getBirth(), new Date(), DateUnit.YEAR);
@@ -69,29 +81,33 @@ public class PersonAdapter extends ArrayAdapter<Person> implements Filterable {
    private class PersonAdapterFilter extends Filter {
 
       final private List<Person> persons;
+      private boolean all = true;
 
       public PersonAdapterFilter(List<Person> persons) {
-         this.persons = new ArrayList<>(persons);
+         this.persons = persons;
       }
 
       @Override
       protected FilterResults performFiltering(CharSequence constraint) {
          FilterResults results = new FilterResults();
          if (constraint == null || constraint.length() == 0) {
+            all = true;
             results.values = persons;
             results.count = persons.size();
          } else {
             List<Person> filtered = new ArrayList<>();
-            String constr = constraint.toString().toLowerCase(Locale.GERMANY);
+            String lowerConstraint = constraint.toString().toLowerCase(Locale.GERMANY);
             for (Person p : persons) {
                if (p.getPrename().toLowerCase(Locale.GERMANY).contains(
-                       constr) || p.getSurname().toLowerCase(Locale.GERMANY).contains(constr))
+                       lowerConstraint) || p.getSurname().toLowerCase(Locale.GERMANY).contains(lowerConstraint))
                   filtered.add(p);
             }
+            all = false;
             results.values = filtered;
             results.count = filtered.size();
          }
 
+         lastConstraint = constraint;
          return results;
       }
 
@@ -105,7 +121,7 @@ public class PersonAdapter extends ArrayAdapter<Person> implements Filterable {
             @SuppressWarnings("unchecked")
             List<Person> values = (List<Person>) results.values;
             objects.addAll(values);
-            notifyDataSetChanged();
+            PersonAdapter.super.notifyDataSetChanged();
          }
       }
    }
