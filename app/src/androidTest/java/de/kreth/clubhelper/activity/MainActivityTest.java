@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
       ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
       assertEquals(1, currentViews.size());
 
-      ListView listView = currentViews.get(0);
+      final ListView listView = currentViews.get(0);
       assertEquals(0, listView.getAdapter().getCount());
 
       View actionAdd = solo.getView(R.id.action_addPerson);
@@ -87,28 +88,49 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
       EditText searchEdit = solo.getEditText(0);
       solo.typeText(searchEdit, "Zweite");
-      assertEquals(1, listView.getAdapter().getCount());
+       solo.waitForCondition(new Condition() {
+           @Override
+           public boolean isSatisfied() {
+               return 1== listView.getAdapter().getCount();
+           }
+       },100);
+
       solo.clearEditText(searchEdit);
 
-      solo.typeText(searchEdit, "weite");
-      assertEquals(1, listView.getAdapter().getCount());
-      solo.clearEditText(searchEdit);
+      solo.typeText(searchEdit, "weite");solo.waitForCondition(new Condition() {
+           @Override
+           public boolean isSatisfied() {
+               return 1== listView.getAdapter().getCount();
+           }
+       },100);
 
-      solo.typeText(searchEdit, "erson");
-      assertEquals(3, listView.getAdapter().getCount());
-      solo.clearEditText(searchEdit);
+       solo.clearEditText(searchEdit);
 
-      solo.typeText(searchEdit, "Test");
-      assertEquals(2, listView.getAdapter().getCount());
+      solo.typeText(searchEdit, "erson");solo.waitForCondition(new Condition() {
+           @Override
+           public boolean isSatisfied() {
+               return 3== listView.getAdapter().getCount();
+           }
+       },100);
 
-      solo.clickOnView(actionAdd);
+       solo.clearEditText(searchEdit);
+
+      solo.typeText(searchEdit, "Test");solo.waitForCondition(new Condition() {
+           @Override
+           public boolean isSatisfied() {
+               return 2== listView.getAdapter().getCount();
+           }
+       },100);
+
+
+       solo.clickOnView(actionAdd);
       solo.waitForDialogToOpen();
       solo.typeText(0, "Fünfte");
       solo.typeText(1, "Person Test");
       solo.clickOnButton("Speichern");
       assertTrue(solo.waitForDialogToClose());
 
-      assertEquals(3, listView.getAdapter().getCount());
+      assertEquals(5, listView.getAdapter().getCount());
    }
 
    public void testInsertAndSelectPerson() {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -16,114 +17,133 @@ import java.util.List;
 import java.util.Locale;
 
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.datecalc.DateDiff;
 import de.kreth.datecalc.DateUnit;
 
 /**
  * Created by markus on 21.12.14.
  */
-public class PersonAdapter extends ArrayAdapter<Person> implements Filterable {
+public class PersonAdapter extends BaseAdapter implements Filterable {
 
-   final private DateFormat df = new SimpleDateFormat("yyyy");
-   final private List<Person> objects;
-   final private PersonAdapterFilter filter;
-   private CharSequence lastConstraint = "";
+    final private DateFormat df = new SimpleDateFormat("yyyy");
+    final private PersonAdapterFilter filter;
+    final private Context context;
+    private CharSequence lastConstraint = "";
+    final private List<Person> objects;
+    final private PersonDao personDao;
 
-   public PersonAdapter(Context context, List<Person> objects) {
-      super(context, 0, objects);
-      this.objects = new ArrayList<>(objects);
-      filter = new PersonAdapterFilter(objects);
-   }
+    public PersonAdapter(Context context, PersonDao personDao) {
+        objects = personDao.loadAll();
+        this.personDao = personDao;
+        this.context = context;
+        filter = new PersonAdapterFilter(personDao);
+    }
 
-   @Override
-   public long getItemId(int position) {
-      return getItem(position).getId();
-   }
+    @Override
+    public int getCount() {
+        return objects.size();
+    }
 
-   @Override
-   public boolean hasStableIds() {
-      return true;
-   }
+    @Override
+    public Person getItem(int position) {
+        return objects.get(position);
+    }
 
-   @Override
-   public Person getItem(int position) {
-      return objects.get(position);
-   }
+    @Override
+    public long getItemId(int position) {
+        return objects.get(position).getId();
+    }
 
-   @Override
-   public void notifyDataSetChanged() {
-      filter.filter(lastConstraint);
-   }
+    @Override
+    public boolean hasStableIds() {
+        return true;
+    }
 
-   @Override
-   public View getView(int position, View convertView, ViewGroup parent) {
+    @Override
+    public void notifyDataSetChanged() {
+        objects.clear();
+        objects.addAll(personDao.loadAll());
+//        filter.filter(lastConstraint);
+        super.notifyDataSetChanged();
+    }
 
-      Person item = getItem(position);
+    @Override
+    public void notifyDataSetInvalidated() {
+        objects.clear();
+        objects.addAll(personDao.loadAll());
+        super.notifyDataSetInvalidated();
+    }
 
-      long age = DateDiff.calcDiff(item.getBirth(), new Date(), DateUnit.YEAR);
-      String ageText = " (JG " + df.format(item.getBirth()) + ", Alter " + age + ")";
-      TextView view;
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-      if (convertView == null) {
-         view = new TextView(getContext());
-         view.setTag(item.getId());
-      } else
-         view = (TextView) convertView;
-      view.setText(item.getSurname() + ", " + item.getPrename() + ageText);
-      return view;
-   }
+        Person item = objects.get(position);
 
-   @Override
-   public PersonAdapterFilter getFilter() {
-      return filter;
-   }
+        long age = DateDiff.calcDiff(item.getBirth(), new Date(), DateUnit.YEAR);
+        String ageText = " (JG " + df.format(item.getBirth()) + ", Alter " + age + ")";
+        TextView view;
 
-   private class PersonAdapterFilter extends Filter {
+        if (convertView == null) {
+            view = new TextView(context);
+            view.setTag(item.getId());
+        } else
+            view = (TextView) convertView;
+        view.setText(item.getSurname() + ", " + item.getPrename() + ageText);
+        return view;
+    }
 
-      final private List<Person> persons;
-      private boolean all = true;
+    @Override
+    public PersonAdapterFilter getFilter() {
+        return filter;
+    }
 
-      public PersonAdapterFilter(List<Person> persons) {
-         this.persons = persons;
-      }
+    private class PersonAdapterFilter extends Filter {
 
-      @Override
-      protected FilterResults performFiltering(CharSequence constraint) {
-         FilterResults results = new FilterResults();
-         if (constraint == null || constraint.length() == 0) {
-            all = true;
-            results.values = persons;
-            results.count = persons.size();
-         } else {
-            List<Person> filtered = new ArrayList<>();
-            String lowerConstraint = constraint.toString().toLowerCase(Locale.GERMANY);
-            for (Person p : persons) {
-               if (p.getPrename().toLowerCase(Locale.GERMANY).contains(
-                       lowerConstraint) || p.getSurname().toLowerCase(Locale.GERMANY).contains(lowerConstraint))
-                  filtered.add(p);
+        private final PersonDao personDao;
+
+        public PersonAdapterFilter(PersonDao personDao) {
+            this.personDao = personDao;
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+            List<Person> persons = personDao.loadAll();
+
+            if (constraint == null || constraint.length() == 0) {
+                results.values = persons;
+                results.count = persons.size();
+            } else {
+                List<Person> filtered = new ArrayList<>();
+                String lowerConstraint = constraint.toString().toLowerCase(Locale.GERMANY);
+                for (Person p : persons) {
+                    if (p.getPrename().toLowerCase(Locale.GERMANY).contains(
+                            lowerConstraint) || p.getSurname().toLowerCase(Locale.GERMANY).contains(lowerConstraint))
+                        filtered.add(p);
+                }
+
+                results.values = filtered;
+                results.count = filtered.size();
             }
-            all = false;
-            results.values = filtered;
-            results.count = filtered.size();
-         }
 
-         lastConstraint = constraint;
-         return results;
-      }
+            lastConstraint = constraint;
+            return results;
+        }
 
-      @Override
-      protected void publishResults(CharSequence constraint, FilterResults results) {
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
 
-         if (results.count == 0)
-            notifyDataSetInvalidated();
-         else {
-            objects.clear();
-            @SuppressWarnings("unchecked")
-            List<Person> values = (List<Person>) results.values;
-            objects.addAll(values);
-            PersonAdapter.super.notifyDataSetChanged();
-         }
-      }
-   }
+            if (results.count == 0)
+                notifyDataSetInvalidated();
+            else {
+                objects.clear();
+                @SuppressWarnings("unchecked")
+                List<Person> values = (List<Person>) results.values;
+                objects.addAll(values);
+                PersonAdapter.super.notifyDataSetChanged();
+            }
+        }
+    }
 
 }

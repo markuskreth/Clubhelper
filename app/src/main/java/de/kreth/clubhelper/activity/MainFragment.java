@@ -42,7 +42,6 @@ import de.kreth.clubhelper.widgets.PersonAdapter;
  */
 public class MainFragment extends Fragment implements AdapterView.OnItemLongClickListener {
 
-   private List<Person> persons;
    private PersonAdapter adapter;
    private DaoSession session;
    private OnMainFragmentEventListener listener;
@@ -70,25 +69,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
                             Bundle savedInstanceState) {
       View rootView = inflater.inflate(R.layout.fragment_main, container, false);
       session = ((SessionHolder)getActivity()).getSession();
-      persons = new ArrayList<>();
 
-      adapter = new PersonAdapter(getActivity(), persons);
+      adapter = new PersonAdapter(getActivity(), session.getPersonDao());
       setupListView(rootView);
       setupSearch(rootView);
       return rootView;
-   }
-
-   @Override
-   public void onStart() {
-      super.onStart();
-      loadPersons();
-   }
-
-   private void loadPersons() {
-      PersonDao personDao = session.getPersonDao();
-      persons.clear();
-      persons.addAll(personDao.loadAll());
-
    }
 
    private void setupSearch(View rootView) {
@@ -127,9 +112,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-            final Person person = persons.get(position);
-            String txt = new PersonRelationHelper().relationsAsString(person);
-            Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
+             final Person person = adapter.getItem(position);
+             String txt = new PersonRelationHelper().relationsAsString(person);
+             Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
          }
       });
       listView.setOnItemLongClickListener(this);
@@ -139,7 +124,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position,
                                   long id) {
 
-      final Person person = persons.get(position);
+      final Person person = adapter.getItem(position);
       listener.editPerson(person.getId());
       return true;
    }
@@ -182,8 +167,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             PersonDao personDao = session.getPersonDao();
             personDao.insertOrReplace(person);
 
-            persons.clear();
-            persons.addAll(personDao.loadAll());
             adapter.notifyDataSetChanged();
          }
       });
