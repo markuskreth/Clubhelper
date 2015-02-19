@@ -6,15 +6,15 @@ import de.kreth.clubhelper.dao.ContactDao;
 
 public class ContactTest extends AbstractDaoTestLongPk<ContactDao, Contact> {
 
-   public ContactTest() {
-      super(ContactDao.class);
-   }
+    public ContactTest() {
+        super(ContactDao.class);
+    }
 
-   @Override
-   protected Contact createEntity(Long key) {
-      Contact entity = new Contact();
-      entity.setId(key);
-      return entity;
-   }
+    @Override
+    protected Contact createEntity(Long key) {
+        Contact entity = new Contact();
+        entity.setId(key);
+        return entity;
+    }
 
 }

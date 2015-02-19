@@ -18,143 +18,144 @@ import de.kreth.clubhelper.R;
  */
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-   private final static String DBNAME = MainActivityTest.class.getSimpleName() + ".sqlite";
-   private Solo solo;
+    private Solo solo;
 
-   public MainActivityTest() {
-      super(MainActivity.class);
-   }
+    public MainActivityTest() {
+        super(MainActivity.class);
+    }
 
-   String originalDbName;
+    String originalDbName;
 
-   @Override
-   protected void setUp() throws Exception {
-      super.setUp();
-      originalDbName = MainActivity.DBNAME;
-      MainActivity.DBNAME = DBNAME;
-      solo = new Solo(getInstrumentation(), getActivity());
-   }
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        solo = new Solo(getInstrumentation(), getActivity());
+    }
 
-   @Override
-   protected void tearDown() throws Exception {
-      MainActivity.DBNAME = originalDbName;
-      solo.finishOpenedActivities();
-      getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
-      super.tearDown();
-   }
+    @Override
+    protected void tearDown() throws Exception {
+        solo.finishOpenedActivities();
+        getInstrumentation().getTargetContext().deleteDatabase("test.sqlite");
+        super.tearDown();
+    }
 
-   public void testFilterPersons() {
+    public void testFilterPersons() {
 
-      solo.waitForActivity(MainActivity.class);
-      solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
-      ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
-      assertEquals(1, currentViews.size());
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
 
-      final ListView listView = currentViews.get(0);
-      assertEquals(0, listView.getAdapter().getCount());
+        final ListView listView = currentViews.get(0);
+        assertEquals(0, listView.getAdapter().getCount());
 
-      View actionAdd = solo.getView(R.id.action_addPerson);
-      solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
 
-      solo.typeText(0, "Erste");
-      solo.typeText(1, "Person");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
-      assertEquals(1, listView.getAdapter().getCount());
+        solo.typeText(0, "Erste");
+        solo.typeText(1, "Person");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(1, listView.getAdapter().getCount());
 
-      solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
-      solo.typeText(0, "Zweite");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
-      assertEquals(2, listView.getAdapter().getCount());
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Zweite");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(2, listView.getAdapter().getCount());
 
-      solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
-      solo.typeText(0, "Dritte");
-      solo.typeText(1, "Testperson");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
-      assertEquals(3, listView.getAdapter().getCount());
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Dritte");
+        solo.typeText(1, "Testperson");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(3, listView.getAdapter().getCount());
 
-      solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
-      solo.typeText(0, "Vierte");
-      solo.typeText(1, "Person Test");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
-      assertEquals(4, listView.getAdapter().getCount());
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Vierte");
+        solo.typeText(1, "Person Test");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(4, listView.getAdapter().getCount());
 
-      EditText searchEdit = solo.getEditText(0);
-      solo.typeText(searchEdit, "Zweite");
-       solo.waitForCondition(new Condition() {
-           @Override
-           public boolean isSatisfied() {
-               return 1== listView.getAdapter().getCount();
-           }
-       },100);
+        EditText searchEdit = solo.getEditText(0);
+        solo.typeText(searchEdit, "Zweite");
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return 1 == listView.getAdapter().getCount();
+            }
+        }, 100);
 
-      solo.clearEditText(searchEdit);
+        solo.clearEditText(searchEdit);
 
-      solo.typeText(searchEdit, "weite");solo.waitForCondition(new Condition() {
-           @Override
-           public boolean isSatisfied() {
-               return 1== listView.getAdapter().getCount();
-           }
-       },100);
+        solo.typeText(searchEdit, "weite");
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return 1 == listView.getAdapter().getCount();
+            }
+        }, 100);
 
-       solo.clearEditText(searchEdit);
+        solo.clearEditText(searchEdit);
 
-      solo.typeText(searchEdit, "erson");solo.waitForCondition(new Condition() {
-           @Override
-           public boolean isSatisfied() {
-               return 3== listView.getAdapter().getCount();
-           }
-       },100);
+        solo.typeText(searchEdit, "erson");
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return 3 == listView.getAdapter().getCount();
+            }
+        }, 100);
 
-       solo.clearEditText(searchEdit);
+        solo.clearEditText(searchEdit);
 
-      solo.typeText(searchEdit, "Test");solo.waitForCondition(new Condition() {
-           @Override
-           public boolean isSatisfied() {
-               return 2== listView.getAdapter().getCount();
-           }
-       },100);
+        solo.typeText(searchEdit, "Test");
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return 2 == listView.getAdapter().getCount();
+            }
+        }, 100);
 
 
-       solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
-      solo.typeText(0, "Fünfte");
-      solo.typeText(1, "Person Test");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Fünfte");
+        solo.typeText(1, "Person Test");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
 
-      assertEquals(3, listView.getAdapter().getCount());
-   }
+        assertEquals(3, listView.getAdapter().getCount());
+    }
 
-   public void testInsertAndSelectPerson() {
-      solo.waitForActivity(MainActivity.class);
-      solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
-      ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
-      assertEquals(1, currentViews.size());
+    public void testInsertAndSelectPerson() {
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
 
-      ListView listView = currentViews.get(0);
+        ListView listView = currentViews.get(0);
 
-      View actionAdd = solo.getView(R.id.action_addPerson);
-      solo.clickOnView(actionAdd);
-      solo.waitForDialogToOpen();
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
 
-      solo.typeText(0, "Eine");
-      solo.typeText(1, "Testperson");
-      solo.clickOnButton("Speichern");
-      assertTrue(solo.waitForDialogToClose());
-      assertEquals(1, listView.getAdapter().getCount());
-      solo.clickLongInList(1);
-      solo.waitForDialogToOpen();
-      solo.getEditText("Eine");
+        solo.typeText(0, "Eine");
+        solo.typeText(1, "Testperson");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(1, listView.getAdapter().getCount());
+        solo.clickLongInList(1);
+        solo.waitForDialogToOpen();
+        solo.getEditText("Eine");
 
-      solo.getEditText("Testperson");
-      solo.goBack();
-   }
+        solo.getEditText("Testperson");
+        solo.goBack();
+
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+    }
 }

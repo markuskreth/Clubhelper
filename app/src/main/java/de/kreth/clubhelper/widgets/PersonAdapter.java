@@ -64,7 +64,7 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     public void notifyDataSetChanged() {
         objects.clear();
         objects.addAll(personDao.loadAll());
-        if(lastConstraint!= null && lastConstraint.length()>0)
+        if (lastConstraint != null && lastConstraint.length() > 0)
             filter.filter(lastConstraint);
         super.notifyDataSetChanged();
     }

@@ -23,77 +23,77 @@ import de.kreth.clubhelper.Relative;
  */
 public class DaoSession extends AbstractDaoSession {
 
-   private final DaoConfig personDaoConfig;
-   private final DaoConfig contactDaoConfig;
-   private final DaoConfig attendanceDaoConfig;
-   private final DaoConfig adressDaoConfig;
-   private final DaoConfig relativeDaoConfig;
+    private final DaoConfig personDaoConfig;
+    private final DaoConfig contactDaoConfig;
+    private final DaoConfig attendanceDaoConfig;
+    private final DaoConfig adressDaoConfig;
+    private final DaoConfig relativeDaoConfig;
 
-   private final PersonDao personDao;
-   private final ContactDao contactDao;
-   private final AttendanceDao attendanceDao;
-   private final AdressDao adressDao;
-   private final RelativeDao relativeDao;
+    private final PersonDao personDao;
+    private final ContactDao contactDao;
+    private final AttendanceDao attendanceDao;
+    private final AdressDao adressDao;
+    private final RelativeDao relativeDao;
 
-   public DaoSession(SQLiteDatabase db, IdentityScopeType type,
-                     Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
-                             daoConfigMap) {
-      super(db);
+    public DaoSession(SQLiteDatabase db, IdentityScopeType type,
+                      Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
+                              daoConfigMap) {
+        super(db);
 
-      personDaoConfig = daoConfigMap.get(PersonDao.class).clone();
-      personDaoConfig.initIdentityScope(type);
+        personDaoConfig = daoConfigMap.get(PersonDao.class).clone();
+        personDaoConfig.initIdentityScope(type);
 
-      contactDaoConfig = daoConfigMap.get(ContactDao.class).clone();
-      contactDaoConfig.initIdentityScope(type);
+        contactDaoConfig = daoConfigMap.get(ContactDao.class).clone();
+        contactDaoConfig.initIdentityScope(type);
 
-      attendanceDaoConfig = daoConfigMap.get(AttendanceDao.class).clone();
-      attendanceDaoConfig.initIdentityScope(type);
+        attendanceDaoConfig = daoConfigMap.get(AttendanceDao.class).clone();
+        attendanceDaoConfig.initIdentityScope(type);
 
-      adressDaoConfig = daoConfigMap.get(AdressDao.class).clone();
-      adressDaoConfig.initIdentityScope(type);
+        adressDaoConfig = daoConfigMap.get(AdressDao.class).clone();
+        adressDaoConfig.initIdentityScope(type);
 
-      relativeDaoConfig = daoConfigMap.get(RelativeDao.class).clone();
-      relativeDaoConfig.initIdentityScope(type);
+        relativeDaoConfig = daoConfigMap.get(RelativeDao.class).clone();
+        relativeDaoConfig.initIdentityScope(type);
 
-      personDao = new PersonDao(personDaoConfig, this);
-      contactDao = new ContactDao(contactDaoConfig, this);
-      attendanceDao = new AttendanceDao(attendanceDaoConfig, this);
-      adressDao = new AdressDao(adressDaoConfig, this);
-      relativeDao = new RelativeDao(relativeDaoConfig, this);
+        personDao = new PersonDao(personDaoConfig, this);
+        contactDao = new ContactDao(contactDaoConfig, this);
+        attendanceDao = new AttendanceDao(attendanceDaoConfig, this);
+        adressDao = new AdressDao(adressDaoConfig, this);
+        relativeDao = new RelativeDao(relativeDaoConfig, this);
 
-      registerDao(Person.class, personDao);
-      registerDao(Contact.class, contactDao);
-      registerDao(Attendance.class, attendanceDao);
-      registerDao(Adress.class, adressDao);
-      registerDao(Relative.class, relativeDao);
-   }
+        registerDao(Person.class, personDao);
+        registerDao(Contact.class, contactDao);
+        registerDao(Attendance.class, attendanceDao);
+        registerDao(Adress.class, adressDao);
+        registerDao(Relative.class, relativeDao);
+    }
 
-   public void clear() {
-      personDaoConfig.getIdentityScope().clear();
-      contactDaoConfig.getIdentityScope().clear();
-      attendanceDaoConfig.getIdentityScope().clear();
-      adressDaoConfig.getIdentityScope().clear();
-      relativeDaoConfig.getIdentityScope().clear();
-   }
+    public void clear() {
+        personDaoConfig.getIdentityScope().clear();
+        contactDaoConfig.getIdentityScope().clear();
+        attendanceDaoConfig.getIdentityScope().clear();
+        adressDaoConfig.getIdentityScope().clear();
+        relativeDaoConfig.getIdentityScope().clear();
+    }
 
-   public PersonDao getPersonDao() {
-      return personDao;
-   }
+    public PersonDao getPersonDao() {
+        return personDao;
+    }
 
-   public ContactDao getContactDao() {
-      return contactDao;
-   }
+    public ContactDao getContactDao() {
+        return contactDao;
+    }
 
-   public AttendanceDao getAttendanceDao() {
-      return attendanceDao;
-   }
+    public AttendanceDao getAttendanceDao() {
+        return attendanceDao;
+    }
 
-   public AdressDao getAdressDao() {
-      return adressDao;
-   }
+    public AdressDao getAdressDao() {
+        return adressDao;
+    }
 
-   public RelativeDao getRelativeDao() {
-      return relativeDao;
-   }
+    public RelativeDao getRelativeDao() {
+        return relativeDao;
+    }
 
 }

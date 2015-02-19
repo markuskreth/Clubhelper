@@ -7,5 +7,5 @@ import de.kreth.clubhelper.dao.DaoSession;
  * Created by markus on 15.02.15.
  */
 public interface SessionHolder {
-   DaoSession getSession();
+    DaoSession getSession();
 }

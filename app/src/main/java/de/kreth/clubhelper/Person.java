@@ -23,252 +23,252 @@ import de.kreth.clubhelper.dao.PersonDao;
  */
 public class Person implements java.io.Serializable {
 
-   private Long id;
-   private String prename;
-   private String surname;
-   private String type;
-   private java.util.Date birth;
+    private Long id;
+    private String prename;
+    private String surname;
+    private String type;
+    private java.util.Date birth;
 
-   /**
-    * Used to resolve relations
-    */
-   private transient DaoSession daoSession;
+    /**
+     * Used to resolve relations
+     */
+    private transient DaoSession daoSession;
 
-   /**
-    * Used for active entity operations.
-    */
-   private transient PersonDao myDao;
+    /**
+     * Used for active entity operations.
+     */
+    private transient PersonDao myDao;
 
-   private List<Contact> contactList;
-   private List<Attendance> attendanceList;
-   private List<Adress> adressList;
+    private List<Contact> contactList;
+    private List<Attendance> attendanceList;
+    private List<Adress> adressList;
 
-   // KEEP FIELDS - put your custom fields here
-   // KEEP FIELDS END
+    // KEEP FIELDS - put your custom fields here
+    // KEEP FIELDS END
 
-   public Person() {
-   }
+    public Person() {
+    }
 
-   public Person(Long id) {
-      this.id = id;
-   }
+    public Person(Long id) {
+        this.id = id;
+    }
 
-   public Person(Long id, String prename, String surname, String type, java.util.Date birth) {
-      this.id = id;
-      this.prename = prename;
-      this.surname = surname;
-      this.type = type;
-      this.birth = birth;
-   }
+    public Person(Long id, String prename, String surname, String type, java.util.Date birth) {
+        this.id = id;
+        this.prename = prename;
+        this.surname = surname;
+        this.type = type;
+        this.birth = birth;
+    }
 
-   /**
-    * called by internal mechanisms, do not call yourself.
-    */
-   public void __setDaoSession(DaoSession daoSession) {
-      this.daoSession = daoSession;
-      myDao = daoSession != null ? daoSession.getPersonDao() : null;
-   }
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getPersonDao() : null;
+    }
 
-   public Long getId() {
-      return id;
-   }
+    public Long getId() {
+        return id;
+    }
 
-   public void setId(Long id) {
-      this.id = id;
-   }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-   public String getPrename() {
-      return prename;
-   }
+    public String getPrename() {
+        return prename;
+    }
 
-   public void setPrename(String prename) {
-      this.prename = prename;
-   }
+    public void setPrename(String prename) {
+        this.prename = prename;
+    }
 
-   public String getSurname() {
-      return surname;
-   }
+    public String getSurname() {
+        return surname;
+    }
 
-   public void setSurname(String surname) {
-      this.surname = surname;
-   }
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
 
-   public String getType() {
-      return type;
-   }
+    public String getType() {
+        return type;
+    }
 
-   public void setType(String type) {
-      this.type = type;
-   }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-   public java.util.Date getBirth() {
-      return birth;
-   }
+    public java.util.Date getBirth() {
+        return birth;
+    }
 
-   public void setBirth(java.util.Date birth) {
-      this.birth = birth;
-   }
+    public void setBirth(java.util.Date birth) {
+        this.birth = birth;
+    }
 
-   /**
-    * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
-    */
-   public List<Contact> getContactList() {
-      if (contactList == null) {
-         if (daoSession == null) {
-            throw new DaoException("Entity is detached from DAO context");
-         }
-         ContactDao targetDao = daoSession.getContactDao();
-         List<Contact> contactListNew = targetDao._queryPerson_ContactList(id);
-         synchronized (this) {
-            if (contactList == null) {
-               contactList = contactListNew;
+    /**
+     * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    public List<Contact> getContactList() {
+        if (contactList == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
             }
-         }
-      }
-      return contactList;
-   }
-
-   /**
-    * Resets a to-many relationship, making the next get call to query for a fresh result.
-    */
-   public synchronized void resetContactList() {
-      contactList = null;
-   }
-
-   /**
-    * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
-    */
-   public List<Attendance> getAttendanceList() {
-      if (attendanceList == null) {
-         if (daoSession == null) {
-            throw new DaoException("Entity is detached from DAO context");
-         }
-         AttendanceDao targetDao = daoSession.getAttendanceDao();
-         List<Attendance> attendanceListNew = targetDao._queryPerson_AttendanceList(id);
-         synchronized (this) {
-            if (attendanceList == null) {
-               attendanceList = attendanceListNew;
+            ContactDao targetDao = daoSession.getContactDao();
+            List<Contact> contactListNew = targetDao._queryPerson_ContactList(id);
+            synchronized (this) {
+                if (contactList == null) {
+                    contactList = contactListNew;
+                }
             }
-         }
-      }
-      return attendanceList;
-   }
+        }
+        return contactList;
+    }
 
-   /**
-    * Resets a to-many relationship, making the next get call to query for a fresh result.
-    */
-   public synchronized void resetAttendanceList() {
-      attendanceList = null;
-   }
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
+    public synchronized void resetContactList() {
+        contactList = null;
+    }
 
-   /**
-    * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
-    */
-   public List<Adress> getAdressList() {
-      if (adressList == null) {
-         if (daoSession == null) {
-            throw new DaoException("Entity is detached from DAO context");
-         }
-         AdressDao targetDao = daoSession.getAdressDao();
-         List<Adress> adressListNew = targetDao._queryPerson_AdressList(id);
-         synchronized (this) {
-            if (adressList == null) {
-               adressList = adressListNew;
+    /**
+     * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    public List<Attendance> getAttendanceList() {
+        if (attendanceList == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
             }
-         }
-      }
-      return adressList;
-   }
+            AttendanceDao targetDao = daoSession.getAttendanceDao();
+            List<Attendance> attendanceListNew = targetDao._queryPerson_AttendanceList(id);
+            synchronized (this) {
+                if (attendanceList == null) {
+                    attendanceList = attendanceListNew;
+                }
+            }
+        }
+        return attendanceList;
+    }
 
-   /**
-    * Resets a to-many relationship, making the next get call to query for a fresh result.
-    */
-   public synchronized void resetAdressList() {
-      adressList = null;
-   }
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
+    public synchronized void resetAttendanceList() {
+        attendanceList = null;
+    }
 
-   /**
-    * Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context.
-    */
-   public void delete() {
-      if (myDao == null) {
-         throw new DaoException("Entity is detached from DAO context");
-      }
-      myDao.delete(this);
-   }
+    /**
+     * To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    public List<Adress> getAdressList() {
+        if (adressList == null) {
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            AdressDao targetDao = daoSession.getAdressDao();
+            List<Adress> adressListNew = targetDao._queryPerson_AdressList(id);
+            synchronized (this) {
+                if (adressList == null) {
+                    adressList = adressListNew;
+                }
+            }
+        }
+        return adressList;
+    }
 
-   /**
-    * Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context.
-    */
-   public void update() {
-      if (myDao == null) {
-         throw new DaoException("Entity is detached from DAO context");
-      }
-      myDao.update(this);
-   }
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
+    public synchronized void resetAdressList() {
+        adressList = null;
+    }
 
-   /**
-    * Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context.
-    */
-   public void refresh() {
-      if (myDao == null) {
-         throw new DaoException("Entity is detached from DAO context");
-      }
-      myDao.refresh(this);
-   }
+    /**
+     * Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context.
+     */
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
 
-   // KEEP METHODS - put your custom methods here
+    /**
+     * Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context.
+     */
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
 
-   public PersonType getPersonType() {
-      return PersonType.valueOf(this.type);
-   }
+    /**
+     * Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context.
+     */
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
 
-   public void setPersonType(PersonType type) {
-      setType(type.name());
-   }
+    // KEEP METHODS - put your custom methods here
 
-   @Override
-   public String toString() {
-      return id + ": " + prename + " " + surname;
-   }
+    public PersonType getPersonType() {
+        return PersonType.valueOf(this.type);
+    }
 
-   public List<RelativeType> getRelations() {
-      SQLiteDatabase db = daoSession.getDatabase();
+    public void setPersonType(PersonType type) {
+        setType(type.name());
+    }
 
-      Cursor cursor = db.rawQuery(
-              "select RELATIVE.PERSON1 as PersonID, RELATIVE.TO_PERSON1_RELATION from RELATIVE WHERE RELATIVE.PERSON2=" + id +
-                      " UNION \n" +
-                      "select RELATIVE.PERSON2 AS PersonID, RELATIVE.TO_PERSON2_RELATION from RELATIVE WHERE RELATIVE.PERSON1=" + id,
-              null);
+    @Override
+    public String toString() {
+        return id + ": " + prename + " " + surname;
+    }
 
-      List<RelativeType> result = new ArrayList<>();
-      while (cursor.moveToNext()) {
-         long relId = cursor.getLong(0);
-         RelativeType t = new RelativeType();
-         t.rel = myDao.load(relId);
-         t.type = RelationType.valueOf(cursor.getString(1));
-         result.add(t);
-      }
-      cursor.close();
+    public List<RelativeType> getRelations() {
+        SQLiteDatabase db = daoSession.getDatabase();
 
-      return result;
-   }
+        Cursor cursor = db.rawQuery(
+                "select RELATIVE.PERSON1 as PersonID, RELATIVE.TO_PERSON1_RELATION from RELATIVE WHERE RELATIVE.PERSON2=" + id +
+                        " UNION \n" +
+                        "select RELATIVE.PERSON2 AS PersonID, RELATIVE.TO_PERSON2_RELATION from RELATIVE WHERE RELATIVE.PERSON1=" + id,
+                null);
 
-   public class RelativeType {
-      private RelationType type;
-      private Person rel;
+        List<RelativeType> result = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            long relId = cursor.getLong(0);
+            RelativeType t = new RelativeType();
+            t.rel = myDao.load(relId);
+            t.type = RelationType.valueOf(cursor.getString(1));
+            result.add(t);
+        }
+        cursor.close();
 
-      private RelativeType() {
-      }
+        return result;
+    }
 
-      public Person getRel() {
-         return rel;
-      }
+    public class RelativeType {
+        private RelationType type;
+        private Person rel;
 
-      public RelationType getType() {
-         return type;
-      }
-   }
-   // KEEP METHODS END
+        private RelativeType() {
+        }
+
+        public Person getRel() {
+            return rel;
+        }
+
+        public RelationType getType() {
+            return type;
+        }
+    }
+    // KEEP METHODS END
 
 }

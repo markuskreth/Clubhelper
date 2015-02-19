@@ -10,51 +10,51 @@ package de.kreth.clubhelper;
  */
 public class Attendance {
 
-   private Long id;
-   private java.util.Date onDate;
-   private long personId;
+    private Long id;
+    private java.util.Date onDate;
+    private long personId;
 
-   // KEEP FIELDS - put your custom fields here
-   // KEEP FIELDS END
+    // KEEP FIELDS - put your custom fields here
+    // KEEP FIELDS END
 
-   public Attendance() {
-   }
+    public Attendance() {
+    }
 
-   public Attendance(Long id) {
-      this.id = id;
-   }
+    public Attendance(Long id) {
+        this.id = id;
+    }
 
-   public Attendance(Long id, java.util.Date onDate, long personId) {
-      this.id = id;
-      this.onDate = onDate;
-      this.personId = personId;
-   }
+    public Attendance(Long id, java.util.Date onDate, long personId) {
+        this.id = id;
+        this.onDate = onDate;
+        this.personId = personId;
+    }
 
-   public Long getId() {
-      return id;
-   }
+    public Long getId() {
+        return id;
+    }
 
-   public void setId(Long id) {
-      this.id = id;
-   }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-   public java.util.Date getOnDate() {
-      return onDate;
-   }
+    public java.util.Date getOnDate() {
+        return onDate;
+    }
 
-   public void setOnDate(java.util.Date onDate) {
-      this.onDate = onDate;
-   }
+    public void setOnDate(java.util.Date onDate) {
+        this.onDate = onDate;
+    }
 
-   public long getPersonId() {
-      return personId;
-   }
+    public long getPersonId() {
+        return personId;
+    }
 
-   public void setPersonId(long personId) {
-      this.personId = personId;
-   }
+    public void setPersonId(long personId) {
+        this.personId = personId;
+    }
 
-   // KEEP METHODS - put your custom methods here
-   // KEEP METHODS END
+    // KEEP METHODS - put your custom methods here
+    // KEEP METHODS END
 
 }

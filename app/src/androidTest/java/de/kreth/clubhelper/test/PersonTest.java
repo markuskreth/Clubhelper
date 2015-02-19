@@ -6,15 +6,15 @@ import de.kreth.clubhelper.dao.PersonDao;
 
 public class PersonTest extends AbstractDaoTestLongPk<PersonDao, Person> {
 
-   public PersonTest() {
-      super(PersonDao.class);
-   }
+    public PersonTest() {
+        super(PersonDao.class);
+    }
 
-   @Override
-   protected Person createEntity(Long key) {
-      Person entity = new Person();
-      entity.setId(key);
-      return entity;
-   }
+    @Override
+    protected Person createEntity(Long key) {
+        Person entity = new Person();
+        entity.setId(key);
+        return entity;
+    }
 
 }
