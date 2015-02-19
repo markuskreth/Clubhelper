@@ -130,7 +130,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
       solo.clickOnButton("Speichern");
       assertTrue(solo.waitForDialogToClose());
 
-      assertEquals(5, listView.getAdapter().getCount());
+      assertEquals(3, listView.getAdapter().getCount());
    }
 
    public void testInsertAndSelectPerson() {
