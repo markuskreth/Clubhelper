@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +27,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +39,12 @@ import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
+import de.kreth.clubhelper.Relative;
 import de.kreth.clubhelper.dao.DaoSession;
+import de.kreth.clubhelper.datahelper.PersonRelationHelper;
 import de.kreth.clubhelper.datahelper.SessionHolder;
+import de.kreth.clubhelper.widgets.PersonAdapter;
+import de.kreth.clubhelper.widgets.PersonSelectDialog;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -57,6 +64,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     private List<View> contactViews = new ArrayList<>();
     private List<View> relationViews = new ArrayList<>();
     private List<View> adressViews = new ArrayList<>();
+    private ToggleButton btnContacts;
+    private ToggleButton btnRelations;
+    private ToggleButton btnAdresses;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +101,53 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void addRelation() {
+        PersonSelectDialog dlg = new PersonSelectDialog();
+        dlg.addExcludePersonId(person.getId());
+        dlg.setSession(session);
+        dlg.setResultHandler(new PersonSelectDialog.DialogResultHandler() {
+            @Override
+            public void selectedPersons(Collection<Person> selected) {
+                if (selected.size() > 0) {
+                    final Person relative = selected.iterator().next();
+                    final RelationType[] relationTypes = RelationType.values();
 
+                    CharSequence[] relations = new CharSequence[relationTypes.length];
+                    for (int i = 0; i < relationTypes.length; i++) {
+                        relations[i] = relationTypes[i].toString(getResources());
+                    }
+                    AlertDialog.Builder bld = new AlertDialog.Builder(getActivity())
+                            .setTitle("Welche Art von Beziehung")
+                            .setItems(relations, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    RelationType toSecond = relationTypes[which];
+                                    RelationType toFirst;
+                                    switch (toSecond) {
+
+                                        case PARENT:
+                                            toFirst = RelationType.CHILD;
+                                            break;
+                                        case CHILD:
+                                            toFirst = RelationType.PARENT;
+                                            break;
+                                        case RELATIONSHIP:
+                                            toFirst = RelationType.RELATIONSHIP;
+                                            break;
+                                        default:
+                                            toFirst = RelationType.RELATIONSHIP;
+                                    }
+                                    Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name());
+                                    session.getRelativeDao().insert(rel);
+                                    refreshRelatives(person.getRelations());
+
+                                    Log.i(getTag(), Relative.class.getSimpleName() + " created");
+                                }
+                            });
+                    bld.show();
+                }
+            }
+        });
+        dlg.show(getFragmentManager(), PersonSelectDialog.TAG);
     }
 
     private void addContact() {
@@ -114,6 +170,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                 session.getContactDao().insert(newContact);
                 person.getContactList().add(newContact);
                 addContact(newContact);
+                setVisibleContacts();
             }
         });
         bld.setNegativeButton(R.string.lblCancel, null);
@@ -139,9 +196,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void initTabs() {
-        final ToggleButton btnContacts = (ToggleButton) rootView.findViewById(R.id.toggleButtonContacts);
-        final ToggleButton btnRelations = (ToggleButton) rootView.findViewById(R.id.toggleButtonRelations);
-        final ToggleButton btnOther = (ToggleButton) rootView.findViewById(R.id.toggleButtonAdresses);
+        btnContacts = (ToggleButton) rootView.findViewById(R.id.toggleButtonContacts);
+        btnRelations = (ToggleButton) rootView.findViewById(R.id.toggleButtonRelations);
+        btnAdresses = (ToggleButton) rootView.findViewById(R.id.toggleButtonAdresses);
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
@@ -150,73 +207,36 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                     case R.id.toggleButtonContacts:
                         btnContacts.setChecked(true);
                         btnRelations.setChecked(false);
-                        btnOther.setChecked(false);
-                        for (View vi : contactViews)
-                            vi.setVisibility(View.VISIBLE);
-                        for (View vi : relationViews)
-                            vi.setVisibility(View.GONE);
-                        for (View vi : adressViews)
-                            vi.setVisibility(View.GONE);
+                        btnAdresses.setChecked(false);
+
+                        setVisibleContacts();
                         break;
                     case R.id.toggleButtonRelations:
-                        btnOther.setChecked(false);
+                        btnAdresses.setChecked(false);
                         btnRelations.setChecked(true);
                         btnContacts.setChecked(false);
-                        for (View vi : contactViews)
-                            vi.setVisibility(View.GONE);
-                        for (View vi : adressViews)
-                            vi.setVisibility(View.GONE);
-                        for (View vi : relationViews)
-                            vi.setVisibility(View.VISIBLE);
+
+                        setVisibleRelations();
                         break;
                     case R.id.toggleButtonAdresses:
                         btnRelations.setChecked(false);
                         btnContacts.setChecked(false);
-                        btnOther.setChecked(true);
-                        for (View vi : contactViews)
-                            vi.setVisibility(View.GONE);
-                        for (View vi : relationViews)
-                            vi.setVisibility(View.GONE);
-                        for (View vi : adressViews)
-                            vi.setVisibility(View.VISIBLE);
+                        btnAdresses.setChecked(true);
+                        setVisibleAdresses();
                         break;
                 }
             }
         };
         btnContacts.setOnClickListener(onClickListener);
         btnRelations.setOnClickListener(onClickListener);
-        btnOther.setOnClickListener(onClickListener);
+        btnAdresses.setOnClickListener(onClickListener);
 
         List<Contact> contactList = person.getContactList();
         for (Contact c : contactList) {
             addContact(c);
         }
 
-        List<Person.RelativeType> relations = person.getRelations();
-        Map<String, Integer> relationtypeToString = new HashMap<>();
-        relationtypeToString.put(RelationType.CHILD.name(), R.string.CHILD);
-        relationtypeToString.put(RelationType.MOTHER.name(), R.string.MOTHER);
-        relationtypeToString.put(RelationType.FATHER.name(), R.string.FATHER);
-        relationtypeToString.put(RelationType.RELATIONSHIP.name(), R.string.RELATIONSHIP);
-
-        for (Person.RelativeType r : relations) {
-
-            TableRow row = new TableRow(getActivity());
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(lp);
-            row.setVisibility(View.GONE);
-
-            TextView label = new TextView(getActivity());
-            label.setText(relationtypeToString.get(r.getType().name()));
-            row.addView(label);
-
-            TextView value = new TextView(getActivity());
-            value.setText(r.getRel().getPrename() + " " + r.getRel().getSurname());
-            row.addView(value);
-            relationViews.add(row);
-
-            rootView.addView(row, rootView.getChildCount());
-        }
+        refreshRelatives(person.getRelations());
 
         List<Adress> adressList = person.getAdressList();
         for (Adress adr : adressList) {
@@ -234,6 +254,69 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             rootView.addView(row, rootView.getChildCount());
         }
 
+    }
+
+    private void setVisibleAdresses() {
+        for (View vi : contactViews)
+            vi.setVisibility(View.GONE);
+        for (View vi : relationViews)
+            vi.setVisibility(View.GONE);
+        for (View vi : adressViews)
+            vi.setVisibility(View.VISIBLE);
+    }
+
+    private void setVisibleRelations() {
+
+        for (View vi : contactViews)
+            vi.setVisibility(View.GONE);
+        for (View vi : adressViews)
+            vi.setVisibility(View.GONE);
+        for (View vi : relationViews)
+            vi.setVisibility(View.VISIBLE);
+    }
+
+    private void setVisibleContacts() {
+
+        for (View vi : contactViews)
+            vi.setVisibility(View.VISIBLE);
+        for (View vi : relationViews)
+            vi.setVisibility(View.GONE);
+        for (View vi : adressViews)
+            vi.setVisibility(View.GONE);
+    }
+
+    private void refreshRelatives(List<Person.RelativeType> relations) {
+
+        for (View row : relationViews)
+            rootView.removeView(row);
+        relationViews.clear();
+
+        for (Person.RelativeType r : relations) {
+            addRelative(r);
+        }
+
+        if(btnRelations.isChecked()) {
+            setVisibleRelations();
+        }
+    }
+
+    private void addRelative(Person.RelativeType r) {
+
+        TableRow row = new TableRow(getActivity());
+        TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+        row.setLayoutParams(lp);
+        row.setVisibility(View.GONE);
+
+        TextView label = new TextView(getActivity());
+        label.setText(r.getType().toString(getResources()));
+        row.addView(label);
+
+        TextView value = new TextView(getActivity());
+        value.setText(r.getRel().getPrename() + " " + r.getRel().getSurname());
+        row.addView(value);
+        relationViews.add(row);
+
+        rootView.addView(row, rootView.getChildCount());
     }
 
     private void addContact(Contact c) {

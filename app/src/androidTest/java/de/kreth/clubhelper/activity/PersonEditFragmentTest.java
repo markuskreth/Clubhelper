@@ -1,6 +1,8 @@
 package de.kreth.clubhelper.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.res.Resources;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.ListView;
@@ -100,7 +102,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         ersteEmail.setValue("test@test.com");
         contactDao.insert(ersteEmail);
 
-        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.MOTHER.toString());
+        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString());
         session.getRelativeDao().insert(relative);
         assertNotNull(relative.getId());
 
@@ -116,9 +118,6 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.searchText(persons.get(0).getSurname(), true);
         solo.clickOnText("Kontakte");
 
-        solo.setActivityOrientation(Solo.LANDSCAPE);
-        solo.searchText("test@test.com", true);
-        solo.searchText("0511-555 555 555", true);
     }
 
     public void testSetBirthdate() {
@@ -151,6 +150,68 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.waitForDialogToClose();
         solo.searchText("1973");
         solo.searchText("21");
+
+    }
+
+    public void testChangeOrientation() {
+
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
+
+        ListView listView = currentViews.get(0);
+        assertEquals(0, listView.getAdapter().getCount());
+
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        solo.typeText(0, "Eine");
+        solo.typeText(1, "Testperson");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(1, listView.getAdapter().getCount());
+
+        solo.clickLongInList(1);
+        assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
+
+        actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        assertTrue(solo.searchText("Kontakt", true));
+        assertTrue(solo.searchText("Beziehung", true));
+        solo.clickInList(1);
+
+        solo.waitForDialogToOpen();
+        solo.pressSpinnerItem(0,1);
+        solo.typeText(0, "555-55 55 55");
+        solo.clickOnText("OK");
+
+        solo.searchText("555-55 55 55", true);
+        solo.searchText("Telefon", true);
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        assertTrue(solo.searchText("Kontakt", true));
+        assertTrue(solo.searchText("Beziehung", true));
+        solo.clickInList(1);
+
+        solo.waitForDialogToOpen();
+        solo.pressSpinnerItem(0,2);
+        solo.typeText(0, "test@testdomain.com");
+        solo.clickOnText("OK");
+
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+        solo.searchText("test@testdomain.com", true);
+        solo.searchText("555-55 55 55", true);
+
+        solo.setActivityOrientation(Solo.PORTRAIT);
+        solo.searchText("test@testdomain.com", true);
+        solo.searchText("555-55 55 55", true);
 
     }
 
@@ -210,5 +271,102 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.searchText("Email", true);
     }
 
+    public void testRelationTypeToString() {
+        Resources resources = getActivity().getResources();
+        assertEquals("Kind", RelationType.CHILD.toString(resources));
+        assertEquals("Elternteil", RelationType.PARENT.toString(resources));
+        assertEquals("Freund(-in)", RelationType.RELATIONSHIP.toString(resources));
+    }
+
+    public void testAddRelation() {
+
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+
+        MainActivity mainActivity = (MainActivity) solo.getCurrentActivity();
+        DaoSession session = mainActivity.getSession();
+
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
+
+        ListView listView = currentViews.get(0);
+        assertEquals(0, listView.getAdapter().getCount());
+
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        solo.typeText(0, "Eine");
+        solo.typeText(1, "Testperson");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(1, listView.getAdapter().getCount());
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Zweite");
+        solo.typeText(1, "Person");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(2, listView.getAdapter().getCount());
+
+        solo.clickLongInList(2);
+        assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
+
+        solo.clickOnText("Bezieh");
+        actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        assertTrue(solo.searchText("Kontakt", true));
+        assertTrue(solo.searchText("Beziehung", true));
+        solo.clickInList(2);
+
+        assertTrue("Neuer Dialog nicht geöffnet", solo.waitForDialogToOpen());
+
+        ArrayList<ListView> currentLists = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentLists.size());
+        ListView persons = currentLists.get(0);
+        assertEquals(1, persons.getCount());
+        assertTrue(solo.searchText("Eine", true));
+        assertTrue(solo.searchText("Testperson", true));
+        solo.clickOnText("Testperson");
+
+        assertTrue("Neuer Dialog nicht geöffnet", solo.waitForDialogToOpen());
+        currentLists = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentLists.size());
+        assertEquals(3, currentLists.get(0).getAdapter().getCount());
+
+        assertTrue(solo.searchText("Eltern", true));
+        assertTrue(solo.searchText("Kind", true));
+        assertTrue(solo.searchText("Freund", true));
+        solo.clickOnText("Kind");
+        solo.waitForDialogToClose();
+        assertTrue(solo.waitForLogMessage("created"));
+
+        Person zweite = null;
+        Person testperson = null;
+        for(Person p : session.getPersonDao().loadAll()) {
+            if(p.getPrename().matches("Zweite"))
+                zweite = p;
+            else if (p.getPrename().matches("Eine"))
+                testperson = p;
+        }
+        assertNotNull(zweite);
+        assertNotNull(testperson);
+
+        List<Person.RelativeType> relations = zweite.getRelations();
+        assertEquals(1, relations.size());
+        assertEquals(testperson.getId(), relations.get(0).getRel().getId());
+        assertEquals(RelationType.CHILD, relations.get(0).getType());
+
+        assertEquals(1, testperson.getRelations().size());
+        assertEquals(RelationType.PARENT, testperson.getRelations().get(0).getType());
+
+        assertTrue(solo.searchText("Eine", true));
+        assertTrue(solo.searchText("Testperson", true));
+        assertTrue(solo.searchText("Kind", true));
+
+    }
 
 }

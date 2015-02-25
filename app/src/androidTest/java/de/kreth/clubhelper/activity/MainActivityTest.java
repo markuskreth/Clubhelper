@@ -132,6 +132,43 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         assertEquals(3, listView.getAdapter().getCount());
     }
 
+    public void testChangeOrientation() {
+
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
+
+        final ListView listView = currentViews.get(0);
+        assertEquals(0, listView.getAdapter().getCount());
+
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        solo.typeText(0, "Erste");
+        solo.typeText(1, "Person");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(1, listView.getAdapter().getCount());
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.typeText(0, "Zweite");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(2, listView.getAdapter().getCount());
+
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+        solo.searchText("Erste", true);
+        assertEquals(2, listView.getAdapter().getCount());
+
+        solo.setActivityOrientation(Solo.PORTRAIT);
+        solo.searchText("Zweite", true);
+        assertEquals(2, listView.getAdapter().getCount());
+
+    }
+
     public void testInsertAndSelectPerson() {
         solo.waitForActivity(MainActivity.class);
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
@@ -149,13 +186,23 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         solo.clickOnButton("Speichern");
         assertTrue(solo.waitForDialogToClose());
         assertEquals(1, listView.getAdapter().getCount());
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        solo.typeText(0, "Zweite");
+        solo.typeText(1, "Testperson");
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+        assertEquals(2, listView.getAdapter().getCount());
+
         solo.clickLongInList(1);
         solo.waitForDialogToOpen();
         solo.getEditText("Eine");
-
         solo.getEditText("Testperson");
         solo.goBack();
 
-        solo.setActivityOrientation(Solo.LANDSCAPE);
+        assertTrue(solo.waitForFragmentByTag(MainFragment.TAG));
+        solo.searchText("Zweite", true);
     }
 }

@@ -3,10 +3,8 @@ package de.kreth.clubhelper.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,15 +17,11 @@ import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonEditActivity;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
@@ -42,6 +36,7 @@ import de.kreth.clubhelper.widgets.PersonAdapter;
  */
 public class MainFragment extends Fragment implements AdapterView.OnItemLongClickListener {
 
+    public static final String TAG = MainFragment.class.getName();
     private PersonAdapter adapter;
     private DaoSession session;
     private OnMainFragmentEventListener listener;
@@ -113,7 +108,8 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 final Person person = adapter.getItem(position);
-                String txt = new PersonRelationHelper().relationsAsString(person);
+
+                String txt = new PersonRelationHelper(getResources()).relationsAsString(person);
                 Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
             }
         });

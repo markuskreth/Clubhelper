@@ -47,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         if (savedInstanceState == null) {
             MainFragment fragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, fragment)
+                    .add(R.id.container, fragment, MainFragment.TAG)
                     .commit();
         }
 
@@ -109,7 +109,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         personDao.insert(anna);
         personDao.insert(birgitt);
 
-        rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.MOTHER.name(),
+        rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.PARENT.name(),
                 RelationType.CHILD.name());
         relativeDao.insert(rel);
     }

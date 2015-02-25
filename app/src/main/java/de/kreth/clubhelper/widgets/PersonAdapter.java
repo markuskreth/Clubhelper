@@ -99,9 +99,10 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
         return filter;
     }
 
-    private class PersonAdapterFilter extends Filter {
+    public class PersonAdapterFilter extends Filter {
 
         private final PersonDao personDao;
+        private List<Long> excludePersonIds = new ArrayList<>();
 
         public PersonAdapterFilter(PersonDao personDao) {
             this.personDao = personDao;
@@ -110,7 +111,11 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
-            List<Person> persons = personDao.loadAll();
+            List<Person> persons;
+            if(excludePersonIds.isEmpty())
+                persons = personDao.loadAll();
+            else
+                persons = personDao.queryRaw(" WHERE _id not in (" + excludedAsStringList() + ")", null);
 
             if (constraint == null || constraint.length() == 0) {
                 results.values = persons;
@@ -130,6 +135,24 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
 
             lastConstraint = constraint;
             return results;
+        }
+
+        private String excludedAsStringList() {
+            StringBuilder bld = new StringBuilder();
+            for(Long id : excludePersonIds) {
+                if(bld.length()>0)
+                    bld.append(",");
+                bld.append(id);
+            }
+            return bld.toString();
+        }
+
+        public void clearExcludes() {
+            excludePersonIds.clear();
+        }
+
+        public void addExcludePersonId(long personIdToExclude) {
+            excludePersonIds.add(personIdToExclude);
         }
 
         @Override
