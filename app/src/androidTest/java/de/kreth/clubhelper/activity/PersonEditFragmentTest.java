@@ -249,10 +249,13 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
         solo.waitForDialogToOpen();
         solo.pressSpinnerItem(0,1);
-        solo.typeText(0, "555-55 55 55");
+        solo.typeText(0, "0555-55 55 55");
         solo.clickOnText("OK");
 
-        solo.searchText("555-55 55 55", true);
+        assertTrue(solo.waitForDialogToClose());
+        solo.waitForFragmentByTag(PersonEditFragment.TAG);
+
+        solo.searchText("05555 555", true);
         solo.searchText("Telefon", true);
 
         solo.clickOnView(actionAdd);
@@ -266,6 +269,9 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.pressSpinnerItem(0,2);
         solo.typeText(0, "test@testdomain.com");
         solo.clickOnText("OK");
+
+        assertTrue(solo.waitForDialogToClose());
+        solo.waitForFragmentByTag(PersonEditFragment.TAG);
 
         solo.searchText("test@testdomain.com", true);
         solo.searchText("Email", true);

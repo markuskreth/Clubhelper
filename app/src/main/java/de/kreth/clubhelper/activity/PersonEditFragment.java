@@ -23,6 +23,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import de.kreth.clubhelper.Adress;
@@ -52,6 +57,8 @@ import de.kreth.clubhelper.widgets.PersonSelectDialog;
 public class PersonEditFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
 
     public static final String TAG = PersonEditFragment.class.getName();
+
+    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 
     private DaoSession session;
     private Person person;
@@ -165,7 +172,18 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String item = typeSpinner.getSelectedItem().toString();
-                String value = input.getText().toString();
+                String value = null;
+                try {
+                    Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(input.getText().toString(), Locale.getDefault().getCountry());
+                    if(phoneUtil.isValidNumber(phoneNumber)) {
+                        value = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
+                    }
+                } catch (NumberParseException e) {
+                    e.printStackTrace();
+                }
+                if(value == null)
+                    value = input.getText().toString();
+
                 Contact newContact = new Contact(null, item, value, person.getId());
                 session.getContactDao().insert(newContact);
                 person.getContactList().add(newContact);
@@ -327,11 +345,26 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         r.setLayoutParams(lp);
 
         TextView label = new TextView(getActivity());
+
         label.setText(c.getType());
         r.addView(label);
 
         TextView value = new TextView(getActivity());
-        value.setText(c.getValue());
+        String val = null;
+
+        try {
+            Phonenumber.PhoneNumber number = phoneUtil.parse(c.getValue(), Locale.getDefault().getCountry());
+            if(phoneUtil.isValidNumber(number))
+                val = phoneUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+        } catch (NumberParseException e) {
+            e.printStackTrace();
+        }
+
+        if(val == null)
+            val = c.getValue();
+
+        value.setText(val);
+
         r.addView(value);
         contactViews.add(r);
         rootView.addView(r, rootView.getChildCount());
