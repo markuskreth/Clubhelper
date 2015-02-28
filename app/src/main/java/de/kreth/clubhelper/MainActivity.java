@@ -72,16 +72,20 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
 
     @Override
     protected void onPause() {
+        if(session != null)
+            session.clear();
+
         super.onPause();
-        session.clear();
     }
 
     @Override
     protected void onDestroy() {
+        if(session != null) {
+            session.clear();
+            session.getDatabase().close();
+            session = null;
+        }
         super.onDestroy();
-        session.clear();
-        session.getDatabase().close();
-        session = null;
     }
 
     private void insertDummyPerson() {
