@@ -2,24 +2,33 @@ package de.kreth.clubhelper;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.activity.PersonEditFragment;
+import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
+import de.kreth.clubhelper.imports.FileSelectDialogFragment;
+import de.kreth.clubhelper.imports.ImportTask;
 
 public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
@@ -167,4 +176,44 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         tx.addToBackStack(personEditFragment.getClass().getName());
         tx.commit();
     }
+
+    @Override
+    public void startImport() {
+        final ImportTask.Result result = new ImportTask.Result() {
+            @Override
+            public void loaded(final Map<Long, Person> persons, Map<Long, List<Contact>> contacts) {
+                PersonDao personDao = session.getPersonDao();
+                ContactDao contactDao = session.getContactDao();
+                for(Long id: persons.keySet()) {
+                    Person person = persons.get(id);
+                    personDao.insert(person);
+                    List<Contact> contactList = contacts.get(id);
+                    if(contactList !=  null && contactList.size()>0) {
+
+                        for(Contact c: contactList) {
+                            c.setPersonId(person.getId());
+                            contactDao.insert(c);
+                        }
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, persons.size() + " Personen importiert\nApp neu starten!", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        };
+        FileSelectDialogFragment.FileSelectListener l = new FileSelectDialogFragment.FileSelectListener(){
+            @Override
+            public void fileSelected(File selected) {
+                ImportTask t = new ImportTask(MainActivity.this, result);
+                t.execute(selected);
+            }
+        };
+
+        FileSelectDialogFragment dlg = new FileSelectDialogFragment(this,l );
+        dlg.showSelectDialog(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+    }
+
 }
