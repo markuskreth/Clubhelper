@@ -132,11 +132,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             createNewPerson();
             return true;
         }
-        if(id==R.id.do_import) {
-            if(listener != null)
-                listener.startImport();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -178,6 +173,5 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
 
     public interface OnMainFragmentEventListener {
         void editPerson(long personId);
-        void startImport();
     }
 }

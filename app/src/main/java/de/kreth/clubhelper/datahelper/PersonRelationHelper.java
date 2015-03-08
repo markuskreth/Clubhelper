@@ -6,6 +6,7 @@ import android.os.Bundle;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
 
 /**
@@ -21,6 +22,12 @@ public class PersonRelationHelper {
     public String relationsAsString(Person p) {
 
         StringBuilder txt = new StringBuilder(p.toString());
+        for (Contact contact : p.getContactList()) {
+
+            txt.append("\n");
+            txt.append(contact.toString());
+        }
+        ;
         List<Person.RelativeType> relations = p.getRelations();
 
         for (Person.RelativeType r : relations) {

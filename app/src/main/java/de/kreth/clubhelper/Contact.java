@@ -6,6 +6,12 @@ package de.kreth.clubhelper;
 
 // KEEP INCLUDES END
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
+
+import java.util.Locale;
+
 /**
  * Entity mapped to table CONTACT.
  */
@@ -17,6 +23,7 @@ public class Contact {
     private long personId;
 
     // KEEP FIELDS - put your custom fields here
+
     // KEEP FIELDS END
 
     public Contact() {
@@ -69,7 +76,20 @@ public class Contact {
 
     @Override
     public String toString() {
-        return type + "=" + value;
+        if(type.toLowerCase(Locale.getDefault()).startsWith("tele") || type.toLowerCase(Locale.getDefault()).matches("mobile")) {
+
+            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+
+            try {
+                Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(value, Locale.getDefault().getCountry());
+                if(phoneUtil.isValidNumber(phoneNumber))
+                    return type + ": " + phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
+            } catch (NumberParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return type + ": " + value;
     }
 
     // KEEP METHODS END

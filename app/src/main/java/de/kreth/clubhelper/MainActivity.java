@@ -177,43 +177,4 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         tx.commit();
     }
 
-    @Override
-    public void startImport() {
-        final ImportTask.Result result = new ImportTask.Result() {
-            @Override
-            public void loaded(final Map<Long, Person> persons, Map<Long, List<Contact>> contacts) {
-                PersonDao personDao = session.getPersonDao();
-                ContactDao contactDao = session.getContactDao();
-                for(Long id: persons.keySet()) {
-                    Person person = persons.get(id);
-                    personDao.insert(person);
-                    List<Contact> contactList = contacts.get(id);
-                    if(contactList !=  null && contactList.size()>0) {
-
-                        for(Contact c: contactList) {
-                            c.setPersonId(person.getId());
-                            contactDao.insert(c);
-                        }
-                    }
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, persons.size() + " Personen importiert\nApp neu starten!", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        };
-        FileSelectDialogFragment.FileSelectListener l = new FileSelectDialogFragment.FileSelectListener(){
-            @Override
-            public void fileSelected(File selected) {
-                ImportTask t = new ImportTask(MainActivity.this, result);
-                t.execute(selected);
-            }
-        };
-
-        FileSelectDialogFragment dlg = new FileSelectDialogFragment(this,l );
-        dlg.showSelectDialog(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
-    }
-
 }
