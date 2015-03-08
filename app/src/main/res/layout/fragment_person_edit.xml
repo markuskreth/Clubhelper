@@ -93,6 +93,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="2"
+            android:contentDescription="@string/lblBirth"
             android:src="@android:drawable/ic_menu_my_calendar" />
 
     </TableRow>
@@ -111,27 +112,27 @@
             <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New ToggleButton"
+                android:text="@string/lbl_contacts"
                 android:id="@+id/toggleButtonContacts"
-                android:textOn="Kontakte"
-                android:textOff="Kontakte"
+                android:textOn="@string/lbl_contacts"
+                android:textOff="@string/lbl_contacts"
                 android:checked="true" />
 
             <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Adresse"
+                android:text="@string/lbl_adress"
                 android:id="@+id/toggleButtonAdresses"
-                android:textOn="Adresse"
-                android:textOff="Adresse" />
+                android:textOn="@string/lbl_adress"
+                android:textOff="@string/lbl_adress" />
 
             <ToggleButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New ToggleButton"
+                android:text="@string/lbl_relations"
                 android:id="@+id/toggleButtonRelations"
-                android:textOn="Beziehungen"
-                android:textOff="Beziehungen" />
+                android:textOn="@string/lbl_relations"
+                android:textOff="@string/lbl_relations" />
 
         </LinearLayout>
     </TableRow>

@@ -14,12 +14,15 @@
     <string name="lblNo">Nein</string>
     <string name="lblSearch">Suche</string>
     <string name="lblAdd">Hinzufügen</string>
+    <string name="lbl_contacts">Kontakte</string>
+    <string name="lbl_adress">Adresse</string>
+    <string name="lbl_relations">Beziehungen</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Filtere Personen</string>
     <string name="title_activity_person_edit">PersonEditActivity</string>
+    <string name="do_import">Import</string>
     <string name="PARENT">Elternteil</string>
     <string name="CHILD">Kind</string>
     <string name="RELATIONSHIP">Freund(-in)</string>
-    <string name="title_activity_test">TestActivity</string>
 
 </resources>

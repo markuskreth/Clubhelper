@@ -26,7 +26,7 @@ import de.kreth.datecalc.DateUnit;
  */
 public class PersonAdapter extends BaseAdapter implements Filterable {
 
-    final private DateFormat df = new SimpleDateFormat("yyyy");
+    final private DateFormat df = new SimpleDateFormat("yyyy", Locale.getDefault());
     final private PersonAdapterFilter filter;
     final private Context context;
     private CharSequence lastConstraint = "";

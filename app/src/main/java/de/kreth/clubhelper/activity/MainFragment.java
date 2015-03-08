@@ -127,7 +127,8 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_addPerson) {
+        int id = item.getItemId();
+        if (id == R.id.action_addPerson) {
             createNewPerson();
             return true;
         }
