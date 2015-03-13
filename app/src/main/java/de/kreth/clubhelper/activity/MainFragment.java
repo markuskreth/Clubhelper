@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.datahelper.PersonRelationHelper;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.dialogs.PersonDialog;
+import de.kreth.clubhelper.dialogs.PersonViewDialog;
 import de.kreth.clubhelper.widgets.PersonAdapter;
 
 /**
@@ -108,9 +110,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 final Person person = adapter.getItem(position);
+                PersonViewDialog dlg = new PersonViewDialog();
+                dlg.setPerson(person);
+                dlg.show(getFragmentManager(), PersonViewDialog.class.getName());
 
-                String txt = new PersonRelationHelper(getResources()).relationsAsString(person);
-                Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
+//                String txt = new PersonRelationHelper(getResources()).relationsAsString(person);
+//                Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
             }
         });
         listView.setOnItemLongClickListener(this);

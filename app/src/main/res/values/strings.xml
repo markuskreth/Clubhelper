@@ -17,6 +17,7 @@
     <string name="lbl_contacts">Kontakte</string>
     <string name="lbl_adress">Adresse</string>
     <string name="lbl_relations">Beziehungen</string>
+    <string name="title_connect_sms">Sende SMS an: </string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Filtere Personen</string>
     <string name="title_activity_person_edit">PersonEditActivity</string>
