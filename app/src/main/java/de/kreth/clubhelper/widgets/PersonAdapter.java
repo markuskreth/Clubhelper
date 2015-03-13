@@ -87,6 +87,7 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
 
         if (convertView == null) {
             view = new TextView(context);
+            view.setTextAppearance(context, android.R.style.TextAppearance_Large);
             view.setTag(item.getId());
         } else
             view = (TextView) convertView;
