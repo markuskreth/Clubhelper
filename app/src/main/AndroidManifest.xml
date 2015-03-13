@@ -29,6 +29,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.kreth.clubhelper.MainActivity" />
         </activity>
+        <activity android:name=".TestActivity" android:label="TestActivity" ></activity>
     </application>
 
 </manifest>
