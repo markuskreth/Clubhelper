@@ -8,6 +8,12 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_export"
+        android:orderInCategory="200"
+        android:title="@string/action_export"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_addPerson"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/lblAdd"

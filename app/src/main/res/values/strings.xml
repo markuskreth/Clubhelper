@@ -3,7 +3,8 @@
 
     <string name="app_name">ClubHelper</string>
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_export">Export</string>
     <string name="lblPrename">Vorname</string>
     <string name="lblSurname">Nachname</string>
     <string name="lblBirth">Geburtstag</string>
@@ -18,12 +19,15 @@
     <string name="lbl_adress">Adresse</string>
     <string name="lbl_relations">Beziehungen</string>
     <string name="title_connect_sms">Sende SMS an: </string>
+    <string name="title_quest_which_info_toadd">Welche Art von Information soll ergänzt werden?</string>
+    <string name="title_quest_kind_relation">Welche Art von Beziehung?</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_hint">Filtere Personen</string>
     <string name="title_activity_person_edit">PersonEditActivity</string>
     <string name="do_import">Import</string>
     <string name="PARENT">Elternteil</string>
     <string name="CHILD">Kind</string>
+    <string name="SIBLINGS">Geschwister</string>
     <string name="RELATIONSHIP">Freund(-in)</string>
 
 </resources>

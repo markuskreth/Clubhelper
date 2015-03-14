@@ -235,10 +235,11 @@ public class Person implements java.io.Serializable {
     public List<RelativeType> getRelations() {
         SQLiteDatabase db = daoSession.getDatabase();
 
+        String sql = "select RELATIVE.PERSON1 as PersonID, RELATIVE.TO_PERSON1_RELATION from RELATIVE WHERE RELATIVE.PERSON2=" + id +
+                " UNION \n" +
+                "select RELATIVE.PERSON2 AS PersonID, RELATIVE.TO_PERSON2_RELATION from RELATIVE WHERE RELATIVE.PERSON1=" + id;
         Cursor cursor = db.rawQuery(
-                "select RELATIVE.PERSON1 as PersonID, RELATIVE.TO_PERSON1_RELATION from RELATIVE WHERE RELATIVE.PERSON2=" + id +
-                        " UNION \n" +
-                        "select RELATIVE.PERSON2 AS PersonID, RELATIVE.TO_PERSON2_RELATION from RELATIVE WHERE RELATIVE.PERSON1=" + id,
+                sql,
                 null);
 
         List<RelativeType> result = new ArrayList<>();

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,6 +75,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     private ToggleButton btnContacts;
     private ToggleButton btnRelations;
     private ToggleButton btnAdresses;
+    private MainFragment.OnMainFragmentEventListener fragmentEventListener = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +93,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void addDetail() {
-        AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle("Welche Art von Information soll ergänzt werden?").setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
+        AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_quest_which_info_toadd).setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
@@ -123,7 +125,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                         relations[i] = relationTypes[i].toString(getResources());
                     }
                     AlertDialog.Builder bld = new AlertDialog.Builder(getActivity())
-                            .setTitle("Welche Art von Beziehung")
+                            .setTitle(R.string.title_quest_kind_relation)
                             .setItems(relations, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -137,11 +139,8 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                                         case CHILD:
                                             toFirst = RelationType.PARENT;
                                             break;
-                                        case RELATIONSHIP:
-                                            toFirst = RelationType.RELATIONSHIP;
-                                            break;
                                         default:
-                                            toFirst = RelationType.RELATIONSHIP;
+                                            toFirst = toSecond;
                                     }
                                     Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name());
                                     session.getRelativeDao().insert(rel);
@@ -158,14 +157,22 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void addContact() {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_VERTICAL|Gravity.LEFT;
+
         final Spinner typeSpinner = new Spinner(getActivity());
+        typeSpinner.setLayoutParams(params);
         ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item, getResources().getStringArray(R.array.contact_type_values));
         typeSpinner.setAdapter(typeAdapter);
+
         LinearLayout layout = new LinearLayout(getActivity());
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.addView(typeSpinner);
+        params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT,1);
+        params.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
 
         final EditText input = new EditText(getActivity());
+        input.setLayoutParams(params);
         layout.addView(input);
 
         AlertDialog.Builder bld = new AlertDialog.Builder(getActivity()).setView(layout).setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
@@ -206,7 +213,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
         person = session.getPersonDao().load(personId);
         rootView = (TableLayout) inflater.inflate(R.layout.fragment_person_edit, container, false);
-
+        if(getActivity() instanceof MainFragment.OnMainFragmentEventListener){
+            this.fragmentEventListener = (MainFragment.OnMainFragmentEventListener) getActivity();
+        }
         initViews();
         initTabs();
 
@@ -324,6 +333,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
         row.setLayoutParams(lp);
         row.setVisibility(View.GONE);
+        if(this.fragmentEventListener != null) {
+            row.setOnClickListener(new RelativeEditListener(r.getRel()));
+        }
 
         TextView label = new TextView(getActivity());
         label.setText(r.getType().toString(getResources()));
@@ -403,4 +415,26 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         dlg.show();
     }
 
+    private class RelativeEditListener implements View.OnClickListener {
+        private Person personId;
+
+        private RelativeEditListener(Person personId) {
+            this.personId = personId;
+        }
+
+        @Override
+        public void onClick(View v) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Bearbeiten?")
+                    .setMessage(personId.toString() + " bearbeiten?")
+                    .setNegativeButton(R.string.lblNo, null)
+                    .setPositiveButton(R.string.lblYes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            fragmentEventListener.editPerson(personId.getId());
+                        }
+                    })
+                    .show();
+        }
+    }
 }

@@ -136,6 +136,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
         if (id == R.id.action_addPerson) {
             createNewPerson();
             return true;
+        } else if (id == R.id.action_export) {
+            showExportOptions();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

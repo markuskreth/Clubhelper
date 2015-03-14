@@ -20,10 +20,12 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
+import de.kreth.clubhelper.RelationType;
 import de.kreth.datecalc.DateDiff;
 import de.kreth.datecalc.DateUnit;
 
@@ -50,13 +52,13 @@ public class PersonViewDialog extends DialogFragment {
 
         AlertDialog dlg = new AlertDialog.Builder(getActivity())
                 .setNeutralButton(R.string.lblCancel, null)
+                .setTitle(person.getPrename() + " " + person.getSurname())
                 .create();
 
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.person_call_layout, null);
-        TextView personName = (TextView) view.findViewById(R.id.textViewPersonName);
-        personName.setText(person.getPrename() + " " + person.getSurname());
+
         TextView birth = (TextView) view.findViewById(R.id.textBirth);
 
         long age = DateDiff.calcDiff(person.getBirth(), new Date(), DateUnit.YEAR);
@@ -66,39 +68,70 @@ public class PersonViewDialog extends DialogFragment {
         TableLayout table = (TableLayout) view.findViewById(R.id.table);
 
         for (Contact con : person.getContactList()) {
-
-            int index = 0;
-            String conType = con.getType();
-            for(int i=0; i<types.length; i++){
-                if(types[i].matches(conType)) {
-                    index = i;
-                    break;
-                }
-            }
-            int imgResource = android.R.drawable.sym_action_call;
-            switch (index) {
-                case 0:
-                case 1:
-                    imgResource = android.R.drawable.sym_action_call;
-                    break;
-                case 2:
-                    imgResource = android.R.drawable.sym_action_email;
-            }
-            TableRow row = (TableRow) layoutInflater.inflate(R.layout.contact_call, table, false);
-            TextView textType = (TextView) row.findViewById(R.id.textViewType);
-            TextView textValue = (TextView) row.findViewById(R.id.textViewValue);
-            textType.setText(conType);
-            textValue.setText(con.getValue());
-            ImageView imageButton = (ImageView) row.findViewById(R.id.imageButton);
-            imageButton.setTag(con);
-            imageButton.setOnClickListener(new ContactOnClickListener(con));
-            imageButton.setImageResource(imgResource);
-            table.addView(row);
+            addContactToTable(layoutInflater, table, con);
         }
+        for (Person.RelativeType rel : person.getRelations()) {
 
+            List<Contact> contactList = rel.getRel().getContactList();
+
+            TextView text = new TextView(getActivity());
+            String relText = rel.getType().toString(getActivity().getResources()) + ": " + rel.getRel().getPrename() + " " + rel.getRel().getSurname();
+            text.setText(relText);
+
+            TableRow.LayoutParams params = new TableRow.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
+            params.span = 3;
+            params.column = 0;
+            params.setMargins(30, 30, 0, 0);
+            text.setLayoutParams(params);
+
+            TableRow row = new TableRow(getActivity());
+            row.addView(text);
+            table.addView(row);
+
+            for (Contact con : contactList) {
+                addContactToTable(layoutInflater, table, con);
+            }
+
+        }
         dlg.setView(view);
         return dlg;
     }
+
+    private void addContactToTable(LayoutInflater layoutInflater, TableLayout table, Contact con) {
+
+        int index = 0;
+        String conType = con.getType();
+        for (int i = 0; i < types.length; i++) {
+            if (types[i].matches(conType)) {
+                index = i;
+                break;
+            }
+        }
+        int imgResource = android.R.drawable.sym_action_call;
+        switch (index) {
+            case 0:
+            case 1:
+                imgResource = android.R.drawable.sym_action_call;
+                break;
+            case 2:
+                imgResource = android.R.drawable.sym_action_email;
+        }
+        ContactOnClickListener contactOnClickListener = new ContactOnClickListener(con);
+        TableRow row = (TableRow) layoutInflater.inflate(R.layout.contact_call, table, false);
+
+        TextView textType = (TextView) row.findViewById(R.id.textViewType);
+        textType.setOnClickListener(contactOnClickListener);
+        textType.setCompoundDrawablesWithIntrinsicBounds(imgResource, 0, 0, 0);
+        textType.setText(conType);
+
+        TextView textValue = (TextView) row.findViewById(R.id.textViewValue);
+        textValue.setOnClickListener(contactOnClickListener);
+
+        textValue.setText(con.getValue());
+
+        table.addView(row);
+    }
+
     private class ContactOnClickListener implements View.OnClickListener {
 
         private Contact con;
@@ -111,8 +144,8 @@ public class PersonViewDialog extends DialogFragment {
         public void onClick(View v) {
 
             int index = 0;
-            for(int i=0; i<types.length; i++){
-                if(types[i].matches(con.getType())) {
+            for (int i = 0; i < types.length; i++) {
+                if (types[i].matches(con.getType())) {
                     index = i;
                     break;
                 }
@@ -121,7 +154,7 @@ public class PersonViewDialog extends DialogFragment {
                 new AlertDialog.Builder(getActivity()).setItems(actions, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(which == 1) {
+                        if (which == 1) {
 
                             Intent smsIntent = new Intent(Intent.ACTION_VIEW);
                             smsIntent.putExtra("sms_body", "");
@@ -137,7 +170,7 @@ public class PersonViewDialog extends DialogFragment {
                     }
                 }).setNeutralButton(R.string.lblCancel, null)
                         .show();
-            } else if(index == 1){   // Phone
+            } else if (index == 1) {   // Phone
 
                 String url = "tel:" + con.getValue();
                 Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(url));
@@ -146,11 +179,11 @@ public class PersonViewDialog extends DialogFragment {
 
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("message/rfc822");
-                i.putExtra(Intent.EXTRA_EMAIL  , new String[]{con.getValue()});
+                i.putExtra(Intent.EXTRA_EMAIL, new String[]{con.getValue()});
                 i.putExtra(Intent.EXTRA_SUBJECT, "");
-                i.putExtra(Intent.EXTRA_TEXT   , "\n\nMarkus Kreth\nTrainer Trampolinturnen - MTV Groß-Buchholz");
+                i.putExtra(Intent.EXTRA_TEXT, "\n\nMarkus Kreth\nTrainer Trampolinturnen - MTV Groß-Buchholz");
                 try {
-                    getActivity().startActivity(Intent.createChooser(i, "Send mail..."));
+                    getActivity().startActivity(Intent.createChooser(i, "Sende Email..."));
                 } catch (android.content.ActivityNotFoundException ex) {
                     Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
                 }

@@ -11,7 +11,8 @@ import java.util.ResourceBundle;
 public enum RelationType {
     PARENT,
     CHILD,
-    RELATIONSHIP;
+    RELATIONSHIP,
+    SIBLINGS;
 
     public String toString(Resources bundle) {
 
@@ -22,7 +23,10 @@ public enum RelationType {
                 return bundle.getString(R.string.CHILD);
             case RELATIONSHIP:
                 return bundle.getString(R.string.RELATIONSHIP);
+            case SIBLINGS:
+                return bundle.getString(R.string.SIBLINGS);
         }
         return name();
     }
+
 }

@@ -16,6 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import de.greenrobot.dao.query.Query;
+import de.greenrobot.dao.query.QueryBuilder;
+import de.greenrobot.dao.query.WhereCondition;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.datecalc.DateDiff;
@@ -34,8 +37,9 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     final private PersonDao personDao;
 
     public PersonAdapter(Context context, PersonDao personDao) {
-        objects = personDao.loadAll();
         this.personDao = personDao;
+        Query<Person> personQuery = personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).build();
+        objects = personQuery.list();
         this.context = context;
         filter = new PersonAdapterFilter(personDao);
     }
@@ -63,7 +67,8 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     @Override
     public void notifyDataSetChanged() {
         objects.clear();
-        objects.addAll(personDao.loadAll());
+
+        objects.addAll(personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).list());
         if (lastConstraint != null && lastConstraint.length() > 0)
             filter.filter(lastConstraint);
         super.notifyDataSetChanged();
@@ -72,7 +77,7 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     @Override
     public void notifyDataSetInvalidated() {
         objects.clear();
-        objects.addAll(personDao.loadAll());
+        objects.addAll(personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).list());
         super.notifyDataSetInvalidated();
     }
 
@@ -113,10 +118,21 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
             List<Person> persons;
-            if(excludePersonIds.isEmpty())
-                persons = personDao.loadAll();
-            else
-                persons = personDao.queryRaw(" WHERE _id not in (" + excludedAsStringList() + ")", null);
+            QueryBuilder<Person> personQueryBuilder = personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename);
+            if(!excludePersonIds.isEmpty())            {
+                        WhereCondition cond =new WhereCondition.
+                                PropertyCondition(PersonDao.Properties.Id , " not in (" + excludedAsStringList() + ")");
+//                                new WhereCondition.AbstractCondition(){
+//                    @Override
+//                    public void appendTo(StringBuilder builder, String tableAlias) {
+//                        builder.append("_id not in (" + excludedAsStringList() + ")");
+//                    }
+//                };
+
+                personQueryBuilder.where(cond);
+            }
+
+            persons = personQueryBuilder.list();
 
             if (constraint == null || constraint.length() == 0) {
                 results.values = persons;
