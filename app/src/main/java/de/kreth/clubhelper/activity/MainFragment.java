@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
@@ -18,6 +19,11 @@ import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -143,7 +149,44 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
         return super.onOptionsItemSelected(item);
     }
 
-    private void createNewPerson() {
+   private void showExportOptions() {
+      File sourceFile = new File(session.getDatabase().getPath());
+      File sd = Environment.getExternalStorageDirectory();
+      File destinationFile= new File(sd, sourceFile.getName());
+
+      FileChannel source=null;
+      FileChannel destination=null;
+      try {
+         source = new FileInputStream(sourceFile).getChannel();
+         destination = new FileOutputStream(destinationFile).getChannel();
+         destination.transferFrom(source, 0, source.size());
+         Toast.makeText(getActivity(), "DB Exported!", Toast.LENGTH_LONG).show();
+      } catch(IOException e) {
+         e.printStackTrace();
+         Toast.makeText(getActivity(), "Export: " + e.getMessage(), Toast.LENGTH_SHORT);
+      } finally {
+         if(source != null){
+            try {
+               source.close();
+            } catch (IOException e) {
+               e.printStackTrace();
+               Toast.makeText(getActivity(), "Close Source: " + e.getMessage(), Toast.LENGTH_SHORT);
+            }
+         }
+
+         if(destination != null){
+
+            try {
+               destination.close();
+            } catch (IOException e) {
+               e.printStackTrace();
+               Toast.makeText(getActivity(), "Close Destination: " + e.getMessage(), Toast.LENGTH_SHORT);
+            }
+         }
+      }
+   }
+
+   private void createNewPerson() {
 
         final Person person = new Person();
         person.setBirth(new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
