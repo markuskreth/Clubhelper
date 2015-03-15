@@ -7,9 +7,9 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/../../../data/markus/programming/AndroidStudioProjects/ClubHelper" />
-            <option value="$PROJECT_DIR$/../../../data/markus/programming/AndroidStudioProjects/ClubHelper/app" />
-            <option value="$PROJECT_DIR$/../../../data/markus/programming/AndroidStudioProjects/ClubHelper/daogenerator" />
+            <option value="$USER_HOME$/AndroidStudioProjects/Clubhelper" />
+            <option value="$USER_HOME$/AndroidStudioProjects/Clubhelper/app" />
+            <option value="$USER_HOME$/AndroidStudioProjects/Clubhelper/daogenerator" />
           </set>
         </option>
       </GradleProjectSettings>
