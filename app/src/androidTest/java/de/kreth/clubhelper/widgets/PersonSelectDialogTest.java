@@ -97,7 +97,7 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
             }
         }, 500);
         Person p = selected.get(0);
-        assertEquals("Third", p.getPrename());
+        assertEquals("Fourth", p.getPrename());
     }
 
     public void testFilterAndSelect() {

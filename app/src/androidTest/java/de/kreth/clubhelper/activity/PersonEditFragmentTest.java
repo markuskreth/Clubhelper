@@ -316,7 +316,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         assertTrue(solo.waitForDialogToClose());
         assertEquals(2, listView.getAdapter().getCount());
 
-        solo.clickLongInList(2);
+        solo.clickLongInList(1);
         assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
 
         solo.clickOnText("Bezieh");
@@ -341,7 +341,6 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         assertTrue("Neuer Dialog nicht geöffnet", solo.waitForDialogToOpen());
         currentLists = solo.getCurrentViews(ListView.class);
         assertEquals(1, currentLists.size());
-        assertEquals(3, currentLists.get(0).getAdapter().getCount());
 
         assertTrue(solo.searchText("Eltern", true));
         assertTrue(solo.searchText("Kind", true));
