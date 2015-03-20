@@ -19,6 +19,7 @@ import de.kreth.clubhelper.R;
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     private Solo solo;
+    private View actionAdd;
 
     public MainActivityTest() {
         super(MainActivity.class);
@@ -49,37 +50,16 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         final ListView listView = currentViews.get(0);
         assertEquals(0, listView.getAdapter().getCount());
 
-        View actionAdd = solo.getView(R.id.action_addPerson);
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-
-        solo.typeText(0, "Erste");
-        solo.typeText(1, "Person");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Erste", "Person");
         assertEquals(1, listView.getAdapter().getCount());
 
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-        solo.typeText(0, "Zweite");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Zweite", "Person");
         assertEquals(2, listView.getAdapter().getCount());
 
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-        solo.typeText(0, "Dritte");
-        solo.typeText(1, "Testperson");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Dritte", "Testperson");
         assertEquals(3, listView.getAdapter().getCount());
 
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-        solo.typeText(0, "Vierte");
-        solo.typeText(1, "Person Test");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Vierte", "Person Test");
         assertEquals(4, listView.getAdapter().getCount());
 
         EditText searchEdit = solo.getEditText(0);
@@ -121,14 +101,7 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             }
         }, 100);
 
-
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-        solo.typeText(0, "Fünfte");
-        solo.typeText(1, "Person Test");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
-
+        addPerson("Fünfte", "Person Test");
         assertEquals(3, listView.getAdapter().getCount());
     }
 
@@ -136,27 +109,16 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         solo.waitForActivity(MainActivity.class);
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
-        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
-        assertEquals(1, currentViews.size());
+        ArrayList<ListView> allListViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, allListViews.size());
 
-        final ListView listView = currentViews.get(0);
+        final ListView listView = allListViews.get(0);
         assertEquals(0, listView.getAdapter().getCount());
 
-        View actionAdd = solo.getView(R.id.action_addPerson);
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-
-        solo.typeText(0, "Erste");
-        solo.typeText(1, "Person");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Erste", "Person");
         assertEquals(1, listView.getAdapter().getCount());
 
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-        solo.typeText(0, "Zweite");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Zweite", "Speichern");
         assertEquals(2, listView.getAdapter().getCount());
 
         solo.setActivityOrientation(Solo.LANDSCAPE);
@@ -169,6 +131,19 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
     }
 
+    private void addPerson(String preName, String surName) {
+        if(actionAdd == null)
+            actionAdd = solo.getView(R.id.action_addPerson);
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        solo.typeText(0, preName);
+        solo.typeText(1, surName);
+        solo.clickOnButton("Speichern");
+        assertTrue(solo.waitForDialogToClose());
+    }
+
     public void testInsertAndSelectPerson() {
         solo.waitForActivity(MainActivity.class);
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
@@ -177,23 +152,10 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         ListView listView = currentViews.get(0);
 
-        View actionAdd = solo.getView(R.id.action_addPerson);
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-
-        solo.typeText(0, "Eine");
-        solo.typeText(1, "Testperson");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Eine", "Testperson");
         assertEquals(1, listView.getAdapter().getCount());
 
-        solo.clickOnView(actionAdd);
-        solo.waitForDialogToOpen();
-
-        solo.typeText(0, "Zweite");
-        solo.typeText(1, "Testperson");
-        solo.clickOnButton("Speichern");
-        assertTrue(solo.waitForDialogToClose());
+        addPerson("Zweite", "Testperson");
         assertEquals(2, listView.getAdapter().getCount());
 
         solo.clickLongInList(1);
@@ -204,5 +166,61 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
         assertTrue(solo.waitForFragmentByTag(MainFragment.TAG));
         solo.searchText("Zweite", true);
+    }
+
+    public void testContactDialogWithRelations() {
+
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+        addPerson("Erste", "Person");
+        addPerson("Zweite", "Person");
+
+        ArrayList<ListView> currentViews = solo.getCurrentViews(ListView.class);
+        assertEquals(1, currentViews.size());
+
+        final ListView listView = currentViews.get(0);
+        assertEquals(2, listView.getAdapter().getCount());
+
+        solo.clickLongInList(1);
+
+        solo.clickOnView(actionAdd);
+        solo.clickOnText("Beziehung");
+        solo.waitForDialogToOpen();
+        solo.clickInList(1);    // First Person
+        solo.waitForDialogToOpen();
+        solo.clickInList(1);    // First RelationType
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.clickOnText("Kontakt");
+        solo.waitForDialogToOpen();
+        solo.enterText(0, "01742521286");
+        solo.clickOnText("OK");
+
+        solo.goBack();
+
+        solo.clickLongInList(2);
+
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+        solo.clickOnText("Kontakt");
+        solo.waitForDialogToOpen();
+        solo.enterText(0, "0555123456");
+        solo.clickOnText("OK");
+
+        solo.goBack();
+
+        solo.searchText("Erste");
+        solo.searchText("Zweite");
+
+        solo.clickInList(1);
+
+        assertTrue(solo.waitForDialogToOpen());
+        solo.searchText("2521286");
+        solo.searchText("123456");
+        solo.searchText("Erste");
+        solo.searchText("Zweite");
+        solo.searchText("Elternteil");
+
     }
 }

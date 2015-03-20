@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
@@ -54,7 +55,6 @@ public class PersonViewDialog extends DialogFragment {
                 .setNeutralButton(R.string.lblCancel, null)
                 .setTitle(person.getPrename() + " " + person.getSurname())
                 .create();
-
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.person_call_layout, null);
@@ -93,8 +93,21 @@ public class PersonViewDialog extends DialogFragment {
             }
 
         }
+        List<Adress> adressList = person.getAdressList();
+        for(Adress a: adressList) {
+            addAdressToTable(table, a);
+        }
         dlg.setView(view);
         return dlg;
+    }
+
+    private void addAdressToTable(TableLayout table, Adress a) {
+        TableRow row = new TableRow(getActivity());
+        TextView view = new TextView(getActivity());
+        view.setSingleLine(false);
+        view.setText(a.toString());
+        row.addView(view);
+        table.addView(row);
     }
 
     private void addContactToTable(LayoutInflater layoutInflater, TableLayout table, Contact con) {
@@ -185,7 +198,7 @@ public class PersonViewDialog extends DialogFragment {
                 try {
                     getActivity().startActivity(Intent.createChooser(i, "Sende Email..."));
                 } catch (android.content.ActivityNotFoundException ex) {
-                    Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Keine Email Apps gefunden.", Toast.LENGTH_SHORT).show();
                 }
             }
 

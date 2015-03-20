@@ -2,23 +2,23 @@ package de.kreth.clubhelper.activity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -28,16 +28,13 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
@@ -46,10 +43,10 @@ import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
 import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.DaoSession;
-import de.kreth.clubhelper.datahelper.PersonRelationHelper;
 import de.kreth.clubhelper.datahelper.SessionHolder;
-import de.kreth.clubhelper.widgets.PersonAdapter;
+import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 import de.kreth.clubhelper.widgets.PersonSelectDialog;
 
 /**
@@ -88,8 +85,32 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         if (item.getItemId() == R.id.action_addPerson) {
             addDetail();
             return true;
+        } else if(item.getItemId() == R.id.action_edit) {
+            editDetail();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void editDetail() {
+
+        AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_quest_which_info_toedit).setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+//                        editContact();
+                        break;
+                    case 1:
+//                        editRelation();
+                        break;
+                    case 2:
+                        editAdress();
+                        break;
+                }
+            }
+        });
+        dlgBld.show();
     }
 
     private void addDetail() {
@@ -103,10 +124,97 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                     case 1:
                         addRelation();
                         break;
+                    case 2:
+                        addAdress();
+                        break;
                 }
             }
         });
         dlgBld.show();
+    }
+
+    private void editAdress() {
+        final ViewGroup root = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.person_adress_layout, null);
+        List<Adress> adressList = person.getAdressList();
+        if(adressList.size()>0) {
+            final Adress adress = adressList.get(0);
+            final EditText edtAdr1 = (EditText) root.findViewById(R.id.editTextAdress1);
+            edtAdr1.setText(adress.getAdress1());
+            final EditText edtAdr2 = (EditText) root.findViewById(R.id.editTextAdress2);
+            edtAdr2.setText(adress.getAdress2());
+            final EditText edtZip = (EditText) root.findViewById(R.id.editTextAdressZip);
+            edtZip.setText(adress.getPlz());
+            final EditText edtCity = (EditText) root.findViewById(R.id.editTextAdressCity);
+            edtCity.setText(adress.getCity());
+
+            new AlertDialog.Builder(getActivity())
+                    .setView(root)
+                    .setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String adr1 = edtAdr1.getText().toString();
+                            String adr2 = edtAdr2.getText().toString();
+                            String zip = edtZip.getText().toString();
+                            String city = edtCity.getText().toString();
+                            AdressDao adressDao = session.getAdressDao();
+                            adress.setAdress1(adr1);
+                            adress.setAdress2(adr2);
+                            adress.setPlz(zip);
+                            adress.setCity(city);
+                            adressDao.update(adress);
+                            person.resetAdressList();
+                            refreshAdresses(person.getAdressList());
+                        }
+                    })
+                    .setNegativeButton(R.string.lblCancel, null)
+                    .setNeutralButton(R.string.lblDelete, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            session.getAdressDao().delete(adress);
+                            person.resetAdressList();
+                            refreshAdresses(person.getAdressList());
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    private void addAdress() {
+        final ViewGroup root = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.person_adress_layout, null);
+        new AlertDialog.Builder(getActivity())
+                .setView(root)
+                .setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String adr1 = ((EditText) root.findViewById(R.id.editTextAdress1)).getText().toString();
+                        String adr2 = ((EditText) root.findViewById(R.id.editTextAdress2)).getText().toString();
+                        String zip = ((EditText) root.findViewById(R.id.editTextAdressZip)).getText().toString();
+                        String city = ((EditText) root.findViewById(R.id.editTextAdressCity)).getText().toString();
+                        Adress a = new Adress(null, adr1, adr2, zip, city, person.getId());
+                        AdressDao adressDao = session.getAdressDao();
+                        adressDao.insert(a);
+                        addAdress(a);
+                        person.resetAdressList();
+                        refreshAdresses(person.getAdressList());
+                    }
+                }).setNegativeButton(R.string.lblCancel, null)
+                .show();
+    }
+
+    private void addAdress(Adress adr) {
+
+        TableRow row = new TableRow(getActivity());
+        TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+        lp.span = 2;
+        row.setLayoutParams(lp);
+        row.setVisibility(View.GONE);
+
+        TextView value = new TextView(getActivity());
+        value.setText(adr.toString());
+        row.addView(value);
+
+        adressViews.add(row);
+        rootView.addView(row, rootView.getChildCount());
     }
 
     private void addRelation() {
@@ -162,7 +270,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
         final Spinner typeSpinner = new Spinner(getActivity());
         typeSpinner.setLayoutParams(params);
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item, getResources().getStringArray(R.array.contact_type_values));
+        ContactTypeAdapter typeAdapter = new ContactTypeAdapter(getActivity(), getResources().getStringArray(R.array.contact_type_values));
         typeSpinner.setAdapter(typeAdapter);
 
         LinearLayout layout = new LinearLayout(getActivity());
@@ -172,8 +280,12 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         params.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
 
         final EditText input = new EditText(getActivity());
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
         input.setLayoutParams(params);
         layout.addView(input);
+
+        connectSpinnerWithEditText(typeSpinner, input);
 
         AlertDialog.Builder bld = new AlertDialog.Builder(getActivity()).setView(layout).setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
             @Override
@@ -200,6 +312,24 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         });
         bld.setNegativeButton(R.string.lblCancel, null);
         bld.show();
+    }
+
+    private void connectSpinnerWithEditText(Spinner typeSpinner, final EditText input) {
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (position < 2)
+                    input.setInputType(InputType.TYPE_CLASS_PHONE);
+                else
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+            }
+        });
     }
 
     @Override
@@ -264,23 +394,22 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         }
 
         refreshRelatives(person.getRelations());
+        refreshAdresses(person.getAdressList());
 
-        List<Adress> adressList = person.getAdressList();
-        for (Adress adr : adressList) {
+    }
 
-            TableRow row = new TableRow(getActivity());
-            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
-            lp.span = 2;
-            row.setLayoutParams(lp);
-            row.setVisibility(View.GONE);
-
-            TextView value = new TextView(getActivity());
-            value.setText(adr.toString());
-
-            adressViews.add(row);
-            rootView.addView(row, rootView.getChildCount());
+    private void refreshAdresses(List<Adress> adressList) {
+        for (View adrView : adressViews) {
+            rootView.removeView(adrView);
         }
+        adressViews.clear();
 
+        for (Adress adr : adressList) {
+            addAdress(adr);
+        }
+        if(btnAdresses.isChecked()) {
+            setVisibleAdresses();
+        }
     }
 
     private void setVisibleAdresses() {
@@ -393,7 +522,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
         this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
                 person.getBirth()));
-        rootView.findViewById(R.id.imageButton).setOnClickListener(this);
+
+        this.txtBirth.setOnClickListener(this);
+        rootView.findViewById(R.id.lblBirthday).setOnClickListener(this);
     }
 
     @Override

@@ -2,12 +2,14 @@ package de.kreth.clubhelper.dialogs;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
@@ -112,14 +114,18 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
     }
 
     private void initComponents() {
+
+        InputMethodManager imm = (InputMethodManager) dialog.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+
         txtPrename = (TextView) dialog.findViewById(R.id.textPreName);
+        imm.showSoftInput(txtPrename, InputMethodManager.SHOW_IMPLICIT);
         txtSurname = (TextView) dialog.findViewById(R.id.textSurName);
+        imm.showSoftInput(txtSurname, InputMethodManager.SHOW_IMPLICIT);
         birthday = (TextView) dialog.findViewById(R.id.textBirth);
         birthday.setFocusable(false);
         birthday.setOnClickListener(this);
+        dialog.findViewById(R.id.lblBirthday).setOnClickListener(this);
 
-        ImageButton btn = (ImageButton) dialog.findViewById(R.id.imageButton);
-        btn.setOnClickListener(this);
         dialog.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {

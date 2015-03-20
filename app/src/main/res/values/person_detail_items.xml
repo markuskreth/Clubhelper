@@ -3,5 +3,6 @@
     <string-array name="person_detail_items">
         <item>Kontakt</item>
         <item>Beziehung</item>
+        <item>Adresse</item>
     </string-array>
 </resources>

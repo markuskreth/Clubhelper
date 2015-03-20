@@ -11,6 +11,7 @@ import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.kreth.clubhelper.Contact;
@@ -143,7 +144,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
         solo.clickLongInList(1);
         assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
-        solo.clickOnImageButton(0);
+        solo.clickOnText("2000");
         solo.waitForDialogToOpen();
         solo.setDatePicker(0, 1973, Calendar.AUGUST, 21);
         solo.clickOnButton(0);
@@ -275,6 +276,47 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
         solo.searchText("test@testdomain.com", true);
         solo.searchText("Email", true);
+    }
+
+    public void testAddAdress() {
+
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+        MainActivity main = (MainActivity) solo.getCurrentActivity();
+        PersonDao personDao = main.getSession().getPersonDao();
+        Person p1 = new Person(null, "Prename", "Surname", "Type", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        personDao.insert(p1);
+        solo.setActivityOrientation(Solo.LANDSCAPE);
+        solo.setActivityOrientation(Solo.PORTRAIT);
+        solo.clickLongOnText("Prename");
+
+        assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
+
+        View actionAdd = solo.getView(R.id.action_addPerson);
+        solo.clickOnView(actionAdd);
+        solo.waitForDialogToOpen();
+
+        assertTrue(solo.searchText("Kontakt", true));
+        assertTrue(solo.searchText("Beziehung", true));
+        assertTrue(solo.searchText("Adresse", true));
+        solo.clickInList(3);
+
+    }
+
+    public void testDetailItemsValues() {
+        String[] stringArray = getActivity().getResources().getStringArray(R.array.person_detail_items);
+
+        assertEquals("Kontakt", stringArray[0]);
+        assertEquals("Beziehung", stringArray[1]);
+        assertEquals("Adresse", stringArray[2]);
+    }
+
+    public void testContactTypeValues() {
+
+        String[] stringArray = getActivity().getResources().getStringArray(R.array.contact_type_values);
+        assertEquals("Mobile", stringArray[0]);
+        assertEquals("Telefon", stringArray[1]);
+        assertEquals("Email", stringArray[2]);
     }
 
     public void testRelationTypeToString() {
