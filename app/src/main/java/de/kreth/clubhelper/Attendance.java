@@ -4,7 +4,6 @@ package de.kreth.clubhelper;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
-
 /**
  * Entity mapped to table ATTENDANCE.
  */

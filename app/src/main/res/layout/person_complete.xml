@@ -27,7 +27,7 @@
             android:elegantTextHeight="true"
             android:enabled="true"
             android:focusable="true"
-            android:inputType="textPersonName"
+            android:inputType="text|textCapWords|textAutoComplete|textPersonName|textAutoCorrect"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -55,7 +55,7 @@
             android:elegantTextHeight="true"
             android:enabled="true"
             android:focusable="true"
-            android:inputType="textPersonName"
+            android:inputType="text|textCapWords|textAutoComplete|textPersonName"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -81,14 +81,6 @@
             android:layout_height="wrap_content"
             android:layout_column="1"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_column="2"
-            android:contentDescription="@string/lblBirth"
-            android:src="@android:drawable/ic_menu_my_calendar" />
 
     </TableRow>
 

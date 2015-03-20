@@ -4,7 +4,6 @@ package de.kreth.clubhelper;
 
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
-
 /**
  * Entity mapped to table RELATIVE.
  */
@@ -26,8 +25,7 @@ public class Relative {
         this.id = id;
     }
 
-    public Relative(Long id, long person1, long person2, String toPerson2Relation,
-                    String toPerson1Relation) {
+    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation) {
         this.id = id;
         this.person1 = person1;
         this.person2 = person2;

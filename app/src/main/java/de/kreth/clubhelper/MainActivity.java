@@ -12,6 +12,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -140,10 +144,54 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
+            case R.id.action_export:
+                showExportOptions();
+                return true;
             default:
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showExportOptions() {
+    }
+
+    private void exportDbToSD() {
+
+        File sourceFile = new File(session.getDatabase().getPath());
+        File sd = Environment.getExternalStorageDirectory();
+        File destinationFile= new File(sd, sourceFile.getName());
+
+        FileChannel source=null;
+        FileChannel destination=null;
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destinationFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+            Toast.makeText(this, "DB Exported!", Toast.LENGTH_SHORT).show();
+        } catch(IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Export: " + e.getMessage(), Toast.LENGTH_LONG);
+        } finally {
+            if(source != null){
+                try {
+                    source.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Close Source: " + e.getMessage(), Toast.LENGTH_LONG);
+                }
+            }
+
+            if(destination != null){
+
+                try {
+                    destination.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Close Destination: " + e.getMessage(), Toast.LENGTH_SHORT);
+                }
+            }
+        }
     }
 
     @Override

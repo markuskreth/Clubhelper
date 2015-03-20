@@ -18,4 +18,9 @@
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/lblAdd"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/lbl_edit"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -10,6 +10,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,49 +150,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
         if (id == R.id.action_addPerson) {
             createNewPerson();
             return true;
-        } else if (id == R.id.action_export) {
-            showExportOptions();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
-   private void showExportOptions() {
-      File sourceFile = new File(session.getDatabase().getPath());
-      File sd = Environment.getExternalStorageDirectory();
-      File destinationFile= new File(sd, sourceFile.getName());
-
-      FileChannel source=null;
-      FileChannel destination=null;
-      try {
-         source = new FileInputStream(sourceFile).getChannel();
-         destination = new FileOutputStream(destinationFile).getChannel();
-         destination.transferFrom(source, 0, source.size());
-         Toast.makeText(getActivity(), "DB Exported!", Toast.LENGTH_LONG).show();
-      } catch(IOException e) {
-         e.printStackTrace();
-         Toast.makeText(getActivity(), "Export: " + e.getMessage(), Toast.LENGTH_SHORT);
-      } finally {
-         if(source != null){
-            try {
-               source.close();
-            } catch (IOException e) {
-               e.printStackTrace();
-               Toast.makeText(getActivity(), "Close Source: " + e.getMessage(), Toast.LENGTH_SHORT);
-            }
-         }
-
-         if(destination != null){
-
-            try {
-               destination.close();
-            } catch (IOException e) {
-               e.printStackTrace();
-               Toast.makeText(getActivity(), "Close Destination: " + e.getMessage(), Toast.LENGTH_SHORT);
-            }
-         }
-      }
-   }
 
    private void createNewPerson() {
 
