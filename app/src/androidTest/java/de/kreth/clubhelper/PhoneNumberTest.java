@@ -34,13 +34,15 @@ public class PhoneNumberTest extends TestCase {
         assertEquals(expected, actual);
 
         mkHandy = "0174-2521286";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
         assertEquals(expected, actual);
 
         mkHandy = " 0174 25 21 28 6";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
         assertEquals(expected, actual);
@@ -50,18 +52,21 @@ public class PhoneNumberTest extends TestCase {
         String expected = "+49 174 2521286";
 
         String mkHandy = "01742521286";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         assertEquals(expected, actual);
 
         mkHandy = "0049174-2521286";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         assertEquals(expected, actual);
 
         mkHandy = " +49 174 25 21 28 6";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         assertEquals(expected, actual);
@@ -71,18 +76,21 @@ public class PhoneNumberTest extends TestCase {
         String expected = "+491742521286";
 
         String mkHandy = "01742521286";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
         assertEquals(expected, actual);
 
         mkHandy = "0049174-2521286";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
         assertEquals(expected, actual);
 
         mkHandy = " +49 174 25 21 28 6";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
         assertEquals(expected, actual);
@@ -92,37 +100,44 @@ public class PhoneNumberTest extends TestCase {
         String expected = "tel:+49-174-2521286";
 
         String mkHandy = "01742521286";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.RFC3966);
         assertEquals(expected, actual);
 
         mkHandy = "0049174-2521286";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.RFC3966);
         assertEquals(expected, actual);
 
         mkHandy = " +49 174 25 21 28 6";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");
+        assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.RFC3966);
         assertEquals(expected, actual);
     }
     public void testNumberNational() throws NumberParseException {
         String mkHandy = "05112618291";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+
         String expected = "0511 2618291";
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
         assertEquals(expected, actual);
 
         mkHandy = "0511-2618291";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
         assertEquals(expected, actual);
 
         mkHandy = " 0511 26 18 291";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.NATIONAL);
         assertEquals(expected, actual);
@@ -132,7 +147,8 @@ public class PhoneNumberTest extends TestCase {
         String expected = "+49 511 2618291";
 
         String mkHandy = "05112618291";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         assertEquals(expected, actual);
 
@@ -144,7 +160,8 @@ public class PhoneNumberTest extends TestCase {
         assertEquals(expected, actual);
 
         mkHandy = " +49 511 26 18 291";
-        phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
 
         actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         assertEquals(expected, actual);
@@ -154,7 +171,8 @@ public class PhoneNumberTest extends TestCase {
         String expected = "+495112618291";
 
         String mkHandy = "05112618291";
-        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");         assertTrue(phoneUtil.isValidNumber(phoneNumber));
+        Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(mkHandy, "DE");
+         assertTrue(phoneUtil.isValidNumber(phoneNumber));
         String actual = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
         assertEquals(expected, actual);
 

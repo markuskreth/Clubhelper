@@ -1,5 +1,7 @@
 package de.kreth.clubhelper.activity;
 
+import android.app.Activity;
+import android.content.pm.PackageInstaller;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
 
+import de.kreth.clubhelper.DbCleaner;
 import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.R;
 
@@ -25,8 +28,6 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         super(MainActivity.class);
     }
 
-    String originalDbName;
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -35,8 +36,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 
     @Override
     protected void tearDown() throws Exception {
+        getInstrumentation().waitForIdleSync();
+        Activity currentActivity = solo.getCurrentActivity();
+        if( currentActivity instanceof MainActivity)
+            new DbCleaner().cleanSession(((MainActivity)currentActivity).getSession());
         solo.finishOpenedActivities();
-        getInstrumentation().getTargetContext().deleteDatabase("test.sqlite");
         super.tearDown();
     }
 

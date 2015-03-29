@@ -1,5 +1,7 @@
 package de.kreth.clubhelper;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +27,7 @@ import java.util.ResourceBundle;
 
 import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.activity.PersonEditFragment;
+import de.kreth.clubhelper.backup.BackupRestoreHandler;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
@@ -65,7 +68,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         }
 
     }
-
+// TODO Doppelte Verknüpfungen über Relation verhindern!!!
     public static SessionHolder getSessionHolder() {
         return new SessionHolder() {
 
@@ -84,17 +87,20 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        session.clear();
-    }
-
-    @Override
     protected void onDestroy() {
-        super.onDestroy();
+
+        try {
+            File externalStorageDirectory = Environment.getExternalStorageDirectory();
+            new BackupRestoreHandler(session, externalStorageDirectory).doBackup();
+        } catch (IOException e) {
+            Toast.makeText(this, "Backup fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
+            Log.e(getClass().getSimpleName(), "Backup fehlgeschlagen!", e);
+        }
+
         session.clear();
-        session.getDatabase().close();
+//        session.getDatabase().close();
         session = null;
+        super.onDestroy();
     }
 
     private void insertDummyPerson() {
@@ -147,10 +153,35 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             case R.id.action_export:
                 showExportOptions();
                 return true;
+            case R.id.action_restore:
+                startRestore();
+                return true;
             default:
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startRestore() {
+        File externalStorageDirectory = Environment.getExternalStorageDirectory();
+        final BackupRestoreHandler restoreHandler = new BackupRestoreHandler(session, externalStorageDirectory);
+        final String[] strings = restoreHandler.listBackups();
+        if(strings != null && strings.length>0) {
+
+            new AlertDialog.Builder(this).setTitle("Welches Backup soll wieder eingespielt werden?").setNeutralButton(R.string.lblCancel, null).setItems(strings, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        restoreHandler.doRestore(strings[which]);
+                        Toast.makeText(MainActivity.this, "Wiederherstellen erfolgreich!", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Wiederherstellen fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
+                        Log.e(getClass().getSimpleName(), "Wiederherstellen fehlgeschlagen!", e);
+                    }
+                }
+            }).show();
+        } else
+            Toast.makeText(MainActivity.this, "Keine Backup-Dateien gefunden!", Toast.LENGTH_SHORT).show();
     }
 
     private void showExportOptions() {
