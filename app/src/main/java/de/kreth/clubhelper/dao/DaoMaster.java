@@ -57,7 +57,7 @@ public class DaoMaster extends AbstractDaoMaster {
             createAllTables(db, false);
         }
     }
-    
+
     /** WARNING: Drops all table on Upgrade! Use only during development. */
     public static class DevOpenHelper extends OpenHelper {
         public DevOpenHelper(Context context, String name, CursorFactory factory) {
@@ -67,69 +67,89 @@ public class DaoMaster extends AbstractDaoMaster {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.i("greenDAO", "Upgrading schema from version " + oldVersion + " to " + newVersion + " by dropping all tables");
-            for(int migrateVersion = oldVersion+1; migrateVersion<=newVersion; migrateVersion++)
-                upgrade(db, migrateVersion);
-            onCreate(db);
-        }
-
-        private void upgrade(SQLiteDatabase db, int migrateVersion) {
-            switch (migrateVersion) {
-                case 4:
-                    try {
-                        db.beginTransaction();
-                        Date created = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
-                        Date changed = new Date();
-
-                        db.execSQL("ALTER TABLE " + PersonDao.TABLENAME + " ADD COLUMN 'CHANGED' INTEGER NOT NULL");
-                        db.execSQL("ALTER TABLE " + PersonDao.TABLENAME + " ADD COLUMN 'CREATED' INTEGER NOT NULL");
-
-                        db.execSQL("ALTER TABLE " + ContactDao.TABLENAME + " ADD COLUMN 'CHANGED' INTEGER NOT NULL");
-                        db.execSQL("ALTER TABLE " + ContactDao.TABLENAME + " ADD COLUMN 'CREATED' INTEGER NOT NULL");
-
-                        db.execSQL("ALTER TABLE " + RelativeDao.TABLENAME + " ADD COLUMN 'CHANGED' INTEGER NOT NULL");
-                        db.execSQL("ALTER TABLE " + RelativeDao.TABLENAME + " ADD COLUMN 'CREATED' INTEGER NOT NULL");
-
-                        db.execSQL("ALTER TABLE " + AdressDao.TABLENAME + " ADD COLUMN 'CHANGED' INTEGER NOT NULL");
-                        db.execSQL("ALTER TABLE " + AdressDao.TABLENAME + " ADD COLUMN 'CREATED' INTEGER NOT NULL");
-
-                        db.execSQL("ALTER TABLE " + AttendanceDao.TABLENAME + " ADD COLUMN 'CHANGED' INTEGER NOT NULL");
-                        db.execSQL("ALTER TABLE " + AttendanceDao.TABLENAME + " ADD COLUMN 'CREATED' INTEGER NOT NULL");
-
-
-                        db.execSQL("UPDATE " + PersonDao.TABLENAME + " SET " +
-                                PersonDao.Properties.Type.columnName + "='" + PersonType.ACTIVE.name() + "' " +
-                                "WHERE " + PersonDao.Properties.Type.columnName + "='ACITVE'");
-
-                        db.execSQL("UPDATE " + PersonDao.TABLENAME + " SET " +
-                                PersonDao.Properties.Changed.columnName + "='" + changed.getTime() + ", " +
-                                PersonDao.Properties.Created.columnName + "=" + created.getTime() + " ");
-
-                        db.execSQL("UPDATE " + ContactDao.TABLENAME + " SET " +
-                                ContactDao.Properties.Changed.columnName + "='" + changed.getTime() + ", " +
-                                ContactDao.Properties.Created.columnName + "=" + created.getTime() + " ");
-
-                        db.execSQL("UPDATE " + RelativeDao.TABLENAME + " SET " +
-                                RelativeDao.Properties.Changed.columnName + "='" + changed.getTime() + ", " +
-                                RelativeDao.Properties.Created.columnName + "=" + created.getTime() + " ");
-
-                        db.execSQL("UPDATE " + AdressDao.TABLENAME + " SET " +
-                                AdressDao.Properties.Changed.columnName + "='" + changed.getTime() + ", " +
-                                AdressDao.Properties.Created.columnName + "=" + created.getTime() + " ");
-
-                        db.execSQL("UPDATE " + AttendanceDao.TABLENAME + " SET " +
-                                AttendanceDao.Properties.Changed.columnName + "='" + changed.getTime() + ", " +
-                                AttendanceDao.Properties.Created.columnName + "=" + created.getTime() + " ");
-
-                        db.setTransactionSuccessful();
-                    } catch (Exception e) {
-
-                    } finally {
-                        db.endTransaction();
-                    }
-                    break;
+            for(int migrateVersion = oldVersion+1; migrateVersion<=newVersion; migrateVersion++) {
+                switch (migrateVersion) {
+                    case 4:
+                        migrateToVersion4(db);
+                        break;
+                }
             }
         }
 
+        private void migrateToVersion4(SQLiteDatabase db) {
+            RuntimeException exception = null;
+            try {
+                db.beginTransaction();
+                db.execSQL("UPDATE " + PersonDao.TABLENAME + " SET " +
+                        PersonDao.Properties.Type.columnName + "='" + PersonType.ACTIVE.name() + "' " +
+                        "WHERE " + PersonDao.Properties.Type.columnName + "='ACITVE'");
+
+                Date created = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
+                Date changed = new Date();
+
+                updateTableTo4(db,
+                        PersonDao.TABLENAME,
+                        PersonDao.Properties.Created.columnName,
+                        PersonDao.Properties.Changed.columnName,
+                        created,
+                        changed);
+
+                updateTableTo4(db,
+                        ContactDao.TABLENAME,
+                        ContactDao.Properties.Created.columnName,
+                        ContactDao.Properties.Changed.columnName,
+                        created,
+                        changed);
+
+                updateTableTo4(db,
+                        RelativeDao.TABLENAME,
+                        RelativeDao.Properties.Created.columnName,
+                        RelativeDao.Properties.Changed.columnName,
+                        created,
+                        changed);
+
+                updateTableTo4(db,
+                        AdressDao.TABLENAME,
+                        AdressDao.Properties.Created.columnName,
+                        AdressDao.Properties.Changed.columnName,
+                        created,
+                        changed);
+
+                updateTableTo4(db,
+                        AttendanceDao.TABLENAME,
+                        AttendanceDao.Properties.Created.columnName,
+                        AttendanceDao.Properties.Changed.columnName,
+                        created,
+                        changed);
+
+                db.setTransactionSuccessful();
+            } catch (RuntimeException e) {
+                exception = e;
+            } finally {
+                db.endTransaction();
+            }
+
+            if(exception != null)
+                throw exception;
+        }
+
+        private void updateTableTo4(SQLiteDatabase db, String tableName, String createColName, String changeColName, Date created, Date changed) {
+
+            String sql = "ALTER TABLE " + tableName + " ADD COLUMN 'CHANGED' INTEGER NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+            sql = "ALTER TABLE " + tableName + " ADD COLUMN 'CREATED' INTEGER NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            db.execSQL("UPDATE " + tableName + " SET " +
+                    changeColName + "=" + changed.getTime() + ", " +
+                    createColName + "=" + created.getTime() + " ");
+
+        }
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            super.onDowngrade(db, oldVersion, newVersion);
+        }
     }
 
     public DaoMaster(SQLiteDatabase db) {
