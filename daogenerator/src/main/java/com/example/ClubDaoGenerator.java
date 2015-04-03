@@ -20,8 +20,8 @@ public class ClubDaoGenerator {
 
     public void generate() throws Exception {
 
-        schema = new Schema(3, "de.kreth.clubhelper");
-        schema.setDefaultJavaPackageTest("de.kreth.clubhelper.test");
+        schema = new Schema(4, "de.kreth.clubhelper");
+        schema.setDefaultJavaPackageTest("de.kreth.clubhelper.dao");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
 
@@ -30,6 +30,12 @@ public class ClubDaoGenerator {
         createAttendance();
         createAdress();
         createRelatives();
+
+        addChangedAndCreatedProperties(person);
+        addChangedAndCreatedProperties(contact);
+        addChangedAndCreatedProperties(attendance);
+        addChangedAndCreatedProperties(adress);
+        addChangedAndCreatedProperties(relative);
 
         DaoGenerator daoGenerator = new DaoGenerator();
         File f = new File(".");
@@ -113,6 +119,11 @@ public class ClubDaoGenerator {
         person.addStringProperty("type").index();
         person.addDateProperty("birth");
 
+    }
+
+    private void addChangedAndCreatedProperties(Entity e) {
+        e.addDateProperty("changed").notNull();
+        e.addDateProperty("created").notNull();
     }
 
     public static void main(String[] args) throws Exception {

@@ -27,6 +27,10 @@ public class Person implements java.io.Serializable {
     private String surname;
     private String type;
     private java.util.Date birth;
+    /** Not-null value. */
+    private java.util.Date changed;
+    /** Not-null value. */
+    private java.util.Date created;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -48,12 +52,14 @@ public class Person implements java.io.Serializable {
         this.id = id;
     }
 
-    public Person(Long id, String prename, String surname, String type, java.util.Date birth) {
+    public Person(Long id, String prename, String surname, String type, java.util.Date birth, java.util.Date changed, java.util.Date created) {
         this.id = id;
         this.prename = prename;
         this.surname = surname;
         this.type = type;
         this.birth = birth;
+        this.changed = changed;
+        this.created = created;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -100,6 +106,26 @@ public class Person implements java.io.Serializable {
 
     public void setBirth(java.util.Date birth) {
         this.birth = birth;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getChanged() {
+        return changed;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setChanged(java.util.Date changed) {
+        this.changed = changed;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getCreated() {
+        return created;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setCreated(java.util.Date created) {
+        this.created = created;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -195,7 +221,17 @@ public class Person implements java.io.Serializable {
     // KEEP METHODS - put your custom methods here
 
     public PersonType getPersonType() {
-        return PersonType.valueOf(this.type);
+        try {
+            return PersonType.valueOf(this.type);
+        } catch (Exception e) {
+            if(this.type.startsWith("AC")) {
+                this.setType(PersonType.ACTIVE.name());
+                this.update();
+                return PersonType.ACTIVE;
+            }
+            else
+                throw e;
+        }
     }
 
     public void setPersonType(PersonType type) {

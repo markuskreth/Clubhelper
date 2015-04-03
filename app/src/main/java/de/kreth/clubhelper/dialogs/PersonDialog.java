@@ -21,12 +21,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
+import de.kreth.clubhelper.widgets.PersonTypeAdapter;
 
 /**
  * Created by markus on 21.12.14.
@@ -41,7 +43,9 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
     private TextView txtPrename;
     private TextView txtSurname;
     private TextView birthday;
+    private Spinner personType;
     private Calendar birth;
+    private PersonTypeAdapter personTypeAdapter;
 
     public PersonDialog(ViewGroup view, Person person) {
 
@@ -61,6 +65,7 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
         birth = new GregorianCalendar();
         birth.setTime(person.getBirth());
         birthday.setText(df.format(person.getBirth()));
+        personType.setSelection(personTypeAdapter.getPosition(person.getPersonType()));
         initContacts();
     }
 
@@ -121,6 +126,11 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
         imm.showSoftInput(txtPrename, InputMethodManager.SHOW_IMPLICIT);
         txtSurname = (TextView) dialog.findViewById(R.id.textSurName);
         imm.showSoftInput(txtSurname, InputMethodManager.SHOW_IMPLICIT);
+
+        this.personTypeAdapter = new PersonTypeAdapter(dialog.getContext().getResources());
+        personType = (Spinner) dialog.findViewById(R.id.person_type);
+        personType.setAdapter(personTypeAdapter);
+
         birthday = (TextView) dialog.findViewById(R.id.textBirth);
         birthday.setFocusable(false);
         birthday.setOnClickListener(this);
@@ -135,6 +145,8 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
                             public void onClick(
                                     DialogInterface dlg,
                                     int which) {
+                                Date now = new Date();
+
                                 switch (which) {
                                     case 0:
                                         new AlertDialog.Builder(
@@ -143,12 +155,11 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
                                                 R.string.lblOK,
                                                 null).show();
                                         Contact nc = new Contact(
-                                                null,
-                                                "Mobile",
-                                                "0174-2521286",
-                                                person.getId());
-                                        addContactToDialog(
-                                                nc);
+                                                            null,
+                                                            "Mobile",
+                                                            "0174-2521286",
+                                                            person.getId(), now, now);
+                                        addContactToDialog(nc);
                                         break;
                                     case 1:
                                         new AlertDialog.Builder(

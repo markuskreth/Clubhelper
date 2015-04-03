@@ -28,6 +28,8 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         public final static Property Person2 = new Property(2, long.class, "person2", false, "PERSON2");
         public final static Property ToPerson2Relation = new Property(3, String.class, "toPerson2Relation", false, "TO_PERSON2_RELATION");
         public final static Property ToPerson1Relation = new Property(4, String.class, "toPerson1Relation", false, "TO_PERSON1_RELATION");
+        public final static Property Changed = new Property(5, java.util.Date.class, "changed", false, "CHANGED");
+        public final static Property Created = new Property(6, java.util.Date.class, "created", false, "CREATED");
     };
 
 
@@ -47,7 +49,9 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
                 "'PERSON1' INTEGER NOT NULL ," + // 1: person1
                 "'PERSON2' INTEGER NOT NULL ," + // 2: person2
                 "'TO_PERSON2_RELATION' TEXT," + // 3: toPerson2Relation
-                "'TO_PERSON1_RELATION' TEXT);"); // 4: toPerson1Relation
+                "'TO_PERSON1_RELATION' TEXT," + // 4: toPerson1Relation
+                "'CHANGED' INTEGER NOT NULL ," + // 5: changed
+                "'CREATED' INTEGER NOT NULL );"); // 6: created
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_RELATIVE_PERSON1_PERSON2 ON RELATIVE" +
                 " (PERSON1,PERSON2);");
@@ -80,6 +84,8 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         if (toPerson1Relation != null) {
             stmt.bindString(5, toPerson1Relation);
         }
+        stmt.bindLong(6, entity.getChanged().getTime());
+        stmt.bindLong(7, entity.getCreated().getTime());
     }
 
     /** @inheritdoc */
@@ -96,7 +102,9 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
             cursor.getLong(offset + 1), // person1
             cursor.getLong(offset + 2), // person2
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // toPerson2Relation
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // toPerson1Relation
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // toPerson1Relation
+            new java.util.Date(cursor.getLong(offset + 5)), // changed
+            new java.util.Date(cursor.getLong(offset + 6)) // created
         );
         return entity;
     }
@@ -109,6 +117,8 @@ public class RelativeDao extends AbstractDao<Relative, Long> {
         entity.setPerson2(cursor.getLong(offset + 2));
         entity.setToPerson2Relation(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setToPerson1Relation(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setChanged(new java.util.Date(cursor.getLong(offset + 5)));
+        entity.setCreated(new java.util.Date(cursor.getLong(offset + 6)));
      }
     
     /** @inheritdoc */

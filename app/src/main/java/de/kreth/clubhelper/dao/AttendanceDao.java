@@ -29,6 +29,8 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property OnDate = new Property(1, java.util.Date.class, "onDate", false, "ON_DATE");
         public final static Property PersonId = new Property(2, long.class, "personId", false, "PERSON_ID");
+        public final static Property Changed = new Property(3, java.util.Date.class, "changed", false, "CHANGED");
+        public final static Property Created = new Property(4, java.util.Date.class, "created", false, "CREATED");
     };
 
     private Query<Attendance> person_AttendanceListQuery;
@@ -47,7 +49,9 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
         db.execSQL("CREATE TABLE " + constraint + "'ATTENDANCE' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ON_DATE' INTEGER," + // 1: onDate
-                "'PERSON_ID' INTEGER NOT NULL );"); // 2: personId
+                "'PERSON_ID' INTEGER NOT NULL ," + // 2: personId
+                "'CHANGED' INTEGER NOT NULL ," + // 3: changed
+                "'CREATED' INTEGER NOT NULL );"); // 4: created
         // Add Indexes
         db.execSQL("CREATE INDEX " + constraint + "idxAttendance ON ATTENDANCE" +
                 " (ON_DATE,PERSON_ID);");
@@ -74,6 +78,8 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
             stmt.bindLong(2, onDate.getTime());
         }
         stmt.bindLong(3, entity.getPersonId());
+        stmt.bindLong(4, entity.getChanged().getTime());
+        stmt.bindLong(5, entity.getCreated().getTime());
     }
 
     /** @inheritdoc */
@@ -88,7 +94,9 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
         Attendance entity = new Attendance( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : new java.util.Date(cursor.getLong(offset + 1)), // onDate
-            cursor.getLong(offset + 2) // personId
+            cursor.getLong(offset + 2), // personId
+            new java.util.Date(cursor.getLong(offset + 3)), // changed
+            new java.util.Date(cursor.getLong(offset + 4)) // created
         );
         return entity;
     }
@@ -99,6 +107,8 @@ public class AttendanceDao extends AbstractDao<Attendance, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setOnDate(cursor.isNull(offset + 1) ? null : new java.util.Date(cursor.getLong(offset + 1)));
         entity.setPersonId(cursor.getLong(offset + 2));
+        entity.setChanged(new java.util.Date(cursor.getLong(offset + 3)));
+        entity.setCreated(new java.util.Date(cursor.getLong(offset + 4)));
      }
     
     /** @inheritdoc */

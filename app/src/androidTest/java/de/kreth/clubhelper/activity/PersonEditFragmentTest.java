@@ -11,6 +11,7 @@ import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
     private final static String DBNAME = MainActivityTest.class.getSimpleName() + ".sqlite";
     private Solo solo;
+    private Date now;
 
     public PersonEditFragmentTest() {
         super(MainActivity.class);
@@ -43,6 +45,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         super.setUp();
         originalDbName = MainActivity.DBNAME;
         MainActivity.DBNAME = DBNAME;
+        now = new GregorianCalendar(2014, Calendar.NOVEMBER, 1).getTime();
         solo = new Solo(getInstrumentation(), getActivity());
     }
 
@@ -103,7 +106,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         ersteEmail.setValue("test@test.com");
         contactDao.insert(ersteEmail);
 
-        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString());
+        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString(), now, now);
         session.getRelativeDao().insert(relative);
         assertNotNull(relative.getId());
 
@@ -284,7 +287,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
         MainActivity main = (MainActivity) solo.getCurrentActivity();
         PersonDao personDao = main.getSession().getPersonDao();
-        Person p1 = new Person(null, "Prename", "Surname", "Type", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        Person p1 = new Person(null, "Prename", "Surname", "Type", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now,now );
         personDao.insert(p1);
         solo.setActivityOrientation(Solo.LANDSCAPE);
         solo.setActivityOrientation(Solo.PORTRAIT);
@@ -413,6 +416,10 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         assertTrue(solo.searchText("Eine", true));
         assertTrue(solo.searchText("Testperson", true));
         assertTrue(solo.searchText("Kind", true));
+
+    }
+
+    public void testChangeName() {
 
     }
 

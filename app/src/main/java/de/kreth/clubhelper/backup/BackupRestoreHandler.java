@@ -12,11 +12,17 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.Relative;
 import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.ContactDao;
@@ -42,17 +48,20 @@ public class BackupRestoreHandler {
     }
 
     public void doBackup() throws IOException {
-        File exportDir = new File(targetDir, EXPORT_DIR_NAME);
-        if (! exportDir.exists()) {
-            exportDir.mkdirs();
+        File backupDir = new File(targetDir, EXPORT_DIR_NAME);
+        if (! backupDir.exists()) {
+            backupDir.mkdirs();
         }
-        File exportFile = new File(exportDir, "backup_" + df.format(new java.util.Date()) + ".bak");
-        DataExportClass data = new DataExportClass();
+
+        startBackupCleaner(backupDir);
+
+        File exportFile = new File(backupDir, "backup_" + df.format(new java.util.Date()) + ".bak");
+
         String json;
         synchronized (session)  {
 
             session.clear();
-
+            DataExportClass data = new DataExportClass();
             data.setPersons(session.getPersonDao().loadAll());
             data.setContacts(session.getContactDao().loadAll());
             data.setAdresses(session.getAdressDao().loadAll());
@@ -69,6 +78,19 @@ public class BackupRestoreHandler {
             throw e;
         }
         writer.close();
+    }
+
+    private void startBackupCleaner(File backupDir) {
+//        File exportFile = new File(backupDir, "backup_" + df.format(new java.util.Date()) + ".bak");
+//        String[] backup_s = backupDir.list(new FilenameFilter() {
+//            @Override
+//            public boolean accept(File dir, String filename) {
+//                return filename.startsWith("backup_") && filename.startsWith(".bak");
+//            }
+//        });
+//        ExecutorService exec = Executors.newSingleThreadExecutor();
+//        exec.execute(new BackupCleaner(backupDir, backup_s));
+//        exec.shutdown();
     }
 
     public void doRestore(String backupFileName) throws IOException {
@@ -91,6 +113,13 @@ public class BackupRestoreHandler {
         AdressDao adressDao = session.getAdressDao();
 
         for (Person person : data.getPersons()) {
+            if(person.getCreated() == null)
+                person.setCreated(new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
+            if(person.getChanged() == null)
+                person.setChanged(new Date());
+            if(person.getType().matches("ACITVE"))
+                person.setType(PersonType.ACTIVE.name());
+
             personDao.insertOrReplace(person);
         }
         for (Contact contact : data.getContacts()) {

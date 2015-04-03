@@ -1,6 +1,9 @@
-package de.kreth.clubhelper.test;
+package de.kreth.clubhelper.dao;
+
+import java.util.Date;
 
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
+
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.dao.ContactDao;
 
@@ -14,6 +17,9 @@ public class ContactTest extends AbstractDaoTestLongPk<ContactDao, Contact> {
     protected Contact createEntity(Long key) {
         Contact entity = new Contact();
         entity.setId(key);
+        entity.setPersonId(1L);
+        entity.setChanged(new Date());
+        entity.setCreated(new Date());
         return entity;
     }
 

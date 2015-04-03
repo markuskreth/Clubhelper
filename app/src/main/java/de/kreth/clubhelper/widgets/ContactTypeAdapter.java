@@ -1,5 +1,6 @@
 package de.kreth.clubhelper.widgets;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.widget.ArrayAdapter;
 
@@ -8,7 +9,7 @@ import android.widget.ArrayAdapter;
  */
 public class ContactTypeAdapter extends ArrayAdapter<String> {
 
-    public ContactTypeAdapter(FragmentActivity activity, String[] stringArray) {
+    public ContactTypeAdapter(Context activity, String[] stringArray) {
         super(activity,  android.support.v7.appcompat.R.layout.support_simple_spinner_dropdown_item, stringArray);
     }
 

@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ import de.kreth.clubhelper.Relative;
 import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.datahelper.SessionHolder;
+import de.kreth.clubhelper.widgets.ContactEditDialog;
 import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 import de.kreth.clubhelper.widgets.PersonSelectDialog;
 
@@ -99,7 +101,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-//                        editContact();
+                        editContact();
                         break;
                     case 1:
 //                        editRelation();
@@ -109,10 +111,41 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                         break;
                 }
             }
+
         });
         dlgBld.show();
     }
 
+    private void editContact() {
+        final List<Contact> contactList = person.getContactList();
+        String[] items = new String[contactList.size()];
+
+        for (int i = 0; i < contactList.size(); i++) {
+            items[i] = contactList.get(i).getType() + ": " + contactList.get(i).getValue();
+        }
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_quest_which_info_toedit)
+                .setNeutralButton(R.string.lblCancel, null)
+                .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final Contact c = contactList.get(which);
+
+                        ContactEditDialog.ContactEditDialogResult result = new ContactEditDialog.ContactEditDialogResult() {
+                            @Override
+                            public void contactToStore(Contact contact) {
+                                if (!(c.getType().matches(contact.getType()) || c.getValue().matches(contact.getValue()))) {
+                                    contact.setChanged(new Date());
+                                    session.getContactDao().update(contact);
+                                }
+                            }
+                        };
+                        Contact toChange = new Contact(c.getId(), c.getType(), c.getValue(), c.getPersonId(), c.getChanged(), c.getCreated());
+                        new ContactEditDialog(getActivity(), toChange, result).show();
+                    }
+                })
+                .show();
+    }
     private void addDetail() {
         AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_quest_which_info_toadd).setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
             @Override
@@ -161,6 +194,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                             adress.setAdress2(adr2);
                             adress.setPlz(zip);
                             adress.setCity(city);
+                            adress.setChanged(new Date());
                             adressDao.update(adress);
                             person.resetAdressList();
                             refreshAdresses(person.getAdressList());
@@ -190,7 +224,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                         String adr2 = ((EditText) root.findViewById(R.id.editTextAdress2)).getText().toString();
                         String zip = ((EditText) root.findViewById(R.id.editTextAdressZip)).getText().toString();
                         String city = ((EditText) root.findViewById(R.id.editTextAdressCity)).getText().toString();
-                        Adress a = new Adress(null, adr1, adr2, zip, city, person.getId());
+
+                        Date now = new Date();
+                        Adress a = new Adress(null, adr1, adr2, zip, city, person.getId(), now, now);
                         AdressDao adressDao = session.getAdressDao();
                         adressDao.insert(a);
                         addAdress(a);
@@ -250,7 +286,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                                         default:
                                             toFirst = toSecond;
                                     }
-                                    Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name());
+
+                                    Date now = new Date();
+                                    Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name(), now, now);
                                     session.getRelativeDao().insert(rel);
                                     refreshRelatives(person.getRelations());
 
@@ -265,82 +303,33 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void addContact() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER_VERTICAL|Gravity.LEFT;
 
-        final Spinner typeSpinner = new Spinner(getActivity());
-        typeSpinner.setLayoutParams(params);
-        ContactTypeAdapter typeAdapter = new ContactTypeAdapter(getActivity(), getResources().getStringArray(R.array.contact_type_values));
-        typeSpinner.setAdapter(typeAdapter);
-
-        LinearLayout layout = new LinearLayout(getActivity());
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.addView(typeSpinner);
-        params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT,1);
-        params.gravity = Gravity.CENTER_VERTICAL|Gravity.RIGHT;
-
-        final EditText input = new EditText(getActivity());
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-        input.setLayoutParams(params);
-        layout.addView(input);
-
-        connectSpinnerWithEditText(typeSpinner, input);
-
-        AlertDialog.Builder bld = new AlertDialog.Builder(getActivity()).setView(layout).setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
+        Date now = new Date();
+        Contact newContact = new Contact(null, "", "" , person.getId(), now, now);
+        ContactEditDialog.ContactEditDialogResult result = new ContactEditDialog.ContactEditDialogResult() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String item = typeSpinner.getSelectedItem().toString();
-                String value = null;
-                try {
-                    Phonenumber.PhoneNumber phoneNumber = phoneUtil.parse(input.getText().toString(), Locale.getDefault().getCountry());
-                    if(phoneUtil.isValidNumber(phoneNumber)) {
-                        value = phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
-                    }
-                } catch (NumberParseException e) {
-                    e.printStackTrace();
-                }
-                if(value == null)
-                    value = input.getText().toString();
+            public void contactToStore(Contact contact) {
 
-                Contact newContact = new Contact(null, item, value, person.getId());
-                session.getContactDao().insert(newContact);
-                person.getContactList().add(newContact);
-                addContact(newContact);
+                session.getContactDao().insert(contact);
+                person.getContactList().add(contact);
+                addContact(contact);
                 setVisibleContacts();
             }
-        });
-        bld.setNegativeButton(R.string.lblCancel, null);
-        bld.show();
-    }
+        };
 
-    private void connectSpinnerWithEditText(Spinner typeSpinner, final EditText input) {
-        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                if (position < 2)
-                    input.setInputType(InputType.TYPE_CLASS_PHONE);
-                else
-                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-            }
-        });
+        final ContactEditDialog dlg = new ContactEditDialog(getActivity(), newContact, result);
+        dlg.show();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        session = ((SessionHolder) getActivity()).getSession();
         long personId = -1;
 
         personId = getArguments().getLong(MainActivity.PERSONID);
 
+        session = ((SessionHolder) getActivity()).getSession();
         person = session.getPersonDao().load(personId);
         rootView = (TableLayout) inflater.inflate(R.layout.fragment_person_edit, container, false);
         if(getActivity() instanceof MainFragment.OnMainFragmentEventListener){
@@ -532,6 +521,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         person.getBirth().setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
         this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
                 person.getBirth()));
+        person.setChanged(new Date());
         session.getPersonDao().update(person);
     }
 

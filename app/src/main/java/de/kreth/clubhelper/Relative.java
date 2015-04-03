@@ -14,6 +14,10 @@ public class Relative {
     private long person2;
     private String toPerson2Relation;
     private String toPerson1Relation;
+    /** Not-null value. */
+    private java.util.Date changed;
+    /** Not-null value. */
+    private java.util.Date created;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -25,12 +29,14 @@ public class Relative {
         this.id = id;
     }
 
-    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation) {
+    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation, java.util.Date changed, java.util.Date created) {
         this.id = id;
         this.person1 = person1;
         this.person2 = person2;
         this.toPerson2Relation = toPerson2Relation;
         this.toPerson1Relation = toPerson1Relation;
+        this.changed = changed;
+        this.created = created;
     }
 
     public Long getId() {
@@ -71,6 +77,26 @@ public class Relative {
 
     public void setToPerson1Relation(String toPerson1Relation) {
         this.toPerson1Relation = toPerson1Relation;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getChanged() {
+        return changed;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setChanged(java.util.Date changed) {
+        this.changed = changed;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getCreated() {
+        return created;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setCreated(java.util.Date created) {
+        this.created = created;
     }
 
     // KEEP METHODS - put your custom methods here

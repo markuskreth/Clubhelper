@@ -11,6 +11,7 @@ import com.robotium.solo.Solo;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -30,10 +31,12 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
     private PersonSelectDialog dlg;
     private DaoSession session;
 
+
     private Person mk;
     private Person jb;
     private TestActivity activity;
     private Solo solo;
+    private Date now;
 
     public PersonSelectDialogTest() {
         super(TestActivity.class);
@@ -42,6 +45,9 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        now = new GregorianCalendar(2014, Calendar.NOVEMBER, 1).getTime();
+
         dbname = PersonSelectDialogTest.class.getSimpleName() + ".sqlite";
         activity = getActivity();
         solo = new Solo(getInstrumentation(), activity);
@@ -60,13 +66,13 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
 
     public void testDialogShowingUnfiltered() {
         PersonDao personDao = session.getPersonDao();
-        mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
-        jb = new Person(null, "Test", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
+        mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
+        jb = new Person(null, "Test", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime(), now, now);
         personDao.insert(mk);
         personDao.insert(jb);
-        personDao.insert(new Person(null, "Third", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
-        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
-        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
+        personDao.insert(new Person(null, "Third", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
+        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
+        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
 
 
         final List<Person> selected = new ArrayList<>();
@@ -103,11 +109,11 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
     public void testFilterAndSelect() {
 
         PersonDao personDao = session.getPersonDao();
-        personDao.insert(new Person(null, "First", "Men", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime()));
-        personDao.insert(new Person(null, "Second", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime()));
-        personDao.insert(new Person(null, "Third", "Men", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
-        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
-        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
+        personDao.insert(new Person(null, "First", "Men", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now));
+        personDao.insert(new Person(null, "Second", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime(), now, now));
+        personDao.insert(new Person(null, "Third", "Men", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
+        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
+        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
 
         final List<Person> selected = new ArrayList<>();
 
@@ -137,17 +143,17 @@ public class PersonSelectDialogTest extends ActivityInstrumentationTestCase2<Tes
     public void testFilterAndExclude() {
 
         PersonDao personDao = session.getPersonDao();
-        Person p1 = new Person(null, "First", "Men", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        Person p1 = new Person(null, "First", "Men", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
         personDao.insert(p1);
         assertNotNull(p1.getId());
 
-        personDao.insert(new Person(null, "Second", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime()));
-        Person p3 = new Person(null, "Third", "Men", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime());
+        personDao.insert(new Person(null, "Second", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime(), now, now));
+        Person p3 = new Person(null, "Third", "Men", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now);
         personDao.insert(p3);
         assertNotNull(p3.getId());
 
-        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
-        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACITVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime()));
+        personDao.insert(new Person(null, "Fourth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
+        personDao.insert(new Person(null, "Fifth", "Person", PersonType.ACTIVE.name(), new GregorianCalendar(1980, Calendar.JANUARY, 1).getTime(), now, now));
 
         final List<Person> selected = new ArrayList<>();
 

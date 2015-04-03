@@ -32,6 +32,8 @@ public class AdressDao extends AbstractDao<Adress, Long> {
         public final static Property Plz = new Property(3, String.class, "plz", false, "PLZ");
         public final static Property City = new Property(4, String.class, "city", false, "CITY");
         public final static Property PersonId = new Property(5, long.class, "personId", false, "PERSON_ID");
+        public final static Property Changed = new Property(6, java.util.Date.class, "changed", false, "CHANGED");
+        public final static Property Created = new Property(7, java.util.Date.class, "created", false, "CREATED");
     };
 
     private Query<Adress> person_AdressListQuery;
@@ -53,7 +55,9 @@ public class AdressDao extends AbstractDao<Adress, Long> {
                 "'ADRESS2' TEXT," + // 2: adress2
                 "'PLZ' TEXT," + // 3: plz
                 "'CITY' TEXT," + // 4: city
-                "'PERSON_ID' INTEGER NOT NULL );"); // 5: personId
+                "'PERSON_ID' INTEGER NOT NULL ," + // 5: personId
+                "'CHANGED' INTEGER NOT NULL ," + // 6: changed
+                "'CREATED' INTEGER NOT NULL );"); // 7: created
     }
 
     /** Drops the underlying database table. */
@@ -92,6 +96,8 @@ public class AdressDao extends AbstractDao<Adress, Long> {
             stmt.bindString(5, city);
         }
         stmt.bindLong(6, entity.getPersonId());
+        stmt.bindLong(7, entity.getChanged().getTime());
+        stmt.bindLong(8, entity.getCreated().getTime());
     }
 
     /** @inheritdoc */
@@ -109,7 +115,9 @@ public class AdressDao extends AbstractDao<Adress, Long> {
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // adress2
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // plz
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // city
-            cursor.getLong(offset + 5) // personId
+            cursor.getLong(offset + 5), // personId
+            new java.util.Date(cursor.getLong(offset + 6)), // changed
+            new java.util.Date(cursor.getLong(offset + 7)) // created
         );
         return entity;
     }
@@ -123,6 +131,8 @@ public class AdressDao extends AbstractDao<Adress, Long> {
         entity.setPlz(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setCity(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setPersonId(cursor.getLong(offset + 5));
+        entity.setChanged(new java.util.Date(cursor.getLong(offset + 6)));
+        entity.setCreated(new java.util.Date(cursor.getLong(offset + 7)));
      }
     
     /** @inheritdoc */

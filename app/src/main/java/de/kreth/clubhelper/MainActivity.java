@@ -2,6 +2,7 @@ package de.kreth.clubhelper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -90,8 +92,8 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     @Override
     protected void onDestroy() {
 
+        File externalStorageDirectory = Environment.getExternalStorageDirectory();
         try {
-            File externalStorageDirectory = Environment.getExternalStorageDirectory();
             new BackupRestoreHandler(session, externalStorageDirectory).doBackup();
         } catch (IOException e) {
             Toast.makeText(this, "Backup fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
@@ -105,32 +107,33 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     }
 
     private void insertDummyPerson() {
-        Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACITVE.name(),
-                new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime());
+        Date now = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
+        Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACTIVE.name(),
+                new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime(), now, now);
         Person mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(),
-                new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+                new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
         PersonDao personDao = session.getPersonDao();
         personDao.insertOrReplace(jb);
         personDao.insertOrReplace(mk);
 
         RelativeDao relativeDao = session.getRelativeDao();
         Relative rel = new Relative(null, jb.getId(), mk.getId(), RelationType.RELATIONSHIP.name(),
-                RelationType.RELATIONSHIP.name());
+                RelationType.RELATIONSHIP.name(), now, now);
 
         relativeDao.insert(rel);
         personDao.update(jb);
         personDao.update(mk);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(0);
-        Person anna = new Person(null, "Anna", "Langenhagen", PersonType.ACITVE.name(),
-                new GregorianCalendar(2006, Calendar.APRIL, 28).getTime());
+        Person anna = new Person(null, "Anna", "Langenhagen", PersonType.ACTIVE.name(),
+                new GregorianCalendar(2006, Calendar.APRIL, 28).getTime(), now, now);
         Person birgitt = new Person(null, "Birgitt", "Langenhagen", PersonType.RELATIVE.name(),
-                calendar.getTime());
+                calendar.getTime(), now, now);
         personDao.insert(anna);
         personDao.insert(birgitt);
 
         rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.PARENT.name(),
-                RelationType.CHILD.name());
+                RelationType.CHILD.name(), now, now);
         relativeDao.insert(rel);
     }
 

@@ -14,17 +14,27 @@ import de.kreth.clubhelper.backup.DataExportClass;
 
 public class PersonJsonTest extends AndroidTestCase {
 
+    private Date now;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        now = new GregorianCalendar(2014, Calendar.NOVEMBER, 1).getTime();
+    }
+
     public void testToJson() throws Exception {
-        Person markus = new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        Person markus = new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
         Gson gson = new Gson();
         String markusJson = gson.toJson(markus);
-
 
         Person deserialized = gson.fromJson(markusJson, Person.class);
         assertEquals(1L, deserialized.getId().longValue());
         assertEquals("Markus", deserialized.getPrename());
         assertEquals("Kreth", deserialized.getSurname());
         assertEquals("Trainer", deserialized.getType());
+        assertEquals(now, deserialized.getChanged());
+        assertEquals(now, deserialized.getCreated());
+
         Date birth = new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime();
         assertEquals(birth, deserialized.getBirth());
     }
@@ -37,6 +47,9 @@ public class PersonJsonTest extends AndroidTestCase {
         assertEquals("Markus", deserialized.getPrename());
         assertEquals("Kreth", deserialized.getSurname());
         assertEquals("Trainer", deserialized.getType());
+        assertNull(deserialized.getChanged());
+        assertNull(deserialized.getCreated());
+
         Date birth = new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime();
         assertEquals(birth, deserialized.getBirth());
     }
@@ -46,18 +59,18 @@ public class PersonJsonTest extends AndroidTestCase {
         DataExportClass data = new DataExportClass();
 
         List<Person> list = new ArrayList<>();
-        list.add(new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime()));
-        list.add(new Person(2L, "Test", "Person", "Aktive", new GregorianCalendar(1989, Calendar.AUGUST, 1).getTime()));
+        list.add(new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now));
+        list.add(new Person(2L, "Test", "Person", "Aktive", new GregorianCalendar(1989, Calendar.AUGUST, 1).getTime(), now, now));
         data.setPersons(list);
 
         List<Contact> contacts = new ArrayList<>();
-        contacts.add(new Contact(1L, "Email", "markus.kr@web.de", 1L));
-        contacts.add(new Contact(2L, "Mobile", "0174555555", 1L));
-        contacts.add(new Contact(3L, "Email", "Test.kr@web.de", 2L));
+        contacts.add(new Contact(1L, "Email", "markus.kr@web.de", 1L, now, now));
+        contacts.add(new Contact(2L, "Mobile", "0174555555", 1L, now, now));
+        contacts.add(new Contact(3L, "Email", "Test.kr@web.de", 2L, now, now));
         data.setContacts(contacts);
 
         List<Adress> adresses = new ArrayList<>();
-        adresses.add(new Adress(1L, "Markus Straße", "", "30555", "Hannover", 1L));
+        adresses.add(new Adress(1L, "Markus Straße", "", "30555", "Hannover", 1L, now, now));
         data.setAdresses(adresses);
 
         Gson gson = new Gson();

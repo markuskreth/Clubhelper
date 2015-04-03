@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import de.kreth.clubhelper.Contact;
@@ -177,9 +178,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
                     else
                         contactDao.update(c);
                 }
+
                 person.setPrename(p.getPrename().toString());
                 person.setSurname(p.getTxtSurname().toString());
                 person.getBirth().setTime(p.getBirthday().getTimeInMillis());
+                person.setChanged(new Date());
+                person.setCreated(new Date());
                 PersonDao personDao = session.getPersonDao();
                 personDao.insertOrReplace(person);
 

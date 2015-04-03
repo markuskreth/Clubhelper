@@ -52,15 +52,16 @@ public class ImportTask extends AsyncTask<File, Void, Void> {
 
     private void fillPersons() {
         SQLiteDatabase database = getOpenedDb();
-        Cursor cursor = database.rawQuery("Select _id, prename, surname, birthdate from PERSON", null);
+        Cursor cursor = database.rawQuery("Select _id, prename, surname, birthdate, TYPE from PERSON", null);
 
         while (cursor.moveToNext()) {
             Person p = new Person();
             p.setPrename(cursor.getString(cursor.getColumnIndex("prename")));
             p.setSurname(cursor.getString(cursor.getColumnIndex("surname")));
+            p.setType(cursor.getString(cursor.getColumnIndex("TYPE")));
             Date d = new Date(cursor.getLong(cursor.getColumnIndex("birthdate")));
             p.setBirth(d);
-            p.setType(PersonType.ACITVE.name());
+            p.setType(PersonType.ACTIVE.name());
             long id = cursor.getLong(cursor.getColumnIndex("_id"));
             persons.put(id, p);
         }

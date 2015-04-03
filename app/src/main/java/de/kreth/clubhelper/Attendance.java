@@ -12,6 +12,10 @@ public class Attendance {
     private Long id;
     private java.util.Date onDate;
     private long personId;
+    /** Not-null value. */
+    private java.util.Date changed;
+    /** Not-null value. */
+    private java.util.Date created;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -23,10 +27,12 @@ public class Attendance {
         this.id = id;
     }
 
-    public Attendance(Long id, java.util.Date onDate, long personId) {
+    public Attendance(Long id, java.util.Date onDate, long personId, java.util.Date changed, java.util.Date created) {
         this.id = id;
         this.onDate = onDate;
         this.personId = personId;
+        this.changed = changed;
+        this.created = created;
     }
 
     public Long getId() {
@@ -51,6 +57,26 @@ public class Attendance {
 
     public void setPersonId(long personId) {
         this.personId = personId;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getChanged() {
+        return changed;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setChanged(java.util.Date changed) {
+        this.changed = changed;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getCreated() {
+        return created;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setCreated(java.util.Date created) {
+        this.created = created;
     }
 
     // KEEP METHODS - put your custom methods here

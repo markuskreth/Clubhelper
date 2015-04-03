@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -18,18 +19,20 @@ public class PersonDaoListJsonTest extends AbstractDaoTest {
 
     private PersonDao personDao;
     private Gson gson;
+    private Date now;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        now = new GregorianCalendar(2014, Calendar.NOVEMBER, 1).getTime();
         personDao = session.getPersonDao();
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
     }
 
     public void testListOfPersons() {
-        Person p1 = new Person(null, "Markus", "Kreth", "Developer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        Person p1 = new Person(null, "Markus", "Kreth", "Developer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
         personDao.insert(p1);
-        Person p2 = new Person(null, "Second", "Person", "Active", new GregorianCalendar(1986, Calendar.APRIL, 16).getTime());
+        Person p2 = new Person(null, "Second", "Person", "Active", new GregorianCalendar(1986, Calendar.APRIL, 16).getTime(), now, now);
         personDao.insert(p2);
         Person[] all = new Person[2];
         all[0] = p1;
@@ -50,24 +53,24 @@ public class PersonDaoListJsonTest extends AbstractDaoTest {
     }
 
     public void testCombinedJson() {
-        Person p1 = new Person(null, "First", "Surname1", "Parent", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
-        Person p2 = new Person(null, "Second", "Surname2", "Parent", new GregorianCalendar(1986, Calendar.MARCH, 21).getTime());
+        Person p1 = new Person(null, "First", "Surname1", "Parent", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
+        Person p2 = new Person(null, "Second", "Surname2", "Parent", new GregorianCalendar(1986, Calendar.MARCH, 21).getTime(), now, now);
         personDao.insert(p1);
         personDao.insert(p2);
-        Contact c1a = new Contact(null, "Phone", "555111111", p1.getId());
-        Contact c1b = new Contact(null, "Email", "firstsurname@test.com", p1.getId());
+        Contact c1a = new Contact(null, "Phone", "555111111", p1.getId(), now, now);
+        Contact c1b = new Contact(null, "Email", "firstsurname@test.com", p1.getId(), now, now);
         ContactDao contactDao = session.getContactDao();
         contactDao.insert(c1a);
         contactDao.insert(c1b);
 
 
-        Contact c2a = new Contact(null, "Phone", "555222222", p2.getId());
-        Contact c2b = new Contact(null, "Email", "secondsurname@test.com", p2.getId());
+        Contact c2a = new Contact(null, "Phone", "555222222", p2.getId(), now, now);
+        Contact c2b = new Contact(null, "Email", "secondsurname@test.com", p2.getId(), now, now);
 
         contactDao.insert(c2a);
         contactDao.insert(c2b);
 
-        Adress a1 = new Adress(null, "Streetname 1", "", "20123", "Berlin", p1.getId());
+        Adress a1 = new Adress(null, "Streetname 1", "", "20123", "Berlin", p1.getId(), now, now);
         AdressDao adressDao = session.getAdressDao();
         adressDao.insert(a1);
 
