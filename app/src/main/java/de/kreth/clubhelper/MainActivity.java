@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -173,6 +174,11 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
                 public void onClick(DialogInterface dialog, int which) {
                     try {
                         restoreHandler.doRestore(strings[which]);
+                        FragmentManager supportFragmentManager = getSupportFragmentManager();
+                        Fragment fragment = supportFragmentManager.getFragments().get(0);
+                        if( ! fragment.isDetached()) {
+                            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
+                        }
                         Toast.makeText(MainActivity.this, "Wiederherstellen erfolgreich!", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "Wiederherstellen fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
