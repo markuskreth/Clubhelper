@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     public static String DBNAME = "clubdatabase.sqlite";
     public static final String PERSONID = "personId";
 
-    private static DaoSession session = null;
+    private DaoSession session = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,15 +72,6 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
 
     }
 // TODO Doppelte Verknüpfungen über Relation verhindern!!!
-    public static SessionHolder getSessionHolder() {
-        return new SessionHolder() {
-
-            @Override
-            public DaoSession getSession() {
-                return session;
-            }
-        };
-    }
 
     private void initDb() {
         SQLiteDatabase db = new DaoMaster.DevOpenHelper(this, DBNAME, null).getWritableDatabase();
@@ -93,13 +84,17 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     protected void onDestroy() {
 
         File externalStorageDirectory = Environment.getExternalStorageDirectory();
-        try {
-            new BackupRestoreHandler(session, externalStorageDirectory).doBackup();
-        } catch (IOException e) {
-            Toast.makeText(this, "Backup fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
-            Log.e(getClass().getSimpleName(), "Backup fehlgeschlagen!", e);
+        if(externalStorageDirectory.exists() && externalStorageDirectory.canWrite()) {
+            try {
+                new BackupRestoreHandler(session, externalStorageDirectory).doBackup();
+            } catch (IOException e) {
+                Toast.makeText(this, "Backup fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
+                Log.e(getClass().getSimpleName(), "Backup fehlgeschlagen!", e);
+            }
+        } else {
+            Toast.makeText(this, "Backup fehlgeschlagen! Externer Speicher nicht beschreibbar!", Toast.LENGTH_LONG).show();
+            Log.e(getClass().getSimpleName(), "Backup fehlgeschlagen! Externer Speicher nicht beschreibbar!");
         }
-
         session.clear();
 //        session.getDatabase().close();
         session = null;
@@ -177,11 +172,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
                 public void onClick(DialogInterface dialog, int which) {
                     try {
                         restoreHandler.doRestore(strings[which]);
-                        FragmentManager supportFragmentManager = getSupportFragmentManager();
-                        Fragment fragment = supportFragmentManager.getFragments().get(0);
-                        if( ! fragment.isDetached()) {
-                            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
-                        }
+                        refreshFragmentView();
                         Toast.makeText(MainActivity.this, "Wiederherstellen erfolgreich!", Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "Wiederherstellen fehlgeschlagen!" + e, Toast.LENGTH_LONG).show();
@@ -191,6 +182,14 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             }).show();
         } else
             Toast.makeText(MainActivity.this, "Keine Backup-Dateien gefunden!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void refreshFragmentView() {
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        Fragment fragment = supportFragmentManager.getFragments().get(0);
+        if( ! fragment.isDetached()) {
+            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
+        }
     }
 
     private void showExportOptions() {

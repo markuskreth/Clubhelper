@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import de.kreth.clubhelper.DbCleaner;
 import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.R;
+import de.kreth.clubhelper.dao.DaoSession;
 
 /**
  * Created by markus on 09.02.15.
@@ -38,8 +39,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     protected void tearDown() throws Exception {
         getInstrumentation().waitForIdleSync();
         Activity currentActivity = solo.getCurrentActivity();
-        if( currentActivity instanceof MainActivity)
-            new DbCleaner().cleanSession(((MainActivity)currentActivity).getSession());
+        if( currentActivity instanceof MainActivity) {
+            DaoSession session = ((MainActivity) currentActivity).getSession();
+            if(session.getDatabase().isOpen() && ! session.getDatabase().isReadOnly())
+                new DbCleaner().cleanSession(session);
+        }
         solo.finishOpenedActivities();
         super.tearDown();
     }

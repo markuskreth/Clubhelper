@@ -65,7 +65,8 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
         birth = new GregorianCalendar();
         birth.setTime(person.getBirth());
         birthday.setText(df.format(person.getBirth()));
-        personType.setSelection(personTypeAdapter.getPosition(person.getPersonType()));
+        if(person.getType() != null)
+            personType.setSelection(personTypeAdapter.getPosition(person.getPersonType()));
         initContacts();
     }
 

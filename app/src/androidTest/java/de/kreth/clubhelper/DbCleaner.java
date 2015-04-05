@@ -18,33 +18,38 @@ public class DbCleaner {
 
         if(session == null || session.getDatabase() == null)
             return;
-
-        SQLiteDatabase database = session.getDatabase();
-
-        try {
-            database.delete(AdressDao.TABLENAME, null, null);
-        } catch (Exception e) {
-            Log.e("", "", e);
-        }
-        try {
-            database.delete(RelativeDao.TABLENAME, null, null);
-        } catch (Exception e) {
-            Log.e("", "", e);
-        }
-        try {
-            database.delete(ContactDao.TABLENAME, null, null);
-        } catch (Exception e) {
-            Log.e("", "", e);
-        }
-        try {
-            database.delete(AttendanceDao.TABLENAME, null, null);
-        } catch (Exception e) {
-            Log.e("", "", e);
-        }
-        try {
-            database.delete(PersonDao.TABLENAME, null, null);
-        } catch (Exception e) {
-            Log.e("", "", e);
-        }
+        session.clear();
+        session.deleteAll(Attendance.class);
+        session.deleteAll(Adress.class);
+        session.deleteAll(Relative.class);
+        session.deleteAll(Contact.class);
+        session.deleteAll(Person.class);
+//        SQLiteDatabase database = session.getDatabase();
+//
+//        try {
+//            database.delete(AdressDao.TABLENAME, null, null);
+//        } catch (Exception e) {
+//            Log.e("", "", e);
+//        }
+//        try {
+//            database.delete(RelativeDao.TABLENAME, null, null);
+//        } catch (Exception e) {
+//            Log.e("", "", e);
+//        }
+//        try {
+//            database.delete(ContactDao.TABLENAME, null, null);
+//        } catch (Exception e) {
+//            Log.e("", "", e);
+//        }
+//        try {
+//            database.delete(AttendanceDao.TABLENAME, null, null);
+//        } catch (Exception e) {
+//            Log.e("", "", e);
+//        }
+//        try {
+//            database.delete(PersonDao.TABLENAME, null, null);
+//        } catch (Exception e) {
+//            Log.e("", "", e);
+//        }
     }
 }

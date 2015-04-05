@@ -72,6 +72,24 @@
         android:layout_height="fill_parent">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/lbl_person_type"
+            android:id="@+id/lblPersonType" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_person_type"
+            android:layout_column="1" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <TextView
             android:id="@+id/lblBirthday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

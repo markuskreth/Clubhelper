@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.robotium.solo.Solo;
@@ -15,22 +16,28 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import de.kreth.clubhelper.Adress;
+import de.kreth.clubhelper.Attendance;
 import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.DbCleaner;
 import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
 import de.kreth.clubhelper.Relative;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.datahelper.SessionHolder;
+import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 
 /**
  * Created by markus on 16.02.15.
  */
 public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    private final static String DBNAME = MainActivityTest.class.getSimpleName() + ".sqlite";
+    private final static String DBNAME = PersonEditFragmentTest.class.getSimpleName() + ".sqlite";
     private Solo solo;
     private Date now;
 
@@ -51,9 +58,15 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
     @Override
     protected void tearDown() throws Exception {
+        Activity currentActivity = solo.getCurrentActivity();
+        if(currentActivity instanceof SessionHolder) {
+            DaoSession session = ((SessionHolder) currentActivity).getSession();
+            new DbCleaner().cleanSession(session);
+        }
+
         solo.finishOpenedActivities();
         boolean deleted = getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
-        deleted = getInstrumentation().getTargetContext().deleteDatabase("test.sqlite");
+        deleted = getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
         MainActivity.DBNAME = originalDbName;
         super.tearDown();
     }
@@ -98,12 +111,16 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         ersteTel.setPersonId(persons.get(0).getId());
         ersteTel.setType("Telefon");
         ersteTel.setValue("0511-555 555 555");
+        ersteTel.setCreated(new Date());
+        ersteTel.setChanged(new Date());
         contactDao.insert(ersteTel);
 
         Contact ersteEmail = new Contact();
         ersteEmail.setPersonId(persons.get(0).getId());
         ersteEmail.setType("Email");
         ersteEmail.setValue("test@test.com");
+        ersteEmail.setCreated(new Date());
+        ersteEmail.setChanged(new Date());
         contactDao.insert(ersteEmail);
 
         Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString(), now, now);
@@ -287,7 +304,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
         MainActivity main = (MainActivity) solo.getCurrentActivity();
         PersonDao personDao = main.getSession().getPersonDao();
-        Person p1 = new Person(null, "Prename", "Surname", "Type", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now,now );
+        Person p1 = new Person(null, "Prename", "Surname", PersonType.ACTIVE.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now,now );
         personDao.insert(p1);
         solo.setActivityOrientation(Solo.LANDSCAPE);
         solo.setActivityOrientation(Solo.PORTRAIT);
@@ -304,6 +321,9 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         assertTrue(solo.searchText("Adresse", true));
         solo.clickInList(3);
 
+        assertTrue(solo.waitForDialogToOpen());
+        solo.clickOnText("Abbr");
+        assertTrue(solo.waitForDialogToClose());
     }
 
     public void testDetailItemsValues() {
@@ -357,6 +377,8 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.waitForDialogToOpen();
         solo.typeText(0, "Zweite");
         solo.typeText(1, "Person");
+        solo.pressSpinnerItem(0,2);
+
         solo.clickOnButton("Speichern");
         assertTrue(solo.waitForDialogToClose());
         assertEquals(2, listView.getAdapter().getCount());
@@ -421,6 +443,35 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
     public void testChangeName() {
 
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+
+        MainActivity mainActivity = (MainActivity) solo.getCurrentActivity();
+        DaoSession session = mainActivity.getSession();
+        Person mk = new Person(null, "Marku", "Kret", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(2015, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        session.getPersonDao().insert(mk);
+
+        Contact con = new Contact(null, "Email", "mk@test.de", mk.getId(), new Date(), new Date());
+        session.getContactDao().insert(con);
+
+        mainActivity.refreshFragmentView();
+        assertTrue(solo.waitForText("Marku"));
+        solo.clickLongOnText("Marku");
+
+        assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
+        EditText prenameEdt = solo.getEditText("Marku");
+        EditText surnameEdt = solo.getEditText("Kret");
+        solo.enterText(prenameEdt, "s");
+        solo.enterText(surnameEdt, "h");
+        solo.goBack();
+
+        assertTrue(solo.waitForFragmentByTag(MainFragment.TAG));
+
+        assertTrue(solo.searchText("Markus"));
+        assertTrue(solo.searchText("Kreth"));
+
+        assertEquals("Markus", mk.getPrename());
+        assertEquals("Kreth", mk.getSurname());
     }
 
 }

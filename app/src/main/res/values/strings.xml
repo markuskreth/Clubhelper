@@ -25,7 +25,7 @@
     <string name="title_quest_which_info_toadd">Welche Art von Information soll ergänzt werden?</string>
     <string name="title_quest_which_info_toedit">Welche Information soll bearbeitet werden?</string>
     <string name="title_quest_kind_relation">Welche Art von Beziehung?</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_quest_store_changes">Änderungen speichern?</string>
     <string name="search_hint">Filtere Personen</string>
     <string name="title_activity_person_edit">PersonEditActivity</string>
     <string name="do_import">Import</string>
@@ -36,5 +36,6 @@
     <string name="ACTIVE">Aktive(-r)</string>
     <string name="STAFF">Personal</string>
     <string name="RELATIVE">Angehöriger</string>
+    <string name="lbl_person_type">Aufgabe</string>
 
 </resources>

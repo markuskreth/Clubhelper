@@ -87,7 +87,7 @@ public class PersonTypeAdapter implements SpinnerAdapter {
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override

@@ -41,6 +41,7 @@ import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.MainActivity;
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
 import de.kreth.clubhelper.Relative;
@@ -50,6 +51,7 @@ import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.widgets.ContactEditDialog;
 import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 import de.kreth.clubhelper.widgets.PersonSelectDialog;
+import de.kreth.clubhelper.widgets.PersonTypeAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -75,6 +77,8 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     private ToggleButton btnRelations;
     private ToggleButton btnAdresses;
     private MainFragment.OnMainFragmentEventListener fragmentEventListener = null;
+    private Spinner spinnerPersonType;
+    private PersonTypeAdapter personTypeAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -330,6 +334,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         personId = getArguments().getLong(MainActivity.PERSONID);
 
         session = ((SessionHolder) getActivity()).getSession();
+        if(session == null)
+            return null;
+
         person = session.getPersonDao().load(personId);
         rootView = (TableLayout) inflater.inflate(R.layout.fragment_person_edit, container, false);
         if(getActivity() instanceof MainFragment.OnMainFragmentEventListener){
@@ -339,6 +346,39 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         initTabs();
 
         return rootView;
+    }
+
+    private void initViews() {
+        this.preName = (EditText) rootView.findViewById(R.id.textPreName);
+        this.preName.setText(person.getPrename());
+
+        this.surName = (EditText) rootView.findViewById(R.id.textSurName);
+        this.surName.setText(person.getSurname());
+
+        this.spinnerPersonType = (Spinner) rootView.findViewById(R.id.spinner_person_type);
+        this.personTypeAdapter = new PersonTypeAdapter(getResources());
+        this.spinnerPersonType.setAdapter(personTypeAdapter);
+
+        if(person.getType() == null) {
+            person.setPersonType(PersonType.ACTIVE);
+            if(person.getId() != null)
+                try {
+                    person.update();
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Fehler bei update PersonType", e);
+                }
+        }
+
+        int personType = personTypeAdapter.getPosition(person.getPersonType());
+        spinnerPersonType.setSelection(personType);
+
+        this.txtBirth = (TextView) rootView.findViewById(R.id.textBirth);
+
+        this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
+                person.getBirth()));
+
+        this.txtBirth.setOnClickListener(this);
+        rootView.findViewById(R.id.lblBirthday).setOnClickListener(this);
     }
 
     private void initTabs() {
@@ -385,6 +425,20 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         refreshRelatives(person.getRelations());
         refreshAdresses(person.getAdressList());
 
+    }
+
+    @Override
+    public void onPause() {
+
+        final String preNameString = preName.getText().toString();
+        final String surnameString = surName.getText().toString();
+        final PersonType type = (PersonType) spinnerPersonType.getSelectedItem();
+        person.setPrename(preNameString);
+        person.setSurname(surnameString);
+        person.setType(type.name());
+        person.update();
+
+        super.onPause();
     }
 
     private void refreshAdresses(List<Adress> adressList) {
@@ -498,22 +552,6 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         r.addView(value);
         contactViews.add(r);
         rootView.addView(r, rootView.getChildCount());
-    }
-
-    private void initViews() {
-        this.preName = (EditText) rootView.findViewById(R.id.textPreName);
-        this.preName.setText(person.getPrename());
-
-        this.surName = (EditText) rootView.findViewById(R.id.textSurName);
-        this.surName.setText(person.getSurname());
-
-        this.txtBirth = (TextView) rootView.findViewById(R.id.textBirth);
-
-        this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
-                person.getBirth()));
-
-        this.txtBirth.setOnClickListener(this);
-        rootView.findViewById(R.id.lblBirthday).setOnClickListener(this);
     }
 
     @Override

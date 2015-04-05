@@ -224,7 +224,7 @@ public class Person implements java.io.Serializable {
         try {
             return PersonType.valueOf(this.type);
         } catch (Exception e) {
-            if(this.type.startsWith("AC")) {
+            if(this.type == null || this.type.startsWith("AC")) {
                 this.setType(PersonType.ACTIVE.name());
                 this.update();
                 return PersonType.ACTIVE;
