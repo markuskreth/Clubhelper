@@ -1,5 +1,6 @@
 package de.kreth.clubhelper;
 
+import java.util.Date;
 import java.util.List;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.greenrobot.dao.DaoException;

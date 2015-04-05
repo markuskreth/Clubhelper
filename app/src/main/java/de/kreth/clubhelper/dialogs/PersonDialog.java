@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -35,7 +34,7 @@ import de.kreth.clubhelper.widgets.PersonTypeAdapter;
  */
 public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
 
-    private final ViewGroup dialog;
+    private final ViewGroup viewGroup;
     private final java.text.DateFormat df;
     private final List<Contact> contactList;
 
@@ -49,7 +48,7 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
 
     public PersonDialog(ViewGroup view, Person person) {
 
-        dialog = view;
+        viewGroup = view;
         this.person = person;
         this.contactList = new ArrayList<>();
         if (person.getId() != null)
@@ -62,9 +61,14 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
     private void initPersonView() {
         txtPrename.setText(person.getPrename());
         txtSurname.setText(person.getSurname());
-        birth = new GregorianCalendar();
-        birth.setTime(person.getBirth());
-        birthday.setText(df.format(person.getBirth()));
+        birth = new GregorianCalendar(2000,1,1);
+
+        if (person.getBirth() != null) {
+            birth.setTime(person.getBirth());
+            birthday.setText(df.format(birth.getTime()));
+        } else
+            birthday.setText("");
+
         if(person.getType() != null)
             personType.setSelection(personTypeAdapter.getPosition(person.getPersonType()));
         initContacts();
@@ -78,10 +82,10 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
 
     private void addContactToDialog(final Contact contact) {
 
-        TableRow row = new TableRow(dialog.getContext());
+        TableRow row = new TableRow(viewGroup.getContext());
         row.setTag(contact);
-        Spinner lbl = new Spinner(dialog.getContext());
-        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(dialog.getContext(),
+        Spinner lbl = new Spinner(viewGroup.getContext());
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(viewGroup.getContext(),
                 R.array.contact_type_values,
                 android.R.layout.simple_spinner_item);
         lbl.setAdapter(typeAdapter);
@@ -98,7 +102,7 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
             }
         });
         row.addView(lbl);
-        EditText editText = new EditText(dialog.getContext());
+        EditText editText = new EditText(viewGroup.getContext());
         editText.setText(contact.getValue());
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,31 +120,31 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
         });
         row.addView(editText);
 
-        dialog.addView(row);
+        viewGroup.addView(row);
     }
 
     private void initComponents() {
 
-        InputMethodManager imm = (InputMethodManager) dialog.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) viewGroup.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        txtPrename = (TextView) dialog.findViewById(R.id.textPreName);
+        txtPrename = (TextView) viewGroup.findViewById(R.id.textPreName);
         imm.showSoftInput(txtPrename, InputMethodManager.SHOW_IMPLICIT);
-        txtSurname = (TextView) dialog.findViewById(R.id.textSurName);
+        txtSurname = (TextView) viewGroup.findViewById(R.id.textSurName);
         imm.showSoftInput(txtSurname, InputMethodManager.SHOW_IMPLICIT);
 
-        this.personTypeAdapter = new PersonTypeAdapter(dialog.getContext().getResources());
-        personType = (Spinner) dialog.findViewById(R.id.person_type);
+        this.personTypeAdapter = new PersonTypeAdapter(viewGroup.getContext().getResources());
+        personType = (Spinner) viewGroup.findViewById(R.id.person_type);
         personType.setAdapter(personTypeAdapter);
 
-        birthday = (TextView) dialog.findViewById(R.id.textBirth);
+        birthday = (TextView) viewGroup.findViewById(R.id.textBirth);
         birthday.setFocusable(false);
         birthday.setOnClickListener(this);
-        dialog.findViewById(R.id.lblBirthday).setOnClickListener(this);
+        viewGroup.findViewById(R.id.lblBirthday).setOnClickListener(this);
 
-        dialog.setOnLongClickListener(new View.OnLongClickListener() {
+        viewGroup.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                new AlertDialog.Builder(dialog.getContext()).setItems(R.array.person_edit_options,
+                new AlertDialog.Builder(viewGroup.getContext()).setItems(R.array.person_edit_options,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(
@@ -151,20 +155,20 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
                                 switch (which) {
                                     case 0:
                                         new AlertDialog.Builder(
-                                                dialog.getContext()).setMessage(
+                                                viewGroup.getContext()).setMessage(
                                                 "Kontakte bearbeiten").setNeutralButton(
                                                 R.string.lblOK,
                                                 null).show();
                                         Contact nc = new Contact(
-                                                            null,
-                                                            "Mobile",
-                                                            "0174-2521286",
-                                                            person.getId(), now, now);
+                                                null,
+                                                "Mobile",
+                                                "0174-2521286",
+                                                person.getId(), now, now);
                                         addContactToDialog(nc);
                                         break;
                                     case 1:
                                         new AlertDialog.Builder(
-                                                dialog.getContext()).setMessage(
+                                                viewGroup.getContext()).setMessage(
                                                 "Beziehungen bearbeiten").setNeutralButton(
                                                 R.string.lblOK,
                                                 null).show();
@@ -191,7 +195,10 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
     }
 
     public Calendar getBirthday() {
-        return birth;
+        if(birthday.getText().length()>0)
+            return birth;
+        else
+            return null;
     }
 
     @Override

@@ -556,17 +556,23 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        person.getBirth().setTime(new GregorianCalendar(year, month, day).getTimeInMillis());
-        this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
-                person.getBirth()));
+        Date time = new GregorianCalendar(year, month, day).getTime();
+        person.setBirth(time);
+        this.txtBirth.setText(SimpleDateFormat
+                                    .getDateInstance(SimpleDateFormat.MEDIUM)
+                                    .format(time));
         person.setChanged(new Date());
         session.getPersonDao().update(person);
     }
 
     @Override
     public void onClick(View view) {
-        Calendar birth = new GregorianCalendar();
-        birth.setTime(person.getBirth());
+
+        Calendar birth = new GregorianCalendar(2000,1,1);
+        Date personBirth = person.getBirth();
+        if(personBirth != null)
+            birth.setTime(personBirth);
+
         int year = birth.get(Calendar.YEAR);
         int month = birth.get(Calendar.MONTH);
         int day = birth.get(Calendar.DAY_OF_MONTH);

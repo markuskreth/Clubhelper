@@ -158,7 +158,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
    private void createNewPerson() {
 
         final Person person = new Person();
-        person.setBirth(new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
         AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
 
         ViewGroup view1 = (ViewGroup) getActivity().getLayoutInflater().inflate(
@@ -181,7 +180,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
 
                 person.setPrename(p.getPrename().toString());
                 person.setSurname(p.getTxtSurname().toString());
-                person.getBirth().setTime(p.getBirthday().getTimeInMillis());
+                if(p.getBirthday() != null)
+                    person.setBirth(p.getBirthday().getTime());
+                else
+                    person.setBirth(null);
+
                 person.setChanged(new Date());
                 person.setCreated(new Date());
                 PersonDao personDao = session.getPersonDao();
