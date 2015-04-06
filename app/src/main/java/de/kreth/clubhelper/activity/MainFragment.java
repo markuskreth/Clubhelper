@@ -120,6 +120,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 final Person person = adapter.getItem(position);
                 PersonViewDialog dlg = new PersonViewDialog();
+                dlg.setNeutralButton(getText(R.string.lbl_edit), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listener.editPerson(person.getId());
+                    }
+                });
                 dlg.setPerson(person);
                 dlg.show(getFragmentManager(), PersonViewDialog.class.getName());
 

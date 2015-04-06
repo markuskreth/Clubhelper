@@ -374,8 +374,11 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
         this.txtBirth = (TextView) rootView.findViewById(R.id.textBirth);
 
-        this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
-                person.getBirth()));
+        if(person.getBirth() != null) {
+            this.txtBirth.setText(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(
+                    person.getBirth()));
+        } else
+            this.txtBirth.setText("");
 
         this.txtBirth.setOnClickListener(this);
         rootView.findViewById(R.id.lblBirthday).setOnClickListener(this);
@@ -577,6 +580,15 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         int month = birth.get(Calendar.MONTH);
         int day = birth.get(Calendar.DAY_OF_MONTH);
         DatePickerDialog dlg = new DatePickerDialog(getActivity(), this, year, month, day);
+        dlg.setButton(DialogInterface.BUTTON_NEUTRAL, getText(R.string.lblDelete), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                person.setBirth(null);
+                txtBirth.setText("");
+                person.setChanged(new Date());
+                session.getPersonDao().update(person);
+            }
+        });
         dlg.show();
     }
 

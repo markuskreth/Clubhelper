@@ -40,6 +40,8 @@ public class PersonViewDialog extends DialogFragment {
     private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     private String[] types;
     private String[] actions;
+    private CharSequence neutralText;
+    private DialogInterface.OnClickListener neutralClickListener;
 
     public void setPerson(Person person) {
         this.person = person;
@@ -52,17 +54,26 @@ public class PersonViewDialog extends DialogFragment {
         actions = resources.getStringArray(R.array.mobile_actions);
 
         AlertDialog dlg = new AlertDialog.Builder(getActivity())
-                .setNeutralButton(R.string.lblCancel, null)
+                .setNegativeButton(R.string.lblCancel, null)
                 .setTitle(person.getPrename() + " " + person.getSurname())
                 .create();
+
+        if(neutralClickListener != null && neutralText != null && neutralText.length()>0) {
+            dlg.setButton(DialogInterface.BUTTON_NEUTRAL, neutralText, neutralClickListener);
+        }
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View view = layoutInflater.inflate(R.layout.person_call_layout, null);
 
         TextView birth = (TextView) view.findViewById(R.id.textBirth);
+        String ageText;
 
-        long age = DateDiff.calcDiff(person.getBirth(), new Date(), DateUnit.YEAR);
-        String ageText = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(person.getBirth()) + ", Alter " + age;
+        if(person.getBirth() != null) {
+            long age = DateDiff.calcDiff(person.getBirth(), new Date(), DateUnit.YEAR);
+            ageText = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(person.getBirth()) + ", Alter " + age;
+        } else
+            ageText = "";
+
         birth.setText(ageText);
 
         TableLayout table = (TableLayout) view.findViewById(R.id.table);
@@ -143,6 +154,11 @@ public class PersonViewDialog extends DialogFragment {
         textValue.setText(con.getValue());
 
         table.addView(row);
+    }
+
+    public void setNeutralButton(CharSequence text, DialogInterface.OnClickListener onClickListener) {
+        this.neutralText = text;
+        this.neutralClickListener = onClickListener;
     }
 
     private class ContactOnClickListener implements View.OnClickListener {

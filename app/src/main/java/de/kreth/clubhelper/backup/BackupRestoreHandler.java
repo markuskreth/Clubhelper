@@ -36,7 +36,7 @@ import de.kreth.clubhelper.dao.RelativeDao;
 public class BackupRestoreHandler {
 
     public final static String EXPORT_DIR_NAME = "Clubhelper";
-    private final static DateFormat df = new SimpleDateFormat("dd-MM-yy_HH-mm");
+    private final static DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private DaoSession session;

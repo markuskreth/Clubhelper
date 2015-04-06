@@ -85,9 +85,14 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         Person item = objects.get(position);
+        String ageText;
+        if(item.getBirth() != null) {
 
-        long age = DateDiff.calcDiff(item.getBirth(), new Date(), DateUnit.YEAR);
-        String ageText = " (JG " + df.format(item.getBirth()) + ", Alter " + age + ")";
+            long age = DateDiff.calcDiff(item.getBirth(), new Date(), DateUnit.YEAR);
+            ageText = " (JG " + df.format(item.getBirth()) + ", Alter " + age + ")";
+        } else
+            ageText = "";
+
         TextView view;
 
         if (convertView == null) {
