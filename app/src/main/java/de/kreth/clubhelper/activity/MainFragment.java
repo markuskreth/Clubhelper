@@ -129,8 +129,6 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
                 dlg.setPerson(person);
                 dlg.show(getFragmentManager(), PersonViewDialog.class.getName());
 
-//                String txt = new PersonRelationHelper(getResources()).relationsAsString(person);
-//                Toast.makeText(getActivity(), txt, Toast.LENGTH_LONG).show();
             }
         });
         listView.setOnItemLongClickListener(this);
