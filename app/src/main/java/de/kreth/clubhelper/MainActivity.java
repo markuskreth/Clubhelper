@@ -2,7 +2,6 @@ package de.kreth.clubhelper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,22 +22,20 @@ import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.activity.PersonEditFragment;
 import de.kreth.clubhelper.backup.BackupRestoreHandler;
-import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.dao.ProductiveOpenHelper;
 import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
-import de.kreth.clubhelper.imports.FileSelectDialogFragment;
-import de.kreth.clubhelper.imports.ImportTask;
+import de.kreth.clubhelper.restclient.RestClient;
 
 public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
@@ -74,10 +71,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
 // TODO Doppelte Verknüpfungen über Relation verhindern!!!
 
     private void initDb() {
-        SQLiteDatabase db = new DaoMaster.DevOpenHelper(this, DBNAME, null).getWritableDatabase();
+        SQLiteDatabase db = new ProductiveOpenHelper(this, DBNAME, null).getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(db);
         session = daoMaster.newSession();
-
     }
 
     @Override
@@ -152,6 +148,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             case R.id.action_export:
                 showExportOptions();
                 return true;
+            case R.id.action_toserver:
+                sendToServer();
+                return true;
             case R.id.action_restore:
                 startRestore();
                 return true;
@@ -159,6 +158,15 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendToServer() {
+
+        RestClient exporter = new RestClient(session);
+        ExecutorService exec = Executors.newSingleThreadExecutor();
+        exec.execute(exporter);
+        exec.shutdown();
+        // TODO RestClient to Android Handler class...
     }
 
     private void startRestore() {

@@ -12,7 +12,7 @@ import java.util.Locale;
 /**
  * Entity mapped to table CONTACT.
  */
-public class Contact {
+public class Contact implements Data, java.io.Serializable {
 
     private Long id;
     private String type;

@@ -29,6 +29,7 @@ public class DaoMigrator {
             }
         }
     }
+
     private void migrateToVersion4() {
         RuntimeException exception = null;
         try {

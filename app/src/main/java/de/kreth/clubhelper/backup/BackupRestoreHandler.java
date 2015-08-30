@@ -117,8 +117,10 @@ public class BackupRestoreHandler {
                 person.setCreated(new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime());
             if(person.getChanged() == null)
                 person.setChanged(new Date());
-            if(person.getType().matches("ACITVE"))
-                person.setType(PersonType.ACTIVE.name());
+            String personType = person.getType();
+
+            if(personType == null || personType.isEmpty())
+                person.setPersonType(PersonType.ACTIVE);
 
             personDao.insertOrReplace(person);
         }

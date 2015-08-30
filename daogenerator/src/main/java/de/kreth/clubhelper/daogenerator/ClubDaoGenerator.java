@@ -1,6 +1,13 @@
-package com.example;
+package de.kreth.clubhelper.daogenerator;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.daogenerator.DaoGenerator;
 import de.greenrobot.daogenerator.Entity;
@@ -42,6 +49,78 @@ public class ClubDaoGenerator {
         System.out.println("Current Dir:");
         System.out.println(f.getAbsolutePath());
         daoGenerator.generateAll(schema, "app/src/main/java", "app/src/androidTest/java");
+
+
+        schema = new Schema(4, "de.kreth.clubhelperbackend.pojo");
+        schema.setDefaultJavaPackageDao("de.kreth.clubhelperbackend.pojo.dao");
+        schema.enableKeepSectionsByDefault();
+
+        createPerson();
+        createContact();
+        createAttendance();
+        createAdress();
+        createRelatives();
+
+        addChangedAndCreatedProperties(person);
+        addChangedAndCreatedProperties(contact);
+        addChangedAndCreatedProperties(attendance);
+        addChangedAndCreatedProperties(adress);
+        addChangedAndCreatedProperties(relative);
+
+        File backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java");
+        daoGenerator.generateAll(schema, backend.getAbsolutePath());
+        backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/");
+        File[] daos = backend.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isDirectory() && pathname.getName().matches("dao");
+            }
+        });
+        if(daos.length>0) {
+            for(File d: daos) {
+                deleteDir(d);
+            }
+        }
+
+        clearPojoFromGreenDao(person);
+        clearPojoFromGreenDao(contact);
+        clearPojoFromGreenDao(attendance);
+        clearPojoFromGreenDao(adress);
+        clearPojoFromGreenDao(relative);
+    }
+
+    private void clearPojoFromGreenDao(Entity entity) {
+        File f = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/" + entity.getClassName() + ".java");
+        File backup = new File(f.getAbsolutePath() + ".old");
+        f.renameTo(backup);
+
+        if(backup.exists()) {
+            try {
+                List<String> lines = new ArrayList<>();
+
+                Charset charset = Charset.defaultCharset();
+                for(String str : Files.readAllLines(backup.toPath(), charset)) {
+                    if(!str.matches(".*([D|d]ao).*") && !str.matches(".*KEEP.*") && !str.matches(".*List.*"))
+                        lines.add(str);
+                }
+
+                Files.write(f.toPath(), lines, charset, StandardOpenOption.CREATE_NEW);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private boolean deleteDir(File dir) {
+        boolean deleted = true;
+        if(dir.isDirectory()) {
+            for(File sub: dir.listFiles()) {
+                deleted &= deleteDir(sub);
+            }
+        }
+
+        return deleted && dir.delete();
     }
 
     private void createRelatives() {
@@ -103,7 +182,6 @@ public class ClubDaoGenerator {
     private void createPerson() {
 
         person = schema.addEntity("Person");
-        person.implementsSerializable();
         personId = person.addIdProperty().columnName("_id").getProperty();
 
         Index index = new Index();
@@ -124,6 +202,8 @@ public class ClubDaoGenerator {
     private void addChangedAndCreatedProperties(Entity e) {
         e.addDateProperty("changed").notNull();
         e.addDateProperty("created").notNull();
+        e.implementsInterface("Data");
+        e.implementsSerializable();
     }
 
     public static void main(String[] args) throws Exception {

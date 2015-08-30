@@ -7,7 +7,7 @@ package de.kreth.clubhelper;
 /**
  * Entity mapped to table RELATIVE.
  */
-public class Relative {
+public class Relative implements Data, java.io.Serializable {
 
     private Long id;
     private long person1;

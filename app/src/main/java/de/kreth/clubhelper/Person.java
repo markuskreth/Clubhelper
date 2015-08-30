@@ -1,6 +1,5 @@
 package de.kreth.clubhelper;
 
-import java.util.Date;
 import java.util.List;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.greenrobot.dao.DaoException;
@@ -21,7 +20,7 @@ import de.greenrobot.dao.AbstractDao;
 /**
  * Entity mapped to table PERSON.
  */
-public class Person implements java.io.Serializable {
+public class Person implements Data, java.io.Serializable {
 
     private Long id;
     private String prename;

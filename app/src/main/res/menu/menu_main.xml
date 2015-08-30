@@ -21,6 +21,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_toserver"
+        android:orderInCategory="200"
+        android:title="@string/action_toserver"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_addPerson"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/lblAdd"

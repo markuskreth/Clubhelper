@@ -7,7 +7,7 @@ package de.kreth.clubhelper;
 /**
  * Entity mapped to table ADRESS.
  */
-public class Adress {
+public class Adress implements Data, java.io.Serializable {
 
     private Long id;
     private String adress1;
