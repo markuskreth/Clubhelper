@@ -6,7 +6,8 @@
     <string name="action_settings">Einstellungen</string>
     <string name="action_export">Export</string>
     <string name="action_restore">Wiederherstellen</string>
-    <string name="action_toserver">Senden</string>
+    <string name="action_toserver">Synchronisieren</string>
+    <string name="action_servers">Server</string>
     <string name="lblPrename">Vorname</string>
     <string name="lblSurname">Nachname</string>
     <string name="lblBirth">Geburtstag</string>
@@ -20,6 +21,7 @@
     <string name="lblAdd">Hinzufügen</string>
     <string name="lbl_edit">Bearbeiten</string>
     <string name="lbl_contacts">Kontakte</string>
+    <string name="lbl_rest_server">Server</string>
     <string name="lbl_adress">Adresse</string>
     <string name="lbl_relations">Beziehungen</string>
     <string name="title_connect_sms">Sende SMS an: </string>

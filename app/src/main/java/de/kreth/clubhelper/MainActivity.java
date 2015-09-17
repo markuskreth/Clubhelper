@@ -1,6 +1,7 @@
 package de.kreth.clubhelper;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -9,9 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.io.File;
@@ -19,9 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,13 +44,18 @@ import de.kreth.clubhelper.dao.ProductiveOpenHelper;
 import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.restclient.RestClient;
+import de.kreth.clubhelper.restclient.SyncRestClient;
 
 public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
     public static String DBNAME = "clubdatabase.sqlite";
+    public static Map<String, String> restServers = new HashMap<>();
+    public static String serverName;
+
     public static final String PERSONID = "personId";
 
     private DaoSession session = null;
+    private String imeiNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +64,25 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         try {
             ResourceBundle application = ResourceBundle.getBundle("application");
             DBNAME = application.getString("dbname");
+            for(String key: application.keySet()) {
+                if(key.startsWith("restServer")) {
+                    restServers.put(key.split("\\.")[1], application.getString(key));
+                }
+            }
+            serverName = "Productive";
+
+            TelephonyManager TM = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            // IMEI No.
+            imeiNo = TM.getDeviceId();
+
+            if(imeiNo.matches("0*"))
+                serverName = "Emulator";
+
         } catch (Exception e) {
             Log.i("ch", "Datei nicht gefunden", e);
         }
 
         initDb();
-
-//        insertDummyPerson();
 
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -92,42 +117,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             Log.e(getClass().getSimpleName(), "Backup fehlgeschlagen! Externer Speicher nicht beschreibbar!");
         }
         session.clear();
-//        session.getDatabase().close();
         session = null;
         super.onDestroy();
     }
-
-    private void insertDummyPerson() {
-        Date now = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
-        Person jb = new Person(null, "Jasmin", "Bergmann", PersonType.ACTIVE.name(),
-                new GregorianCalendar(1986, Calendar.SEPTEMBER, 14).getTime(), now, now);
-        Person mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(),
-                new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
-        PersonDao personDao = session.getPersonDao();
-        personDao.insertOrReplace(jb);
-        personDao.insertOrReplace(mk);
-
-        RelativeDao relativeDao = session.getRelativeDao();
-        Relative rel = new Relative(null, jb.getId(), mk.getId(), RelationType.RELATIONSHIP.name(),
-                RelationType.RELATIONSHIP.name(), now, now);
-
-        relativeDao.insert(rel);
-        personDao.update(jb);
-        personDao.update(mk);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(0);
-        Person anna = new Person(null, "Anna", "Langenhagen", PersonType.ACTIVE.name(),
-                new GregorianCalendar(2006, Calendar.APRIL, 28).getTime(), now, now);
-        Person birgitt = new Person(null, "Birgitt", "Langenhagen", PersonType.RELATIVE.name(),
-                calendar.getTime(), now, now);
-        personDao.insert(anna);
-        personDao.insert(birgitt);
-
-        rel = new Relative(null, anna.getId(), birgitt.getId(), RelationType.PARENT.name(),
-                RelationType.CHILD.name(), now, now);
-        relativeDao.insert(rel);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,6 +137,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
+            case R.id.action_servers:
+                chooseServer();
+                return true;
             case R.id.action_export:
                 showExportOptions();
                 return true;
@@ -160,12 +155,64 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         return super.onOptionsItemSelected(item);
     }
 
+    private void chooseServer() {
+
+        final List<CharSequence> values = new ArrayList<>();
+
+        int index = 0;
+        for(String val : restServers.keySet()) {
+
+            if((imeiNo.matches("0*") && ! val.matches("Home")) || !imeiNo.matches("0*") && ! val.matches("Emulator")) {
+                values.add(val);
+                if(val.equals(serverName))
+                    index = values.size() - 1;
+            }
+        }
+
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_list_item_1, values);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                serverName = values.get(which).toString();
+                dialog.dismiss();
+            }
+        };
+
+        CharSequence[] arr = new CharSequence[values.size()];
+        boolean[] checked = new boolean[values.size()];
+        checked[index] = true;
+
+        DialogInterface.OnMultiChoiceClickListener li = new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                if(isChecked) {
+                    serverName = values.get(which).toString();
+                    dialog.dismiss();
+                }
+            }
+        };
+        new AlertDialog.Builder(this).setMultiChoiceItems(values.toArray(arr), checked, li).show();
+    }
+
     private void sendToServer() {
 
-        RestClient exporter = new RestClient(session);
-        ExecutorService exec = Executors.newSingleThreadExecutor();
-        exec.execute(exporter);
-        exec.shutdown();
+        new AlertDialog.Builder(this).setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SyncRestClient client = new SyncRestClient(session, restServers.get(serverName));
+                client.execute((Void) null);
+
+//                RestClient cl = new RestClient(session, restServers.get(serverName));
+//                ExecutorService exec = Executors.newSingleThreadExecutor();
+//                exec.execute(cl);
+//                exec.shutdown();
+            }
+        }).setNegativeButton(R.string.lblCancel, null).setMessage("Server: " + restServers.get(serverName)).show();
+
+//        RestClient exporter = new RestClient(session, restServers.get(serverName)/*);
+//        ExecutorService exec = Executors.newSingleThreadExecutor();
+//        exec.execute(exporter);
+//        exec.shutdown();*/
         // TODO RestClient to Android Handler class...
     }
 

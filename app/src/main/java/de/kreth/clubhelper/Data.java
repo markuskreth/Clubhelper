@@ -1,11 +1,12 @@
 package de.kreth.clubhelper;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by markus on 30.08.15.
  */
-public interface Data {
+public interface Data extends Serializable {
 
     Long getId() ;
 

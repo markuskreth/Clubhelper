@@ -26,6 +26,11 @@
         android:title="@string/action_toserver"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_servers"
+        android:orderInCategory="400"
+        android:title="@string/action_servers"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_addPerson"
         android:icon="@android:drawable/ic_menu_add"
