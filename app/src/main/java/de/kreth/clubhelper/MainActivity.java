@@ -14,7 +14,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -24,26 +23,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.activity.PersonEditFragment;
 import de.kreth.clubhelper.backup.BackupRestoreHandler;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
-import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.ProductiveOpenHelper;
-import de.kreth.clubhelper.dao.RelativeDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
-import de.kreth.clubhelper.restclient.RestClient;
 import de.kreth.clubhelper.restclient.SyncRestClient;
 
 public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
@@ -199,7 +190,15 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         new AlertDialog.Builder(this).setPositiveButton(R.string.lblOK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                SyncRestClient client = new SyncRestClient(session, restServers.get(serverName));
+                SyncRestClient.SyncFinishedListener listener = new SyncRestClient.SyncFinishedListener() {
+                    @Override
+                    public void syncFinished() {
+                        Toast.makeText(MainActivity.this, "Sync beendet.", Toast.LENGTH_LONG).show();
+
+                    }
+                };
+
+                SyncRestClient client = new SyncRestClient(session, restServers.get(serverName), listener);
                 client.execute((Void) null);
 
 //                RestClient cl = new RestClient(session, restServers.get(serverName));
@@ -209,11 +208,6 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             }
         }).setNegativeButton(R.string.lblCancel, null).setMessage("Server: " + restServers.get(serverName)).show();
 
-//        RestClient exporter = new RestClient(session, restServers.get(serverName)/*);
-//        ExecutorService exec = Executors.newSingleThreadExecutor();
-//        exec.execute(exporter);
-//        exec.shutdown();*/
-        // TODO RestClient to Android Handler class...
     }
 
     private void startRestore() {
@@ -313,7 +307,7 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
 
         FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
         tx.replace(R.id.container, personEditFragment, PersonEditFragment.TAG);
-        tx.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        tx.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 
         tx.addToBackStack(personEditFragment.getClass().getName());
         tx.commit();

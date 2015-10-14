@@ -16,9 +16,17 @@ import java.util.List;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.query.QueryBuilder;
 import de.greenrobot.dao.query.WhereCondition;
+import de.kreth.clubhelper.Adress;
+import de.kreth.clubhelper.Attendance;
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Data;
+import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.dao.AdressDao;
+import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
+import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.dao.RelativeDao;
 
 /**
  * Created by markus on 30.08.15.
@@ -43,25 +51,46 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        List<Contact> contacts = session.getContactDao().queryRaw("WHERE CHANGED=(select max(CHANGED) from CONTACT)");
+        updateData(Person.class, Person[].class);
+        updateData(Contact.class, Contact[].class);
+        updateData(Adress.class, Adress[].class);
+        updateData(Relative.class, Relative[].class);
+        updateData(Attendance.class, Attendance[].class);
+        return null;
+    }
+
+    private <T extends Data> void updateData(Class<T> classForType, Class<T[]> classForList) {
+
+        AbstractDao<T, Long> dao = (AbstractDao<T, Long>) session.getDao(classForType);
+        final String simpleName = classForType.getSimpleName();
+        final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from " + simpleName.toUpperCase() + ")";
+        List<T> datas = dao.queryRaw(sqlRaw);
+
         Date lastChange;
-        if(contacts.size()>0)
-            lastChange = contacts.get(0).getChanged();
+        if(datas.size()>0)
+            lastChange = datas.get(0).getChanged();
         else
             lastChange = new Date(0L);
+
+        T[] updated = loadUpdated(simpleName.toLowerCase(), lastChange, classForList);
+        for (T c : updated) {
+            dao.insertOrReplace(c);
+        }
+    }
+
+    private <T extends Data> T[] loadUpdated(String typeUri, Date lastChange, Class<T[]> classOf) {
+
+        T[] result = null;
         try {
-            RestHttpConnection con = sendRequest(lastChange);
-            URL url;
+            RestHttpConnection con = sendRequest(typeUri, lastChange);
+
             if(con.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                 uri = uri.toLowerCase();
-                con = sendRequest(lastChange);
+                con = sendRequest(typeUri, lastChange);
             }
             if(con.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 String response = con.getResponse();
-                Contact[] result = gson.fromJson(response, Contact[].class);
-                for (Contact c : result) {
-                    session.getContactDao().update(c);
-                }
+                result = gson.fromJson(response, classOf);
             } else {
                 System.out.println("Request Method: " + con.getRequestMethod());
                 System.out.println("Response Code: " + con.getResponseCode());
@@ -72,12 +101,12 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
     }
 
     @NonNull
-    private RestHttpConnection sendRequest(Date lastChange) throws IOException {
-        URL url = new URL(uri + "contact/changed/" + lastChange.getTime());
+    private RestHttpConnection sendRequest(String type, Date lastChange) throws IOException {
+        URL url = new URL(uri + type + "/changed/" + lastChange.getTime());
         RestHttpConnection con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_GET);
         con.send("");
         return con;
