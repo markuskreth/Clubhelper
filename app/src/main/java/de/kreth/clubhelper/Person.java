@@ -266,6 +266,38 @@ public class Person implements Data, java.io.Serializable {
         return result;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Person person = (Person) o;
+
+        if (id != null ? !id.equals(person.id) : person.id != null) return false;
+        if (prename != null ? !prename.equals(person.prename) : person.prename != null)
+            return false;
+        if (surname != null ? !surname.equals(person.surname) : person.surname != null)
+            return false;
+        if (type != null ? !type.equals(person.type) : person.type != null) return false;
+        if (birth != null ? !birth.equals(person.birth) : person.birth != null) return false;
+        if (changed != null ? !changed.equals(person.changed) : person.changed != null)
+            return false;
+        return !(created != null ? !created.equals(person.created) : person.created != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (prename != null ? prename.hashCode() : 0);
+        result = 31 * result + (surname != null ? surname.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (birth != null ? birth.hashCode() : 0);
+        result = 31 * result + (changed != null ? changed.hashCode() : 0);
+        result = 31 * result + (created != null ? created.hashCode() : 0);
+        return result;
+    }
+
     public class RelativeType {
         private RelationType type;
         private Person rel;

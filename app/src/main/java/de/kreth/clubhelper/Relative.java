@@ -100,6 +100,39 @@ public class Relative implements Data, java.io.Serializable {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Relative relative = (Relative) o;
+
+        if (person1 != relative.person1) return false;
+        if (person2 != relative.person2) return false;
+        if (id != null ? !id.equals(relative.id) : relative.id != null) return false;
+        if (toPerson2Relation != null ? !toPerson2Relation.equals(relative.toPerson2Relation) : relative.toPerson2Relation != null)
+            return false;
+        if (toPerson1Relation != null ? !toPerson1Relation.equals(relative.toPerson1Relation) : relative.toPerson1Relation != null)
+            return false;
+        if (changed != null ? !changed.equals(relative.changed) : relative.changed != null)
+            return false;
+        return !(created != null ? !created.equals(relative.created) : relative.created != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (int) (person1 ^ (person1 >>> 32));
+        result = 31 * result + (int) (person2 ^ (person2 >>> 32));
+        result = 31 * result + (toPerson2Relation != null ? toPerson2Relation.hashCode() : 0);
+        result = 31 * result + (toPerson1Relation != null ? toPerson1Relation.hashCode() : 0);
+        result = 31 * result + (changed != null ? changed.hashCode() : 0);
+        result = 31 * result + (created != null ? created.hashCode() : 0);
+        return result;
+    }
+
     // KEEP METHODS END
 
 }

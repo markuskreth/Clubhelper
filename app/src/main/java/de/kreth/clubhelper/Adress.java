@@ -131,6 +131,41 @@ public class Adress implements Data, java.io.Serializable {
 
         return bld.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Adress adress = (Adress) o;
+
+        if (personId != adress.personId) return false;
+        if (id != null ? !id.equals(adress.id) : adress.id != null) return false;
+        if (adress1 != null ? !adress1.equals(adress.adress1) : adress.adress1 != null)
+            return false;
+        if (adress2 != null ? !adress2.equals(adress.adress2) : adress.adress2 != null)
+            return false;
+        if (plz != null ? !plz.equals(adress.plz) : adress.plz != null) return false;
+        if (city != null ? !city.equals(adress.city) : adress.city != null) return false;
+        if (changed != null ? !changed.equals(adress.changed) : adress.changed != null)
+            return false;
+        return !(created != null ? !created.equals(adress.created) : adress.created != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (adress1 != null ? adress1.hashCode() : 0);
+        result = 31 * result + (adress2 != null ? adress2.hashCode() : 0);
+        result = 31 * result + (plz != null ? plz.hashCode() : 0);
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (changed != null ? changed.hashCode() : 0);
+        result = 31 * result + (created != null ? created.hashCode() : 0);
+        return result;
+    }
+
     // KEEP METHODS END
 
 }

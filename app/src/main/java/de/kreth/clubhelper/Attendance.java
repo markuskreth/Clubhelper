@@ -80,6 +80,32 @@ public class Attendance implements Data, java.io.Serializable {
     }
 
     // KEEP METHODS - put your custom methods here
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Attendance that = (Attendance) o;
+
+        if (personId != that.personId) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (onDate != null ? !onDate.equals(that.onDate) : that.onDate != null) return false;
+        if (changed != null ? !changed.equals(that.changed) : that.changed != null) return false;
+        return !(created != null ? !created.equals(that.created) : that.created != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (onDate != null ? onDate.hashCode() : 0);
+        result = 31 * result + (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (changed != null ? changed.hashCode() : 0);
+        result = 31 * result + (created != null ? created.hashCode() : 0);
+        return result;
+    }
+
     // KEEP METHODS END
 
 }
