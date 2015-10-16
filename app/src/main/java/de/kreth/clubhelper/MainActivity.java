@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import de.kreth.clubhelper.activity.ClubView;
 import de.kreth.clubhelper.activity.MainFragment;
 import de.kreth.clubhelper.activity.PersonEditFragment;
 import de.kreth.clubhelper.backup.BackupRestoreHandler;
@@ -39,12 +40,10 @@ import de.kreth.clubhelper.restclient.SyncRestClient;
 
 public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
+    public static final String PERSONID = "personId";
     public static String DBNAME = "clubdatabase.sqlite";
     public static Map<String, String> restServers = new HashMap<>();
     public static String serverName;
-
-    public static final String PERSONID = "personId";
-
     private DaoSession session = null;
     private String imeiNo;
 
@@ -194,17 +193,13 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
                     @Override
                     public void syncFinished() {
                         Toast.makeText(MainActivity.this, "Sync beendet.", Toast.LENGTH_LONG).show();
-
+                        refreshFragmentView();
                     }
                 };
 
                 SyncRestClient client = new SyncRestClient(session, restServers.get(serverName), listener);
                 client.execute((Void) null);
 
-//                RestClient cl = new RestClient(session, restServers.get(serverName));
-//                ExecutorService exec = Executors.newSingleThreadExecutor();
-//                exec.execute(cl);
-//                exec.shutdown();
             }
         }).setNegativeButton(R.string.lblCancel, null).setMessage("Server: " + restServers.get(serverName)).show();
 
@@ -236,8 +231,9 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
     public void refreshFragmentView() {
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         Fragment fragment = supportFragmentManager.getFragments().get(0);
-        if( ! fragment.isDetached()) {
-            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
+        if (!fragment.isDetached() && fragment instanceof ClubView) {
+            ((ClubView) fragment).refreshView();
+//            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
         }
     }
 

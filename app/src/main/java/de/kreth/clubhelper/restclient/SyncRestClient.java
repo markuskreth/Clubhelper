@@ -8,35 +8,28 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
 import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.query.QueryBuilder;
-import de.greenrobot.dao.query.WhereCondition;
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Attendance;
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Data;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.Relative;
-import de.kreth.clubhelper.dao.AdressDao;
-import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
-import de.kreth.clubhelper.dao.PersonDao;
-import de.kreth.clubhelper.dao.RelativeDao;
 
 /**
+ * {@link AsyncTask}, that synchronizes all date with REST server.
  * Created by markus on 30.08.15.
  */
 public class SyncRestClient extends AsyncTask<Void, Void, Void> {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/yyyy HH:mm:ss.SSS Z").create();
-
-    private String uri;
     private final DaoSession session;
+    private String uri;
     private SyncFinishedListener listener = null;
 
     public SyncRestClient(DaoSession session, String uri) {
@@ -61,20 +54,23 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
 
     private <T extends Data> void updateData(Class<T> classForType, Class<T[]> classForList) {
 
-        AbstractDao<T, Long> dao = (AbstractDao<T, Long>) session.getDao(classForType);
-        final String simpleName = classForType.getSimpleName();
-        final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from " + simpleName.toUpperCase() + ")";
-        List<T> datas = dao.queryRaw(sqlRaw);
+        final AbstractDao<?, ?> dao1 = session.getDao(classForType);
+        if (dao1 != null) {
+            AbstractDao<T, Long> dao = (AbstractDao<T, Long>) dao1;
+            final String simpleName = classForType.getSimpleName();
+            final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from " + simpleName.toUpperCase() + ")";
+            List<T> datas = dao.queryRaw(sqlRaw);
 
-        Date lastChange;
-        if(datas.size()>0)
-            lastChange = datas.get(0).getChanged();
-        else
-            lastChange = new Date(0L);
+            Date lastChange;
+            if (datas.size() > 0)
+                lastChange = datas.get(0).getChanged();
+            else
+                lastChange = new Date(0L);
 
-        T[] updated = loadUpdated(simpleName.toLowerCase(), lastChange, classForList);
-        for (T c : updated) {
-            dao.insertOrReplace(c);
+            T[] updated = loadUpdated(simpleName.toLowerCase(), lastChange, classForList);
+            for (T c : updated) {
+                dao.insertOrReplace(c);
+            }
         }
     }
 
@@ -96,8 +92,6 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
                 System.out.println("Response Code: " + con.getResponseCode());
             }
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,10 +104,6 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
         RestHttpConnection con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_GET);
         con.send("");
         return con;
-    }
-
-    private <T extends Data> void doUpdate() {
-
     }
 
     @Override

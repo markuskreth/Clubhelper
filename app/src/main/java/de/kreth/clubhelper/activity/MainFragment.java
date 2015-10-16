@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,16 +17,8 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
@@ -36,7 +26,6 @@ import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
-import de.kreth.clubhelper.datahelper.PersonRelationHelper;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.dialogs.PersonViewDialog;
@@ -45,7 +34,7 @@ import de.kreth.clubhelper.widgets.PersonAdapter;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainFragment extends Fragment implements AdapterView.OnItemLongClickListener {
+public class MainFragment extends Fragment implements AdapterView.OnItemLongClickListener, ClubView {
 
     public static final String TAG = MainFragment.class.getName();
     private PersonAdapter adapter;
@@ -199,6 +188,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
         });
 
         dlg.show();
+   }
+
+    @Override
+    public void refreshView() {
+        adapter.notifyDataSetChanged();
     }
 
     public interface OnMainFragmentEventListener {

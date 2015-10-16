@@ -2,22 +2,16 @@ package de.kreth.clubhelper.activity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -49,18 +43,19 @@ import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.widgets.ContactEditDialog;
-import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 import de.kreth.clubhelper.widgets.PersonSelectDialog;
 import de.kreth.clubhelper.widgets.PersonTypeAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PersonEditFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class PersonEditFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ClubView {
 
     public static final String TAG = PersonEditFragment.class.getName();
 
     private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+
+    private long personId = -1;
 
     private DaoSession session;
     private Person person;
@@ -150,6 +145,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                 })
                 .show();
     }
+
     private void addDetail() {
         AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_quest_which_info_toadd).setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
             @Override
@@ -328,8 +324,6 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        long personId = -1;
 
         personId = getArguments().getLong(MainActivity.PERSONID);
 
@@ -590,6 +584,11 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             }
         });
         dlg.show();
+    }
+
+    @Override
+    public void refreshView() {
+
     }
 
     private class RelativeEditListener implements View.OnClickListener {
