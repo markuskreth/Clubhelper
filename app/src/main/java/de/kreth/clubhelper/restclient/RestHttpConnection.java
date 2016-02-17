@@ -8,8 +8,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import de.kreth.clubhelper.Data;
 
@@ -38,6 +46,7 @@ public class RestHttpConnection {
 
     private final String USER_AGENT = "Mozilla/5.0";
 
+    private final Encryptor encryptor;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/yyyy HH:mm:ss.SSS Z").create();
     private final String httpRequestType;
     private final URL url;
@@ -46,12 +55,13 @@ public class RestHttpConnection {
     private HttpURLConnection con = null;
     private String response = null;
 
-    public RestHttpConnection(URL url, String httpRequestType) {
+    public RestHttpConnection(URL url, String httpRequestType) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
         this.url = url;
         this.httpRequestType = httpRequestType;
+        encryptor = new Encryptor();
     }
 
-    private HttpURLConnection getConnection() throws IOException {
+    private HttpURLConnection getConnection() throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
 
         HttpURLConnection con = getConnection(url);
 
@@ -59,6 +69,10 @@ public class RestHttpConnection {
         con.setRequestProperty("User-Agent", USER_AGENT);
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
+        Date now = new Date();
+        con.setRequestProperty("localtime", String.valueOf(now.getTime()));
+        con.setRequestProperty("token", encryptor.encrypt(now, USER_AGENT));
+
         if (!httpRequestType.equals(HTTP_REQUEST_GET))
             con.setDoOutput(true);
 
@@ -69,7 +83,7 @@ public class RestHttpConnection {
         return (HttpURLConnection) url.openConnection();
     }
 
-    public void send(String json) throws IOException {
+    public void send(String json) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
         if (con != null)
             throw new IllegalStateException("Connection was used before");
 
@@ -84,7 +98,7 @@ public class RestHttpConnection {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Data> T send(T obj) throws IOException {
+    public <T extends Data> T send(T obj) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
 
         send(gson.toJson(obj));
 

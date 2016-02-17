@@ -12,10 +12,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.PersonType;
@@ -56,7 +63,7 @@ public class RestHttpConnectionTest {
     }
 
     @Test
-    public void testSendPerson() throws IOException {
+    public void testSendPerson() throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException {
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
@@ -77,7 +84,7 @@ public class RestHttpConnectionTest {
     }
 
     @Test
-    public void testSendPostPerson() throws IOException {
+    public void testSendPostPerson() throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException {
 
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
@@ -120,7 +127,7 @@ public class RestHttpConnectionTest {
 
     private class MockRestHttpConnection extends RestHttpConnection {
 
-        public MockRestHttpConnection(URL url, String httpRequestType) {
+        public MockRestHttpConnection(URL url, String httpRequestType) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
             super(url, httpRequestType);
         }
 

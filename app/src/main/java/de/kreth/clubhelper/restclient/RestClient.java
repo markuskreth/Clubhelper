@@ -16,8 +16,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Attendance;
@@ -57,9 +63,17 @@ public class RestClient implements Runnable {
             List<Attendance> attendances = session.getAttendanceDao().loadAll();
             send(attendances, "attendance", Attendance.class);
 
-        } catch (MalformedURLException e) {
-            Log.e("", "Fehler beim Senden, e");
         } catch (IOException e) {
+            Log.e("", "Fehler beim Senden", e);
+        } catch (NoSuchPaddingException e) {
+            Log.e("", "Fehler beim Senden", e);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("", "Fehler beim Senden", e);
+        } catch (InvalidKeyException e) {
+            Log.e("", "Fehler beim Senden", e);
+        } catch (IllegalBlockSizeException e) {
+            Log.e("", "Fehler beim Senden", e);
+        } catch (BadPaddingException e) {
             Log.e("", "Fehler beim Senden", e);
         }
     }
@@ -73,7 +87,7 @@ public class RestClient implements Runnable {
         }
     }
 
-    private <T extends Data> void send(List<T> data, String urlPath, Class<T> classOfT) throws IOException {
+    private <T extends Data> void send(List<T> data, String urlPath, Class<T> classOfT) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
         if(data.isEmpty())
             return;
