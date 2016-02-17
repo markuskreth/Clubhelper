@@ -311,7 +311,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             public void contactToStore(Contact contact) {
 
                 session.getContactDao().insert(contact);
-                person.getContactList().add(contact);
+                person.resetContactList();
                 addContact(contact);
                 setVisibleContacts();
             }
