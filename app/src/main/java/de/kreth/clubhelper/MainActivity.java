@@ -139,10 +139,17 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
             case R.id.action_restore:
                 startRestore();
                 return true;
+            case R.id.action_groups:
+                editGroups();
+                return true;
             default:
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void editGroups() {
+
     }
 
     private void chooseServer() {
@@ -233,7 +240,6 @@ public class MainActivity extends ActionBarActivity implements SessionHolder, Ma
         Fragment fragment = supportFragmentManager.getFragments().get(0);
         if (!fragment.isDetached() && fragment instanceof ClubView) {
             ((ClubView) fragment).refreshView();
-//            supportFragmentManager.beginTransaction().detach(fragment).attach(fragment).commit();
         }
     }
 

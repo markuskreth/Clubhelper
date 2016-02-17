@@ -40,5 +40,6 @@
     <string name="STAFF">Personal</string>
     <string name="RELATIVE">Angehöriger</string>
     <string name="lbl_person_type">Aufgabe</string>
+    <string name="action_groups">Gruppen</string>
 
 </resources>

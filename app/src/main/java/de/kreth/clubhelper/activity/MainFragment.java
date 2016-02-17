@@ -26,6 +26,7 @@ import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.dao.PersonGroupDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.dialogs.PersonViewDialog;
@@ -108,6 +109,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 final Person person = adapter.getItem(position);
+
                 PersonViewDialog dlg = new PersonViewDialog();
                 dlg.setNeutralButton(getText(R.string.lbl_edit), new DialogInterface.OnClickListener() {
                     @Override

@@ -24,6 +24,7 @@ import java.util.List;
 
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.Group;
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
@@ -108,8 +109,23 @@ public class PersonViewDialog extends DialogFragment {
         for(Adress a: adressList) {
             addAdressToTable(table, a);
         }
+        final List<Group> groups = person.getGroups();
+        for(Group g: groups) {
+            addGroupToTable(table, g);
+        }
         dlg.setView(view);
         return dlg;
+    }
+
+    private void addGroupToTable(TableLayout table, Group g) {
+
+        TableRow row = new TableRow(getActivity());
+        TextView view = new TextView(getActivity());
+        view.setSingleLine(true);
+        view.setText(g.getName());
+        row.addView(view);
+        table.addView(row);
+
     }
 
     private void addAdressToTable(TableLayout table, Adress a) {
