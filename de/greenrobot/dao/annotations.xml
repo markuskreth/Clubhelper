@@ -1,0 +1,6 @@
+<root>
+  <item
+      name='de.greenrobot.dao.AbstractDaoSession de.greenrobot.dao.AbstractDao&lt;?,?&gt; getDao(java.lang.Class&lt;? extends java.lang.Object&gt;)'>
+    <annotation name='android.support.annotation.NonNull' />
+  </item>
+</root>
