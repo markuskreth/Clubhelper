@@ -10,7 +10,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Locale;
 // KEEP INCLUDES END
 /**
- * Entity mapped to table CONTACT.
+ * Entity mapped to table "CONTACT".
  */
 public class Contact implements Data, java.io.Serializable {
 
@@ -141,7 +141,6 @@ public class Contact implements Data, java.io.Serializable {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
-
     // KEEP METHODS END
 
 }

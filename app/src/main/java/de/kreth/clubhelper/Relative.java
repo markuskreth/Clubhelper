@@ -5,7 +5,7 @@ package de.kreth.clubhelper;
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
 /**
- * Entity mapped to table RELATIVE.
+ * Entity mapped to table "RELATIVE".
  */
 public class Relative implements Data, java.io.Serializable {
 
@@ -132,7 +132,6 @@ public class Relative implements Data, java.io.Serializable {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
-
     // KEEP METHODS END
 
 }

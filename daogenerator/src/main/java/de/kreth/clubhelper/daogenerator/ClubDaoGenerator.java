@@ -23,11 +23,14 @@ public class ClubDaoGenerator {
     private Entity attendance;
     private Entity adress;
     private Entity relative;
+    private Entity group;
+    private Entity personGroup;
+    private Entity synchronization;
     private Property personId;
 
     public void generate() throws Exception {
 
-        schema = new Schema(4, "de.kreth.clubhelper");
+        schema = new Schema(5, "de.kreth.clubhelper");
         schema.setDefaultJavaPackageTest("de.kreth.clubhelper.dao");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
@@ -37,21 +40,24 @@ public class ClubDaoGenerator {
         createAttendance();
         createAdress();
         createRelatives();
+        createGroup();
+        createSynchronization();
 
         addChangedAndCreatedProperties(person);
         addChangedAndCreatedProperties(contact);
         addChangedAndCreatedProperties(attendance);
         addChangedAndCreatedProperties(adress);
         addChangedAndCreatedProperties(relative);
+        addChangedAndCreatedProperties(group);
 
         DaoGenerator daoGenerator = new DaoGenerator();
         File f = new File(".");
         System.out.println("Current Dir:");
         System.out.println(f.getAbsolutePath());
-        daoGenerator.generateAll(schema, "app/src/main/java", "app/src/androidTest/java");
 
+        daoGenerator.generateAll(schema, "app/src/main/java");
 
-        schema = new Schema(4, "de.kreth.clubhelperbackend.pojo");
+        schema = new Schema(5, "de.kreth.clubhelperbackend.pojo");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelperbackend.pojo.dao");
         schema.enableKeepSectionsByDefault();
 
@@ -60,12 +66,15 @@ public class ClubDaoGenerator {
         createAttendance();
         createAdress();
         createRelatives();
+        createGroup();
+        createSynchronization();
 
         addChangedAndCreatedProperties(person);
         addChangedAndCreatedProperties(contact);
         addChangedAndCreatedProperties(attendance);
         addChangedAndCreatedProperties(adress);
         addChangedAndCreatedProperties(relative);
+        addChangedAndCreatedProperties(group);
 
         File backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java");
         daoGenerator.generateAll(schema, backend.getAbsolutePath());
@@ -87,6 +96,40 @@ public class ClubDaoGenerator {
         clearPojoFromGreenDao(attendance);
         clearPojoFromGreenDao(adress);
         clearPojoFromGreenDao(relative);
+        clearPojoFromGreenDao(group);
+        clearPojoFromGreenDao(personGroup);
+    }
+
+    private void createSynchronization() {
+        synchronization = schema.addEntity("Synchronization");
+        synchronization.addIdProperty();
+        synchronization.addStringProperty("table_name");
+        synchronization.addDateProperty("upload_successful");
+        synchronization.addDateProperty("download_successful");
+    }
+
+    private void createGroup() {
+        group = schema.addEntity("Group");
+        final Property id = group.addIdProperty().columnName("_id").getProperty();
+        group.addStringProperty("name").unique().notNull();
+
+        personGroup = schema.addEntity("PersonGroup");
+        personGroup.addIdProperty();
+        final Property personId = personGroup.addLongProperty("personId").notNull().getProperty();
+        final Property groupId = personGroup.addLongProperty("groupId").notNull().getProperty();
+
+        person.addToMany(personGroup, personId);
+        group.addToMany(personGroup, groupId);
+
+        personGroup.addToMany(group, id);
+        personGroup.addToMany(person, this.personId);
+
+        Index unique = new Index();
+        unique.makeUnique().setName("PersonGroupUnique");
+        unique.addProperty(personId);
+        unique.addProperty(groupId);
+        personGroup.addIndex(unique);
+
     }
 
     private void clearPojoFromGreenDao(Entity entity) {

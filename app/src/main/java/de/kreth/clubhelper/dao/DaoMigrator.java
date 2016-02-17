@@ -26,7 +26,20 @@ public class DaoMigrator {
                 case 4:
                     migrateToVersion4();
                     break;
+                case 5:
+                    migrateToVersion5();
+                    break;
             }
+        }
+    }
+
+    private void migrateToVersion5() {
+        try {
+            db.beginTransaction();
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 

@@ -5,7 +5,7 @@ package de.kreth.clubhelper;
 // KEEP INCLUDES - put your custom includes here
 // KEEP INCLUDES END
 /**
- * Entity mapped to table ADRESS.
+ * Entity mapped to table "ADRESS".
  */
 public class Adress implements Data, java.io.Serializable {
 
@@ -165,7 +165,6 @@ public class Adress implements Data, java.io.Serializable {
         result = 31 * result + (created != null ? created.hashCode() : 0);
         return result;
     }
-
     // KEEP METHODS END
 
 }
