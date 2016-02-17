@@ -37,6 +37,11 @@ public class DaoMigrator {
         try {
             db.beginTransaction();
 
+            boolean ifNotExists = true;
+            GroupDao.createTable(db, ifNotExists);
+            PersonGroupDao.createTable(db, ifNotExists);
+            SynchronizationDao.createTable(db, ifNotExists);
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
