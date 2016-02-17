@@ -58,7 +58,6 @@ public class DaoMaster extends AbstractDaoMaster {
         }
     }
 
-    /** WARNING: Drops all table on Upgrade! Use only during development. */
     public static class DevOpenHelper extends OpenHelper {
         public DevOpenHelper(Context context, String name, CursorFactory factory) {
             super(context, name, factory);
@@ -73,7 +72,9 @@ public class DaoMaster extends AbstractDaoMaster {
 
         @Override
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            super.onDowngrade(db, oldVersion, newVersion);
+            if(oldVersion != 5 || newVersion != 4){
+                super.onDowngrade(db, oldVersion, newVersion);
+            }
         }
     }
 
