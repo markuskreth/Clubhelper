@@ -23,6 +23,7 @@ public class Group implements Data, java.io.Serializable {
     private java.util.Date changed;
     /** Not-null value. */
     private java.util.Date created;
+    private SyncStatus syncStatus;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -42,11 +43,12 @@ public class Group implements Data, java.io.Serializable {
         this.id = id;
     }
 
-    public Group(Long id, String name, java.util.Date changed, java.util.Date created) {
+    public Group(Long id, String name, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.name = name;
         this.changed = changed;
         this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -91,6 +93,14 @@ public class Group implements Data, java.io.Serializable {
     /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setCreated(java.util.Date created) {
         this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */

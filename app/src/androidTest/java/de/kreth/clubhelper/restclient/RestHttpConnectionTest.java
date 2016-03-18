@@ -26,6 +26,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import de.kreth.clubhelper.Person;
 import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.SyncStatus;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -38,7 +39,7 @@ public class RestHttpConnectionTest {
     @Mock
     private HttpURLConnection connection;
     private ByteArrayOutputStream outputStream;
-    private JsonMapper<Person> mapper;
+    private JsonMapper mapper;
 
     private Calendar created;
     private Calendar birth;
@@ -50,7 +51,7 @@ public class RestHttpConnectionTest {
     public void setup() throws IOException {
         MockitoAnnotations.initMocks(this);
         outputStream = new ByteArrayOutputStream();
-        mapper = new JsonMapper<>();
+        mapper = new JsonMapper();
 
         when(connection.getOutputStream()).thenReturn(outputStream);
 
@@ -58,7 +59,7 @@ public class RestHttpConnectionTest {
         birth = new GregorianCalendar(1973, Calendar.AUGUST, 21, 8, 0, 0);
         changed = (Calendar) created.clone();
         changed.add(Calendar.HOUR_OF_DAY, 2);
-        data = new Person(-1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime());
+        data = new Person(-1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime(), SyncStatus.NEW);
         url = new URL("http://localhost");
     }
 
@@ -69,12 +70,12 @@ public class RestHttpConnectionTest {
 
         RestHttpConnection restHttpConnection = new MockRestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_GET);
 
-        Person src = new Person(1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime());
+        Person src = new Person(1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime(), SyncStatus.NEW);
         String srcJson = mapper.toJson(src);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(srcJson.getBytes());
         when(connection.getInputStream()).thenReturn(inputStream);
-        Person result = restHttpConnection.send(data);
+        Person result = restHttpConnection.send(data, Person.class);
 
         verify(connection).setRequestMethod(RestHttpConnection.HTTP_REQUEST_GET);
         verify(connection).setRequestProperty("User-Agent", "Mozilla/5.0");
@@ -90,12 +91,12 @@ public class RestHttpConnectionTest {
 
         RestHttpConnection restHttpConnection = new MockRestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_POST);
 
-        Person src = new Person(1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime());
+        Person src = new Person(1L, "Markus", "Kreth", PersonType.STAFF.name(), birth.getTime(), changed.getTime(), created.getTime(), SyncStatus.NEW);
         String srcJson = mapper.toJson(src);
 
         ByteArrayInputStream inputStream = new ByteArrayInputStream(srcJson.getBytes());
         when(connection.getInputStream()).thenReturn(inputStream);
-        Person result = restHttpConnection.send(data);
+        Person result = restHttpConnection.send(data, Person.class);
 
         verify(connection).setRequestMethod(RestHttpConnection.HTTP_REQUEST_POST);
         verify(connection).setRequestProperty("User-Agent", "Mozilla/5.0");

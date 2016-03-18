@@ -16,8 +16,12 @@ public class ProductiveOpenHelper extends DaoMaster.OpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.i("greenDAO", "Upgrading schema from version " + oldVersion + " to " + newVersion + " by " + DaoMigrator.class.getSimpleName());
-        DaoMigrator migrator = new DaoMigrator(db);
-        migrator.start(oldVersion, newVersion);
+        try {
+            DaoMigrator migrator = new DaoMigrator(db);
+            migrator.start(oldVersion, newVersion);
+        } catch (Exception e) {
+            Log.e("greenDAO", "Upgrade failed!", e);
+        }
     }
 
     @Override

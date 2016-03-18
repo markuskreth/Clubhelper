@@ -32,33 +32,40 @@ public class BackupCleaner implements Runnable {
         for (String fileName : backupFiles)
             files.put(fileName, new File (dir, fileName));
 
-        List<File> iteratable = new ArrayList<>(files.values());
+        List<File> fileList = new ArrayList<>(files.values());
 
-        Collections.sort(iteratable, new Comparator<File>() {
+        Collections.sort(fileList, new Comparator<File>() {
             @Override
             public int compare(File lhs, File rhs) {
                 return new Long(lhs.lastModified()).compareTo(rhs.lastModified());
             }
         });
 
-        int currentMonth = -1;
         Calendar now = new GregorianCalendar();
         now.setTime(getNow());
 
-        for (int i = 1; i < iteratable.size(); i++) {
-            Calendar prev = new GregorianCalendar();
-            prev.setTimeInMillis(iteratable.get(i-1).lastModified());
-            File currentFile = iteratable.get(i);
-            Calendar time = new GregorianCalendar();
+        Calendar prev = new GregorianCalendar();
+        Calendar time = new GregorianCalendar();
+        File prevFile;
+        for (int i = 1; i < fileList.size(); i++) {
+
+            prevFile = fileList.get(i - 1);
+            prev.setTimeInMillis(prevFile.lastModified());
+            File currentFile = fileList.get(i);
+
             time.setTimeInMillis(currentFile.lastModified());
 
             if (now.before(time))
                 break;
 
-            if (time.get(Calendar.YEAR) == prev.get(Calendar.YEAR) && time.get(Calendar.MONTH) == prev.get(Calendar.MONTH)){
-                File file = files.get(iteratable.get(i - 1).getName());
-                if(file.length() == currentFile.length())
+            if (time.get(Calendar.YEAR) == prev.get(Calendar.YEAR) && time.get(Calendar.MONTH) == prev.get(Calendar.MONTH) ){
+
+                File file = files.get(prevFile.getName());
+
+                if(file.exists() && file.length() == currentFile.length()){
                     delete(file);
+                    files.remove(prevFile.getName());
+                }
             }
         }
     }

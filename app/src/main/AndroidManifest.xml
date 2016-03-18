@@ -30,7 +30,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".PersonEditActivity"
+            android:name=".activity.PersonEditActivity"
             android:label="@string/title_activity_person_edit"
             android:parentActivityName=".MainActivity" >
             <meta-data

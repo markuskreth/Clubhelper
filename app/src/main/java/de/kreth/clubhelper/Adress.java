@@ -19,6 +19,7 @@ public class Adress implements Data, java.io.Serializable {
     private java.util.Date changed;
     /** Not-null value. */
     private java.util.Date created;
+    private SyncStatus syncStatus;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -30,7 +31,7 @@ public class Adress implements Data, java.io.Serializable {
         this.id = id;
     }
 
-    public Adress(Long id, String adress1, String adress2, String plz, String city, long personId, java.util.Date changed, java.util.Date created) {
+    public Adress(Long id, String adress1, String adress2, String plz, String city, long personId, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.adress1 = adress1;
         this.adress2 = adress2;
@@ -39,6 +40,7 @@ public class Adress implements Data, java.io.Serializable {
         this.personId = personId;
         this.changed = changed;
         this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     public Long getId() {
@@ -107,6 +109,14 @@ public class Adress implements Data, java.io.Serializable {
     /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setCreated(java.util.Date created) {
         this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     // KEEP METHODS - put your custom methods here

@@ -20,6 +20,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import de.kreth.clubhelper.Data;
+import de.kreth.clubhelper.backup.DataExportClass;
 
 /**
  * Connects to Server and sends Data objects.
@@ -47,7 +48,7 @@ public class RestHttpConnection {
     private final String USER_AGENT = "Mozilla/5.0";
 
     private final Encryptor encryptor;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/yyyy HH:mm:ss.SSS Z").create();
+
     private final String httpRequestType;
     private final URL url;
 
@@ -57,6 +58,8 @@ public class RestHttpConnection {
 
     public RestHttpConnection(URL url, String httpRequestType) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
         this.url = url;
+        if(httpRequestType== null)
+            throw new NullPointerException("RequestType must not be null!");
         this.httpRequestType = httpRequestType;
         encryptor = new Encryptor();
     }
@@ -98,13 +101,13 @@ public class RestHttpConnection {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Data> T send(T obj) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
-
+    public <T extends Data> T send(T obj, Class<T> classOfT) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+        JsonMapper gson = new JsonMapper();
         send(gson.toJson(obj));
 
         T data = null;
         if (getResponseCode() == HttpURLConnection.HTTP_OK) {
-            data = (T) gson.fromJson(getResponse(), obj.getClass());
+            data =gson.fromJson(getResponse(), classOfT);
         }
 
         return data;

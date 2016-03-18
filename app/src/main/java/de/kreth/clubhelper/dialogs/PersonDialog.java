@@ -26,7 +26,9 @@ import java.util.List;
 
 import de.kreth.clubhelper.Contact;
 import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
+import de.kreth.clubhelper.SyncStatus;
 import de.kreth.clubhelper.widgets.PersonTypeAdapter;
 
 /**
@@ -163,7 +165,7 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
                                                 null,
                                                 "Mobile",
                                                 "0174-2521286",
-                                                person.getId(), now, now);
+                                                person.getId(), now, now, SyncStatus.NEW);
                                         addContactToDialog(nc);
                                         break;
                                     case 1:
@@ -188,6 +190,10 @@ public class PersonDialog implements DatePickerDialog.OnDateSetListener, View.On
 
     public CharSequence getPrename() {
         return txtPrename.getText();
+    }
+
+    public PersonType getPersonType() {
+        return personTypeAdapter.getItem((int) personType.getSelectedItemId());
     }
 
     public CharSequence getTxtSurname() {

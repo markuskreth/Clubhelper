@@ -3,17 +3,16 @@ package de.kreth.clubhelper.restclient;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -37,22 +36,22 @@ import de.kreth.clubhelper.dao.SynchronizationDao;
  */
 public class SyncRestClient extends AsyncTask<Void, Void, Void> {
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/yyyy HH:mm:ss.SSS Z").create();
     private final DaoSession session;
     private String uri;
-    private SyncFinishedListener listener = null;
-    private SynchronizationDao synchronizationDao;
+    private final SyncFinishedListener listener;
+    private final SynchronizationDao synchronizationDao;
+    private final Date now;
 
     public SyncRestClient(DaoSession session, String uri) {
-        this.session = session;
-        this.uri = uri;
-        synchronizationDao = session.getSynchronizationDao();
-
+        this(session, uri, null);
     }
 
     public SyncRestClient(DaoSession session, String uri, SyncFinishedListener listener) {
-        this(session, uri);
+        this.session = session;
+        this.uri = uri;
+        synchronizationDao = session.getSynchronizationDao();
         this.listener = listener;
+        now = new Date();
     }
 
     @Override
@@ -65,14 +64,17 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    private <T extends Data> void updateData(Class<T> classForType, Class<T[]> classForList) {
+    public <T extends Data> void updateData(Class<T> classForType, Class<T[]> classForList) {
 
         final AbstractDao<?, ?> dao1 = session.getDao(classForType);
         if (dao1 != null) {
-            AbstractDao<T, Long> dao = (AbstractDao<T, Long>) dao1;
+            final AbstractDao<T, Long> dao = (AbstractDao<T, Long>) dao1;
             final String simpleName = classForType.getSimpleName();
 
-            Synchronization synchronization = synchronizationDao.queryBuilder().where(SynchronizationDao.Properties.Table_name.eq(dao.getTablename())).build().unique();
+            Synchronization synchronization = synchronizationDao.queryBuilder()
+                    .where(SynchronizationDao.Properties.Table_name.eq(dao.getTablename()))
+                    .build()
+                    .unique();
 
             if(synchronization == null) {
                 synchronization = new Synchronization();
@@ -81,63 +83,92 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
                 final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from " + simpleName.toUpperCase() + ")";
                 List<T> datas = dao.queryRaw(sqlRaw);
 
-                if (datas.size() > 0)
-                    synchronization.setDownload_successful(datas.get(0).getChanged());
-                else
+                if (datas.size() > 0) {
+                    final Date time = new GregorianCalendar(2015, Calendar.AUGUST, 31, 22, 26, 59).getTime();   // Latest Server up/download on real system.
+                    synchronization.setDownload_successful(time);
+                    synchronization.setUpload_successful(time);
+                }
+                else {
                     synchronization.setDownload_successful(new Date(0));
+                    synchronization.setUpload_successful(new Date(0));
+                }
 
-                synchronization.setUpload_successful(new Date(0));
+                synchronizationDao.insert(synchronization);
             }
 
-            Date downloadSuccessful = synchronization.getDownload_successful();
+            Date lastUpload = synchronization.getUpload_successful();
+            Date lastDownload = synchronization.getDownload_successful();
 
-            T[] updated = loadUpdated(simpleName.toLowerCase(), downloadSuccessful, classForList);
+            final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + lastUpload.getTime());
+
+            final List<T> updated = Arrays.asList(loadUpdated(simpleName.toLowerCase(), lastDownload, classForList));
+
+            mergeChanges(toUpload, updated);
+
             for (T c : updated) {
                 dao.insertOrReplace(c);
             }
 
-            Date uploadSuccessful = synchronization.getUpload_successful();
-            boolean succsess = upload(simpleName.toLowerCase(), dao, uploadSuccessful);
-        }
-    }
+            synchronization.setDownload_successful(now);
+            synchronizationDao.update(synchronization);
 
-    private <T extends Data> boolean upload(String typeUri, AbstractDao<T, Long> dao, Date uploadSuccessful) {
-
-        final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + uploadSuccessful.getTime());
-        boolean success = false;
-        for (T data : toUpload) {
-
-            URL url = null;
             try {
-                url = new URL(uri + typeUri + "/" + data.getId());
-                RestHttpConnection con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_POST);
-                T result = con.send(data);
-                if(! result.equals(data)) {
-                    dao.update(result);
+                for (T data : toUpload) {
+                    String method = RestHttpConnection.HTTP_REQUEST_PUT;
+
+                    if(data.getCreated().after(lastUpload))
+                        method = RestHttpConnection.HTTP_REQUEST_POST;
+
+                    upload(simpleName.toLowerCase(), dao, data, method, classForType);
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (BadPaddingException e) {
-                e.printStackTrace();
+                synchronization.setUpload_successful(now);
+                synchronizationDao.update(synchronization);
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         }
-        return success;
+    }
+
+    private <T extends Data> void mergeChanges(List<T> toUpload, List<T> downloaded) {
+        for (T serverSide : new ArrayList<>(downloaded)) {
+            for (T local : new ArrayList<>(toUpload)) {
+                if(local.getId() == serverSide.getId()) {
+                    if(local.getCreated().equals(serverSide.getCreated())) {
+                        if (local.getChanged().after(serverSide.getChanged())) {
+                            downloaded.remove(serverSide);
+                        } else {
+                            toUpload.remove(local);
+                        }
+                    } else {
+                        if(local.getId()>=0)
+                            local.setId(local.getId()*-1);
+                    }
+                }
+            }
+        }
+    }
+
+    private <T extends Data> void upload(String typeUri, AbstractDao<T, Long> dao, T data, String method, Class<T> classOfT) throws IOException {
+
+            try {
+                URL url = new URL(uri + typeUri + "/" + data.getId());
+                RestHttpConnection con = new RestHttpConnection(url, method);
+                T result = con.send(data, classOfT);
+                if(! result.equals(data)) {
+                    dao.update(result);
+                }
+
+            } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | IOException e) {
+                throw new IOException("Upload failed", e);
+            }
+
+        return;
     }
 
     private <T extends Data> T[] loadUpdated(String typeUri, Date lastChange, Class<T[]> classOf) {
-
+        JsonMapper gson = new JsonMapper();
         T[] result = null;
         try {
             RestHttpConnection con = sendRequest(typeUri, lastChange);

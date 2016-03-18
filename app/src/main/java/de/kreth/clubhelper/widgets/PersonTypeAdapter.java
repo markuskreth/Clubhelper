@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 
 /**

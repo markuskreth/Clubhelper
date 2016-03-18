@@ -39,6 +39,7 @@ import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
 import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.SyncStatus;
 import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.datahelper.SessionHolder;
@@ -139,7 +140,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                                 }
                             }
                         };
-                        Contact toChange = new Contact(c.getId(), c.getType(), c.getValue(), c.getPersonId(), c.getChanged(), c.getCreated());
+                        Contact toChange = new Contact(c.getId(), c.getType(), c.getValue(), c.getPersonId(), c.getChanged(), c.getCreated(), c.getSyncStatus());
                         new ContactEditDialog(getActivity(), toChange, result).show();
                     }
                 })
@@ -226,7 +227,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                         String city = ((EditText) root.findViewById(R.id.editTextAdressCity)).getText().toString();
 
                         Date now = new Date();
-                        Adress a = new Adress(null, adr1, adr2, zip, city, person.getId(), now, now);
+                        Adress a = new Adress(null, adr1, adr2, zip, city, person.getId(), now, now, SyncStatus.NEW);
                         AdressDao adressDao = session.getAdressDao();
                         adressDao.insert(a);
                         addAdress(a);
@@ -288,7 +289,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                                     }
 
                                     Date now = new Date();
-                                    Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name(), now, now);
+                                    Relative rel = new Relative(null, person.getId(), relative.getId(), toSecond.name(), toFirst.name(), now, now, SyncStatus.NEW);
                                     session.getRelativeDao().insert(rel);
                                     refreshRelatives(person.getRelations());
 
@@ -305,7 +306,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     private void addContact() {
 
         Date now = new Date();
-        Contact newContact = new Contact(null, "", "" , person.getId(), now, now);
+        Contact newContact = new Contact(null, "", "" , person.getId(), now, now, SyncStatus.NEW);
         ContactEditDialog.ContactEditDialogResult result = new ContactEditDialog.ContactEditDialogResult() {
             @Override
             public void contactToStore(Contact contact) {

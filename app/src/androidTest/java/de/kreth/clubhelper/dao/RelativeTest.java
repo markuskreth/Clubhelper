@@ -9,6 +9,7 @@ import de.kreth.clubhelper.dao.RelativeDao;
 
 public class RelativeTest extends AbstractDaoTestLongPk<RelativeDao, Relative> {
 
+    private int count = 0;
     public RelativeTest() {
         super(RelativeDao.class);
     }
@@ -17,10 +18,11 @@ public class RelativeTest extends AbstractDaoTestLongPk<RelativeDao, Relative> {
     protected Relative createEntity(Long key) {
         Relative entity = new Relative();
         entity.setId(key);
-        entity.setPerson1(1L);
-        entity.setPerson2(2L);
+        entity.setPerson1(1L + count);
+        entity.setPerson2(1000L + count);
         entity.setChanged(new Date());
         entity.setCreated(new Date());
+        count++;
         return entity;
     }
 

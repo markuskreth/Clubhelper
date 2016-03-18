@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import de.kreth.clubhelper.Group;
 import de.kreth.clubhelper.PersonType;
 
 /**
@@ -29,8 +30,49 @@ public class DaoMigrator {
                 case 5:
                     migrateToVersion5();
                     break;
+                case 7:
+                    migrateToVersion6();
+                    break;
             }
         }
+    }
+
+    private void migrateToVersion6() {
+        try {
+            db.beginTransaction();
+            addColumn(db,
+                    PersonDao.TABLENAME,
+                    PersonDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    ContactDao.TABLENAME,
+                    ContactDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    RelativeDao.TABLENAME,
+                    RelativeDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    AdressDao.TABLENAME,
+                    AdressDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    AttendanceDao.TABLENAME,
+                    AttendanceDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    GroupDao.TABLENAME,
+                    GroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+            addColumn(db,
+                    PersonGroupDao.TABLENAME,
+                    PersonGroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+
+
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void addColumn(SQLiteDatabase db, String tablename, String columnName, String sqlType) {
+        String sql = "ALTER TABLE \"" + tablename + "\" ADD COLUMN \"" + columnName + "\" " + sqlType;
+        db.execSQL(sql);
     }
 
     private void migrateToVersion5() {

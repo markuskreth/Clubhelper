@@ -15,11 +15,16 @@ import de.kreth.clubhelper.dao.PersonGroupDao;
 /**
  * Entity mapped to table "PERSON_GROUP".
  */
-public class PersonGroup {
+public class PersonGroup implements Data, java.io.Serializable {
 
     private Long id;
     private long personId;
     private long groupId;
+    /** Not-null value. */
+    private java.util.Date changed;
+    /** Not-null value. */
+    private java.util.Date created;
+    private SyncStatus syncStatus;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -40,10 +45,13 @@ public class PersonGroup {
         this.id = id;
     }
 
-    public PersonGroup(Long id, long personId, long groupId) {
+    public PersonGroup(Long id, long personId, long groupId, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.personId = personId;
         this.groupId = groupId;
+        this.changed = changed;
+        this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -74,6 +82,34 @@ public class PersonGroup {
 
     public void setGroupId(long groupId) {
         this.groupId = groupId;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getChanged() {
+        return changed;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setChanged(java.util.Date changed) {
+        this.changed = changed;
+    }
+
+    /** Not-null value. */
+    public java.util.Date getCreated() {
+        return created;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setCreated(java.util.Date created) {
+        this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */

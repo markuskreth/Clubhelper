@@ -16,6 +16,7 @@ public class Attendance implements Data, java.io.Serializable {
     private java.util.Date changed;
     /** Not-null value. */
     private java.util.Date created;
+    private SyncStatus syncStatus;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -27,12 +28,13 @@ public class Attendance implements Data, java.io.Serializable {
         this.id = id;
     }
 
-    public Attendance(Long id, java.util.Date onDate, long personId, java.util.Date changed, java.util.Date created) {
+    public Attendance(Long id, java.util.Date onDate, long personId, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.onDate = onDate;
         this.personId = personId;
         this.changed = changed;
         this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     public Long getId() {
@@ -77,6 +79,14 @@ public class Attendance implements Data, java.io.Serializable {
     /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setCreated(java.util.Date created) {
         this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     // KEEP METHODS - put your custom methods here

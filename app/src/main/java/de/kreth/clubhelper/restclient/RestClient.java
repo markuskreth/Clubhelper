@@ -39,7 +39,6 @@ import de.kreth.clubhelper.dao.DaoSession;
  */
 public class RestClient implements Runnable {
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/yyyy HH:mm:ss.SSS Z").create();
     private DaoSession session;
     private String uri;
 
@@ -98,14 +97,14 @@ public class RestClient implements Runnable {
 
             URL url = new URL(uri + path);
             RestHttpConnection con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_POST);
-            T fromJson = con.send(p);
+            T fromJson = con.send(p, classOfT);
 
             int responseCode = con.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                 uri = uri.toLowerCase();
                 url = new URL(uri + path);
                 con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_POST);
-                fromJson = con.send(p);
+                fromJson = con.send(p, classOfT);
                 responseCode = con.getResponseCode();
             }
 

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -152,10 +153,12 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
 
    private void createNewPerson() {
 
-        final Person person = new Person();
-        AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
+       final Person person = new Person();
+       final FragmentActivity activity = getActivity();
 
-        ViewGroup view1 = (ViewGroup) getActivity().getLayoutInflater().inflate(
+       AlertDialog.Builder dlg = new AlertDialog.Builder(activity);
+
+        ViewGroup view1 = (ViewGroup) activity.getLayoutInflater().inflate(
                 R.layout.person_complete, null);
         dlg.setView(view1);
         dlg.setNegativeButton(R.string.lblCancel, null);
@@ -175,6 +178,8 @@ public class MainFragment extends Fragment implements AdapterView.OnItemLongClic
 
                 person.setPrename(p.getPrename().toString());
                 person.setSurname(p.getTxtSurname().toString());
+                person.setPersonType(p.getPersonType());
+
                 if(p.getBirthday() != null)
                     person.setBirth(p.getBirthday().getTime());
                 else

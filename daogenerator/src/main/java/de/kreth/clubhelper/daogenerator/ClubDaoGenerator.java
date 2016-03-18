@@ -17,6 +17,7 @@ import de.greenrobot.daogenerator.Schema;
 
 public class ClubDaoGenerator {
 
+    private static final int DATABASE_VERSION = 7;
     private Schema schema;
     private Entity person;
     private Entity contact;
@@ -30,7 +31,7 @@ public class ClubDaoGenerator {
 
     public void generate() throws Exception {
 
-        schema = new Schema(5, "de.kreth.clubhelper");
+        schema = new Schema(DATABASE_VERSION, "de.kreth.clubhelper");
         schema.setDefaultJavaPackageTest("de.kreth.clubhelper.dao");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
@@ -43,12 +44,13 @@ public class ClubDaoGenerator {
         createGroup();
         createSynchronization();
 
-        addChangedAndCreatedProperties(person);
-        addChangedAndCreatedProperties(contact);
-        addChangedAndCreatedProperties(attendance);
-        addChangedAndCreatedProperties(adress);
-        addChangedAndCreatedProperties(relative);
-        addChangedAndCreatedProperties(group);
+        addGeneralProperties(person, true);
+        addGeneralProperties(contact, true);
+        addGeneralProperties(attendance, true);
+        addGeneralProperties(adress, true);
+        addGeneralProperties(relative, true);
+        addGeneralProperties(group, true);
+        addGeneralProperties(personGroup, true);
 
         DaoGenerator daoGenerator = new DaoGenerator();
         File f = new File(".");
@@ -57,7 +59,7 @@ public class ClubDaoGenerator {
 
         daoGenerator.generateAll(schema, "app/src/main/java");
 
-        schema = new Schema(5, "de.kreth.clubhelperbackend.pojo");
+        schema = new Schema(DATABASE_VERSION, "de.kreth.clubhelperbackend.pojo");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelperbackend.pojo.dao");
         schema.enableKeepSectionsByDefault();
 
@@ -69,12 +71,13 @@ public class ClubDaoGenerator {
         createGroup();
         createSynchronization();
 
-        addChangedAndCreatedProperties(person);
-        addChangedAndCreatedProperties(contact);
-        addChangedAndCreatedProperties(attendance);
-        addChangedAndCreatedProperties(adress);
-        addChangedAndCreatedProperties(relative);
-        addChangedAndCreatedProperties(group);
+        addGeneralProperties(person, false);
+        addGeneralProperties(contact, false);
+        addGeneralProperties(attendance, false);
+        addGeneralProperties(adress, false);
+        addGeneralProperties(relative, false);
+        addGeneralProperties(group, false);
+        addGeneralProperties(personGroup, false);
 
         File backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java");
         daoGenerator.generateAll(schema, backend.getAbsolutePath());
@@ -91,13 +94,13 @@ public class ClubDaoGenerator {
             }
         }
 
-        clearPojoFromGreenDao(person);
-        clearPojoFromGreenDao(contact);
-        clearPojoFromGreenDao(attendance);
-        clearPojoFromGreenDao(adress);
-        clearPojoFromGreenDao(relative);
-        clearPojoFromGreenDao(group);
-        clearPojoFromGreenDao(personGroup);
+        clearPojoFromGreenDaoCode(person);
+        clearPojoFromGreenDaoCode(contact);
+        clearPojoFromGreenDaoCode(attendance);
+        clearPojoFromGreenDaoCode(adress);
+        clearPojoFromGreenDaoCode(relative);
+        clearPojoFromGreenDaoCode(group);
+        clearPojoFromGreenDaoCode(personGroup);
     }
 
     private void createSynchronization() {
@@ -132,7 +135,7 @@ public class ClubDaoGenerator {
 
     }
 
-    private void clearPojoFromGreenDao(Entity entity) {
+    private void clearPojoFromGreenDaoCode(Entity entity) {
         File f = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/" + entity.getClassName() + ".java");
         File backup = new File(f.getAbsolutePath() + ".old");
         f.renameTo(backup);
@@ -242,9 +245,13 @@ public class ClubDaoGenerator {
 
     }
 
-    private void addChangedAndCreatedProperties(Entity e) {
+    private void addGeneralProperties(Entity e, boolean clientSide) {
         e.addDateProperty("changed").notNull();
         e.addDateProperty("created").notNull();
+
+        if(clientSide)
+            e.addIntProperty("syncStatus").customType("de.kreth.clubhelper.SyncStatus", "de.kreth.clubhelper.SyncStatus.SyncStatusConverter");
+
         e.implementsInterface("Data");
         e.implementsSerializable();
     }

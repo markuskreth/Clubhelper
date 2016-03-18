@@ -1,11 +1,7 @@
 package de.kreth.clubhelper.backup;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -15,9 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.kreth.clubhelper.Adress;
 import de.kreth.clubhelper.Contact;
@@ -29,6 +22,7 @@ import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.RelativeDao;
+import de.kreth.clubhelper.restclient.JsonMapper;
 
 /**
  * Created by markus on 29.03.15.
@@ -37,14 +31,15 @@ public class BackupRestoreHandler {
 
     public final static String EXPORT_DIR_NAME = "Clubhelper";
     private final static DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
+    private final JsonMapper gson;
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private DaoSession session;
     private File targetDir;
 
     public BackupRestoreHandler(DaoSession session, File targetDir) {
         this.session = session;
         this.targetDir = targetDir;
+        gson = new JsonMapper();
     }
 
     public void doBackup() throws IOException {

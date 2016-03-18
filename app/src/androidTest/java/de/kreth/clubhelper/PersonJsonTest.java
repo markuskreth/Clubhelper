@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.kreth.clubhelper.backup.DataExportClass;
+import de.kreth.clubhelper.restclient.JsonMapper;
 
 public class PersonJsonTest extends AndroidTestCase {
 
@@ -23,15 +24,16 @@ public class PersonJsonTest extends AndroidTestCase {
     }
 
     public void testToJson() throws Exception {
-        Person markus = new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now);
-        Gson gson = new Gson();
+        JsonMapper gson = new JsonMapper();
+        Person markus = new Person(1L, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now, SyncStatus.NEW);
+
         String markusJson = gson.toJson(markus);
 
         Person deserialized = gson.fromJson(markusJson, Person.class);
         assertEquals(1L, deserialized.getId().longValue());
         assertEquals("Markus", deserialized.getPrename());
         assertEquals("Kreth", deserialized.getSurname());
-        assertEquals("Trainer", deserialized.getType());
+        assertEquals("STAFF", deserialized.getType());
         assertEquals(now, deserialized.getChanged());
         assertEquals(now, deserialized.getCreated());
 
@@ -42,6 +44,7 @@ public class PersonJsonTest extends AndroidTestCase {
     public void testFromJson() {
         String input = "{\"id\":1,\"prename\":\"Markus\",\"surname\":\"Kreth\",\"type\":\"Trainer\",\"birth\":\"Aug 21, 1973 12:00:00 AM\"}";
         Gson gson = new Gson();
+
         Person deserialized = gson.fromJson(input, Person.class);
         assertEquals(1L, deserialized.getId().longValue());
         assertEquals("Markus", deserialized.getPrename());
@@ -59,21 +62,21 @@ public class PersonJsonTest extends AndroidTestCase {
         DataExportClass data = new DataExportClass();
 
         List<Person> list = new ArrayList<>();
-        list.add(new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now));
-        list.add(new Person(2L, "Test", "Person", "Aktive", new GregorianCalendar(1989, Calendar.AUGUST, 1).getTime(), now, now));
+        list.add(new Person(1L, "Markus", "Kreth", "Trainer", new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now, SyncStatus.NEW));
+        list.add(new Person(2L, "Test", "Person", "Aktive", new GregorianCalendar(1989, Calendar.AUGUST, 1).getTime(), now, now, SyncStatus.NEW));
         data.setPersons(list);
 
         List<Contact> contacts = new ArrayList<>();
-        contacts.add(new Contact(1L, "Email", "markus.kr@web.de", 1L, now, now));
-        contacts.add(new Contact(2L, "Mobile", "0174555555", 1L, now, now));
-        contacts.add(new Contact(3L, "Email", "Test.kr@web.de", 2L, now, now));
+        contacts.add(new Contact(1L, "Email", "markus.kr@web.de", 1L, now, now, SyncStatus.NEW));
+        contacts.add(new Contact(2L, "Mobile", "0174555555", 1L, now, now, SyncStatus.NEW));
+        contacts.add(new Contact(3L, "Email", "Test.kr@web.de", 2L, now, now, SyncStatus.NEW));
         data.setContacts(contacts);
 
         List<Adress> adresses = new ArrayList<>();
-        adresses.add(new Adress(1L, "Markus Straße", "", "30555", "Hannover", 1L, now, now));
+        adresses.add(new Adress(1L, "Markus Straße", "", "30555", "Hannover", 1L, now, now, SyncStatus.NEW));
         data.setAdresses(adresses);
 
-        Gson gson = new Gson();
+        JsonMapper gson = new JsonMapper();
 
         String json = gson.toJson(data);
 
@@ -84,6 +87,8 @@ public class PersonJsonTest extends AndroidTestCase {
         assertTrue(json.contains("0174555555"));
         assertTrue(json.contains("Hannover"));
         assertTrue(json.contains("30555"));
+        assertFalse(json.toLowerCase().contains("syncstatus"));
+        assertFalse(json.contains("NEW"));
 
         DataExportClass deserialized = gson.fromJson(json, DataExportClass.class);
         List<Person> persons = deserialized.getPersons();

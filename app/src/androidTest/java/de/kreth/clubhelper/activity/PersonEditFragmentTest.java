@@ -26,6 +26,7 @@ import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.RelationType;
 import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.SyncStatus;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
@@ -65,8 +66,8 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         }
 
         solo.finishOpenedActivities();
-        boolean deleted = getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
-        deleted = getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
+        getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
+        getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
         MainActivity.DBNAME = originalDbName;
         super.tearDown();
     }
@@ -123,7 +124,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         ersteEmail.setChanged(new Date());
         contactDao.insert(ersteEmail);
 
-        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString(), now, now);
+        Relative relative = new Relative(null, persons.get(0).getId(), persons.get(1).getId(), RelationType.CHILD.toString(), RelationType.PARENT.toString(), now, now, SyncStatus.NEW);
         session.getRelativeDao().insert(relative);
         assertNotNull(relative.getId());
 
@@ -164,7 +165,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
 
         solo.clickLongInList(1);
         assertTrue(solo.waitForFragmentByTag(PersonEditFragment.TAG));
-        solo.clickOnText("2000");
+        solo.clickOnText("Geburtstag");
         solo.waitForDialogToOpen();
         solo.setDatePicker(0, 1973, Calendar.AUGUST, 21);
         solo.clickOnButton(0);
@@ -304,7 +305,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
         MainActivity main = (MainActivity) solo.getCurrentActivity();
         PersonDao personDao = main.getSession().getPersonDao();
-        Person p1 = new Person(null, "Prename", "Surname", PersonType.ACTIVE.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now,now );
+        Person p1 = new Person(null, "Prename", "Surname", PersonType.ACTIVE.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), now, now, SyncStatus.NEW);
         personDao.insert(p1);
         solo.setActivityOrientation(Solo.LANDSCAPE);
         solo.setActivityOrientation(Solo.PORTRAIT);
@@ -446,15 +447,20 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.waitForActivity(MainActivity.class);
         solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
 
-        MainActivity mainActivity = (MainActivity) solo.getCurrentActivity();
+        final MainActivity mainActivity = (MainActivity) solo.getCurrentActivity();
         DaoSession session = mainActivity.getSession();
-        Person mk = new Person(null, "Marku", "Kret", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(2015, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime());
+        Person mk = new Person(null, "Marku", "Kret", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(2015, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), SyncStatus.NEW);
         session.getPersonDao().insert(mk);
 
-        Contact con = new Contact(null, "Email", "mk@test.de", mk.getId(), new Date(), new Date());
+        Contact con = new Contact(null, "Email", "mk@test.de", mk.getId(), new Date(), new Date(), SyncStatus.NEW);
         session.getContactDao().insert(con);
 
-        mainActivity.refreshFragmentView();
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainActivity.refreshFragmentView();
+            }
+        });
         assertTrue(solo.waitForText("Marku"));
         solo.clickLongOnText("Marku");
 

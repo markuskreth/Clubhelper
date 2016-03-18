@@ -32,6 +32,7 @@ public class Person implements Data, java.io.Serializable {
     private java.util.Date changed;
     /** Not-null value. */
     private java.util.Date created;
+    private SyncStatus syncStatus;
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -54,7 +55,7 @@ public class Person implements Data, java.io.Serializable {
         this.id = id;
     }
 
-    public Person(Long id, String prename, String surname, String type, java.util.Date birth, java.util.Date changed, java.util.Date created) {
+    public Person(Long id, String prename, String surname, String type, java.util.Date birth, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.prename = prename;
         this.surname = surname;
@@ -62,6 +63,7 @@ public class Person implements Data, java.io.Serializable {
         this.birth = birth;
         this.changed = changed;
         this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     /** called by internal mechanisms, do not call yourself. */
@@ -128,6 +130,14 @@ public class Person implements Data, java.io.Serializable {
     /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setCreated(java.util.Date created) {
         this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
@@ -253,6 +263,7 @@ public class Person implements Data, java.io.Serializable {
         }
         return result;
     }
+
     public PersonType getPersonType() {
         try {
             return PersonType.valueOf(this.type);

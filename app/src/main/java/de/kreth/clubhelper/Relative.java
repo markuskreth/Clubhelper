@@ -18,6 +18,7 @@ public class Relative implements Data, java.io.Serializable {
     private java.util.Date changed;
     /** Not-null value. */
     private java.util.Date created;
+    private SyncStatus syncStatus;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -29,7 +30,7 @@ public class Relative implements Data, java.io.Serializable {
         this.id = id;
     }
 
-    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation, java.util.Date changed, java.util.Date created) {
+    public Relative(Long id, long person1, long person2, String toPerson2Relation, String toPerson1Relation, java.util.Date changed, java.util.Date created, SyncStatus syncStatus) {
         this.id = id;
         this.person1 = person1;
         this.person2 = person2;
@@ -37,6 +38,7 @@ public class Relative implements Data, java.io.Serializable {
         this.toPerson1Relation = toPerson1Relation;
         this.changed = changed;
         this.created = created;
+        this.syncStatus = syncStatus;
     }
 
     public Long getId() {
@@ -97,6 +99,14 @@ public class Relative implements Data, java.io.Serializable {
     /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setCreated(java.util.Date created) {
         this.created = created;
+    }
+
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     // KEEP METHODS - put your custom methods here

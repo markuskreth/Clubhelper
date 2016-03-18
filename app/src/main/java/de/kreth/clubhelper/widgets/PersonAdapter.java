@@ -39,7 +39,7 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
     public PersonAdapter(Context context, PersonDao personDao) {
         this.personDao = personDao;
         Query<Person> personQuery = personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).build();
-        objects = personQuery.list();
+        objects = new ArrayList<>(personQuery.list());
         this.context = context;
         filter = new PersonAdapterFilter(personDao);
     }
@@ -66,9 +66,10 @@ public class PersonAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public void notifyDataSetChanged() {
-        objects.clear();
 
-        objects.addAll(personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).list());
+        final List<Person> persons = personDao.queryBuilder().orderAsc(PersonDao.Properties.Surname).orderAsc(PersonDao.Properties.Prename).list();
+        objects.clear();
+        objects.addAll(persons);
         if (lastConstraint != null && lastConstraint.length() > 0)
             filter.filter(lastConstraint);
         super.notifyDataSetChanged();

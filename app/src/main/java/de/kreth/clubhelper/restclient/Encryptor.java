@@ -36,7 +36,7 @@ public class Encryptor {
             InvalidKeyException, UnsupportedEncodingException {
         // Create key and cipher
         byte[] keyBytes = key.getBytes(charset);
-        System.out.println("Key Size: " + keyBytes.length);
+
         aesKey = new SecretKeySpec(keyBytes, encType);
         cipher = Cipher.getInstance(encType);
     }
