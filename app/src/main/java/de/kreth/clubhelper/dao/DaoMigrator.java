@@ -33,8 +33,32 @@ public class DaoMigrator {
                 case 7:
                     migrateToVersion6();
                     break;
+                case 8:
+                    migrateToVersion8();
+                    break;
             }
         }
+    }
+
+    private void migrateToVersion8() {
+
+        try {
+
+            db.beginTransaction();
+
+            addColumn(db,
+                    PersonGroupDao.TABLENAME,
+                    PersonGroupDao.Properties.Changed.columnName, "INTEGER NOT NULL DEFAULT 0");
+
+            addColumn(db,
+                    PersonGroupDao.TABLENAME,
+                    PersonGroupDao.Properties.Created.columnName, "INTEGER NOT NULL DEFAULT 0");
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
     }
 
     private void migrateToVersion6() {
@@ -70,6 +94,13 @@ public class DaoMigrator {
         }
     }
 
+    /**
+     * Erzeugt sql Befehl, der der Tabelle die Column hinzufügt.
+     * @param db    Database
+     * @param tablename table to Alter
+     * @param columnName    ColumnName to add
+     * @param sqlType   type and modifiers for column
+     */
     private void addColumn(SQLiteDatabase db, String tablename, String columnName, String sqlType) {
         String sql = "ALTER TABLE \"" + tablename + "\" ADD COLUMN \"" + columnName + "\" " + sqlType;
         db.execSQL(sql);

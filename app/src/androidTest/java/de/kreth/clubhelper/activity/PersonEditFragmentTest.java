@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import java.util.ArrayList;
@@ -68,6 +70,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.finishOpenedActivities();
         getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
         getInstrumentation().getTargetContext().deleteDatabase(DBNAME);
+        getInstrumentation().getContext().deleteDatabase(DBNAME);
         MainActivity.DBNAME = originalDbName;
         super.tearDown();
     }
@@ -288,7 +291,7 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         solo.clickInList(1);
 
         solo.waitForDialogToOpen();
-        solo.pressSpinnerItem(0,2);
+        solo.pressSpinnerItem(0, 2);
         solo.typeText(0, "test@testdomain.com");
         solo.clickOnText("OK");
 
@@ -439,6 +442,43 @@ public class PersonEditFragmentTest extends ActivityInstrumentationTestCase2<Mai
         assertTrue(solo.searchText("Eine", true));
         assertTrue(solo.searchText("Testperson", true));
         assertTrue(solo.searchText("Kind", true));
+
+    }
+
+    public void testChangeTelephone() {
+        solo.waitForActivity(MainActivity.class);
+        solo.assertCurrentActivity("MainActivity not found!", MainActivity.class);
+
+        final MainActivity mainActivity = (MainActivity) solo.getCurrentActivity();
+        DaoSession session = mainActivity.getSession();
+
+        Person mk = new Person(null, "Markus", "Kreth", PersonType.STAFF.name(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(2015, Calendar.AUGUST, 21).getTime(), new GregorianCalendar(1973, Calendar.AUGUST, 21).getTime(), SyncStatus.NEW);
+        session.getPersonDao().insert(mk);
+
+        Contact con = new Contact(null, "Email", "mk@test.de", mk.getId(), new Date(), new Date(), SyncStatus.NEW);
+        session.getContactDao().insert(con);
+
+        solo.getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mainActivity.refreshFragmentView();
+            }
+        });
+        assertTrue(solo.waitForText("Markus"));
+        solo.clickLongInList(1);
+
+//        assertTrue(solo.waitForFragmentById(R.id.fragment_person_edit));
+
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return solo.searchText("1973");
+            }
+        }, 5000);
+
+        solo.clickOnText("mk@test");
+
+        assertTrue(solo.waitForDialogToOpen());
 
     }
 

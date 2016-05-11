@@ -17,7 +17,7 @@ import de.greenrobot.daogenerator.Schema;
 
 public class ClubDaoGenerator {
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
     private Schema schema;
     private Entity person;
     private Entity contact;

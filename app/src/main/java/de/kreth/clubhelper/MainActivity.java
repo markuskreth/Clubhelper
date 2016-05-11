@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -38,7 +39,7 @@ import de.kreth.clubhelper.dao.ProductiveOpenHelper;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.restclient.SyncRestClient;
 
-public class MainActivity extends ActionBarActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
+public class MainActivity extends AppCompatActivity implements SessionHolder, MainFragment.OnMainFragmentEventListener {
 
     public static final String PERSONID = "personId";
     public static String DBNAME = "clubdatabase.sqlite";
