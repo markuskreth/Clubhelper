@@ -32,11 +32,8 @@ public class DaoMigrator {
                     case 5:
                         migrateToVersion5();
                         break;
-                    case 7:
+                    case 6:
                         migrateToVersion6();
-                        break;
-                    case 8:
-                        migrateToVersion8();
                         break;
                 }
             }
@@ -45,18 +42,6 @@ public class DaoMigrator {
         } finally {
             db.endTransaction();
         }
-    }
-
-    private void migrateToVersion8() {
-
-        addColumn(db,
-                PersonGroupDao.TABLENAME,
-                PersonGroupDao.Properties.Changed.columnName, "INTEGER NOT NULL DEFAULT 0");
-
-        addColumn(db,
-                PersonGroupDao.TABLENAME,
-                PersonGroupDao.Properties.Created.columnName, "INTEGER NOT NULL DEFAULT 0");
-
     }
 
     private void migrateToVersion6() {
@@ -75,12 +60,6 @@ public class DaoMigrator {
             addColumn(db,
                     AttendanceDao.TABLENAME,
                     AttendanceDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
-//            addColumn(db,
-//                    GroupDao.TABLENAME,
-//                    GroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
-            addColumn(db,
-                    PersonGroupDao.TABLENAME,
-                    PersonGroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
 
     }
 
