@@ -22,48 +22,44 @@ public class DaoMigrator {
 
     public void start(int oldVersion, int newVersion) {
 
-        for(int migrateVersion = oldVersion+1; migrateVersion<=newVersion; migrateVersion++) {
-            switch (migrateVersion) {
-                case 4:
-                    migrateToVersion4();
-                    break;
-                case 5:
-                    migrateToVersion5();
-                    break;
-                case 7:
-                    migrateToVersion6();
-                    break;
-                case 8:
-                    migrateToVersion8();
-                    break;
-            }
-        }
-    }
-
-    private void migrateToVersion8() {
-
         try {
-
             db.beginTransaction();
-
-            addColumn(db,
-                    PersonGroupDao.TABLENAME,
-                    PersonGroupDao.Properties.Changed.columnName, "INTEGER NOT NULL DEFAULT 0");
-
-            addColumn(db,
-                    PersonGroupDao.TABLENAME,
-                    PersonGroupDao.Properties.Created.columnName, "INTEGER NOT NULL DEFAULT 0");
+            for(int migrateVersion = oldVersion+1; migrateVersion<=newVersion; migrateVersion++) {
+                switch (migrateVersion) {
+                    case 4:
+                        migrateToVersion4();
+                        break;
+                    case 5:
+                        migrateToVersion5();
+                        break;
+                    case 7:
+                        migrateToVersion6();
+                        break;
+                    case 8:
+                        migrateToVersion8();
+                        break;
+                }
+            }
 
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void migrateToVersion8() {
+
+        addColumn(db,
+                PersonGroupDao.TABLENAME,
+                PersonGroupDao.Properties.Changed.columnName, "INTEGER NOT NULL DEFAULT 0");
+
+        addColumn(db,
+                PersonGroupDao.TABLENAME,
+                PersonGroupDao.Properties.Created.columnName, "INTEGER NOT NULL DEFAULT 0");
 
     }
 
     private void migrateToVersion6() {
-        try {
-            db.beginTransaction();
             addColumn(db,
                     PersonDao.TABLENAME,
                     PersonDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
@@ -79,19 +75,13 @@ public class DaoMigrator {
             addColumn(db,
                     AttendanceDao.TABLENAME,
                     AttendanceDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
-            addColumn(db,
-                    GroupDao.TABLENAME,
-                    GroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
+//            addColumn(db,
+//                    GroupDao.TABLENAME,
+//                    GroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
             addColumn(db,
                     PersonGroupDao.TABLENAME,
                     PersonGroupDao.Properties.SyncStatus.columnName, "INTEGER NOT NULL DEFAULT 0");
 
-
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
     }
 
     /**
@@ -107,75 +97,58 @@ public class DaoMigrator {
     }
 
     private void migrateToVersion5() {
-        try {
-            db.beginTransaction();
 
-            boolean ifNotExists = true;
-            GroupDao.createTable(db, ifNotExists);
-            PersonGroupDao.createTable(db, ifNotExists);
-            SynchronizationDao.createTable(db, ifNotExists);
+        boolean ifNotExists = true;
+        GroupDao.createTable(db, ifNotExists);
+        PersonGroupDao.createTable(db, ifNotExists);
+        SynchronizationDao.createTable(db, ifNotExists);
 
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
     }
 
     private void migrateToVersion4() {
-        RuntimeException exception = null;
-        try {
-            db.beginTransaction();
-            db.execSQL("UPDATE " + PersonDao.TABLENAME + " SET " +
-                    PersonDao.Properties.Type.columnName + "='" + PersonType.ACTIVE.name() + "' " +
-                    "WHERE " + PersonDao.Properties.Type.columnName + "='ACITVE'");
 
-            Date created = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
-            Date changed = new Date();
+        db.execSQL("UPDATE " + PersonDao.TABLENAME + " SET " +
+                PersonDao.Properties.Type.columnName + "='" + PersonType.ACTIVE.name() + "' " +
+                "WHERE " + PersonDao.Properties.Type.columnName + "='ACITVE'");
 
-            updateTableTo4(db,
-                    PersonDao.TABLENAME,
-                    PersonDao.Properties.Created.columnName,
-                    PersonDao.Properties.Changed.columnName,
-                    created,
-                    changed);
+        Date created = new GregorianCalendar(2000, Calendar.JANUARY, 1).getTime();
+        Date changed = new Date();
 
-            updateTableTo4(db,
-                    ContactDao.TABLENAME,
-                    ContactDao.Properties.Created.columnName,
-                    ContactDao.Properties.Changed.columnName,
-                    created,
-                    changed);
+        updateTableTo4(db,
+                PersonDao.TABLENAME,
+                PersonDao.Properties.Created.columnName,
+                PersonDao.Properties.Changed.columnName,
+                created,
+                changed);
 
-            updateTableTo4(db,
-                    RelativeDao.TABLENAME,
-                    RelativeDao.Properties.Created.columnName,
-                    RelativeDao.Properties.Changed.columnName,
-                    created,
-                    changed);
+        updateTableTo4(db,
+                ContactDao.TABLENAME,
+                ContactDao.Properties.Created.columnName,
+                ContactDao.Properties.Changed.columnName,
+                created,
+                changed);
 
-            updateTableTo4(db,
-                    AdressDao.TABLENAME,
-                    AdressDao.Properties.Created.columnName,
-                    AdressDao.Properties.Changed.columnName,
-                    created,
-                    changed);
+        updateTableTo4(db,
+                RelativeDao.TABLENAME,
+                RelativeDao.Properties.Created.columnName,
+                RelativeDao.Properties.Changed.columnName,
+                created,
+                changed);
 
-            updateTableTo4(db,
-                    AttendanceDao.TABLENAME,
-                    AttendanceDao.Properties.Created.columnName,
-                    AttendanceDao.Properties.Changed.columnName,
-                    created,
-                    changed);
+        updateTableTo4(db,
+                AdressDao.TABLENAME,
+                AdressDao.Properties.Created.columnName,
+                AdressDao.Properties.Changed.columnName,
+                created,
+                changed);
 
-            db.setTransactionSuccessful();
-        } catch (RuntimeException e) {
-            exception = e;
-        } finally {
-            db.endTransaction();
-        }
+        updateTableTo4(db,
+                AttendanceDao.TABLENAME,
+                AttendanceDao.Properties.Created.columnName,
+                AttendanceDao.Properties.Changed.columnName,
+                created,
+                changed);
 
-        if(exception != null)
-            throw exception;
     }
 
     private void updateTableTo4(SQLiteDatabase db, String tableName, String createColName, String changeColName, Date created, Date changed) {
