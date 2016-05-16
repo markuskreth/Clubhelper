@@ -16,9 +16,6 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Date;
 import java.util.Locale;
 
 import de.kreth.clubhelper.Contact;
@@ -29,10 +26,9 @@ import de.kreth.clubhelper.R;
  */
 public class ContactEditDialog {
 
-    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-
     private final Contact contactToEdit;
     private final ContactEditDialogResult resultHandler;
+    private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     private Context context;
 
     public ContactEditDialog(Context context, final Contact contactToEdit, ContactEditDialogResult resultHandler) {
@@ -50,6 +46,7 @@ public class ContactEditDialog {
         typeSpinner.setLayoutParams(params);
         ContactTypeAdapter typeAdapter = new ContactTypeAdapter(context, context.getResources().getStringArray(R.array.contact_type_values));
         typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setSelection(typeAdapter.getPosition(contactToEdit.getType()));
 
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
@@ -61,6 +58,7 @@ public class ContactEditDialog {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
         input.setLayoutParams(params);
+        input.setText(contactToEdit.getValue());
         layout.addView(input);
 
         connectSpinnerWithEditText(typeSpinner, input);
@@ -116,6 +114,6 @@ public class ContactEditDialog {
          * Contact to be stored as result of this Dialog. Is the same object as supplied in the Constructor.
          * @param contact
          */
-        public void contactToStore(Contact contact);
+        void contactToStore(Contact contact);
     }
 }
