@@ -1,13 +1,11 @@
 package de.kreth.clubhelper.datahelper;
 
 import android.content.res.Resources;
-import android.os.Bundle;
 
 import java.util.List;
-import java.util.ResourceBundle;
 
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
 
 /**
  * Created by markus on 08.02.15.

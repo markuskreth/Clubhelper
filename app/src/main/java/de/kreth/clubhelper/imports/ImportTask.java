@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.data.Contact;
 import de.kreth.clubhelper.MainActivity;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
 
 /**
  * Created by markus on 08.03.15.

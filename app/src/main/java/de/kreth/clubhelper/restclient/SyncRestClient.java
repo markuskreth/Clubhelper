@@ -20,13 +20,14 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import de.greenrobot.dao.AbstractDao;
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Attendance;
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Data;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.Relative;
-import de.kreth.clubhelper.Synchronization;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Attendance;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Data;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.Relative;
+import de.kreth.clubhelper.data.SyncStatus;
+import de.kreth.clubhelper.data.Synchronization;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.SynchronizationDao;
 

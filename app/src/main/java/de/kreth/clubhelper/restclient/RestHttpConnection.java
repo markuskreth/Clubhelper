@@ -19,8 +19,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import de.kreth.clubhelper.Data;
-import de.kreth.clubhelper.backup.DataExportClass;
+import de.kreth.clubhelper.data.Data;
 
 /**
  * Connects to Server and sends Data objects.

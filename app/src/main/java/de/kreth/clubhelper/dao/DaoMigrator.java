@@ -6,8 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import de.kreth.clubhelper.Group;
-import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.data.PersonType;
+
 
 /**
  * Created by markus on 03.04.15.
@@ -35,6 +35,9 @@ public class DaoMigrator {
                     case 6:
                         migrateToVersion6();
                         break;
+                    case 7:
+                        migrateToVersion7();
+                        break;
                 }
             }
 
@@ -42,6 +45,12 @@ public class DaoMigrator {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void migrateToVersion7() {
+
+        boolean ifNotExists = true;
+        DeletedEntriesDao.createTable(db, ifNotExists);
     }
 
     private void migrateToVersion6() {

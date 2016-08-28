@@ -1,4 +1,4 @@
-package de.kreth.clubhelper;
+package de.kreth.clubhelper.data;
 
 /**
  * Created by markus on 21.12.14.

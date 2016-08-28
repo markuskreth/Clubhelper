@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -22,12 +21,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Group;
-import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Group;
+import de.kreth.clubhelper.data.Person;
 import de.kreth.clubhelper.R;
-import de.kreth.clubhelper.RelationType;
 import de.kreth.datecalc.DateDiff;
 import de.kreth.datecalc.DateUnit;
 

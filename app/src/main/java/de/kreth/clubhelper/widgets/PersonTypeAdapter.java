@@ -10,7 +10,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kreth.clubhelper.PersonType;
 import de.kreth.clubhelper.R;
 
 /**
@@ -22,9 +21,9 @@ public class PersonTypeAdapter implements SpinnerAdapter {
 
     public PersonTypeAdapter(Resources resources) {
         values = new ArrayList<>();
-        values.add(new PersonType(de.kreth.clubhelper.PersonType.ACTIVE, resources.getString(R.string.ACTIVE)));
-        values.add(new PersonType(de.kreth.clubhelper.PersonType.STAFF, resources.getString(R.string.STAFF)));
-        values.add(new PersonType(de.kreth.clubhelper.PersonType.RELATIVE, resources.getString(R.string.RELATIVE)));
+        values.add(new PersonType(de.kreth.clubhelper.data.PersonType.ACTIVE, resources.getString(R.string.ACTIVE)));
+        values.add(new PersonType(de.kreth.clubhelper.data.PersonType.STAFF, resources.getString(R.string.STAFF)));
+        values.add(new PersonType(de.kreth.clubhelper.data.PersonType.RELATIVE, resources.getString(R.string.RELATIVE)));
     }
 
     @Override
@@ -42,7 +41,7 @@ public class PersonTypeAdapter implements SpinnerAdapter {
         return values.size();
     }
 
-    public int getPosition(de.kreth.clubhelper.PersonType type) {
+    public int getPosition(de.kreth.clubhelper.data.PersonType type) {
         for (int i = 0; i < values.size(); i++) {
             if(values.get(i).getType() == type)
                 return i;
@@ -51,7 +50,7 @@ public class PersonTypeAdapter implements SpinnerAdapter {
     }
 
     @Override
-    public de.kreth.clubhelper.PersonType getItem(int position) {
+    public de.kreth.clubhelper.data.PersonType getItem(int position) {
         return values.get(position).getType();
     }
 
@@ -97,15 +96,15 @@ public class PersonTypeAdapter implements SpinnerAdapter {
     }
 
     private class PersonType {
-        private de.kreth.clubhelper.PersonType type;
+        private de.kreth.clubhelper.data.PersonType type;
         private String name;
 
-        public PersonType(de.kreth.clubhelper.PersonType type, String name) {
+        public PersonType(de.kreth.clubhelper.data.PersonType type, String name) {
             this.type = type;
             this.name = name;
         }
 
-        public de.kreth.clubhelper.PersonType getType() {
+        public de.kreth.clubhelper.data.PersonType getType() {
             return type;
         }
 

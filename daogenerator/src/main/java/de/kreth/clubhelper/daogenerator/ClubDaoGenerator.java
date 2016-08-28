@@ -17,7 +17,7 @@ import de.greenrobot.daogenerator.Schema;
 
 public class ClubDaoGenerator {
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     private Schema schema;
     private Entity person;
     private Entity contact;
@@ -27,6 +27,7 @@ public class ClubDaoGenerator {
     private Entity group;
     private Entity personGroup;
     private Entity synchronization;
+    private Entity deletedEntries;
     private Property personId;
 
     public void generate() throws Exception {
@@ -70,6 +71,7 @@ public class ClubDaoGenerator {
         createRelatives();
         createGroup();
         createSynchronization();
+        createDeleted();
 
         addGeneralProperties(person, false);
         addGeneralProperties(contact, false);
@@ -93,6 +95,12 @@ public class ClubDaoGenerator {
                 deleteDir(d);
             }
         }
+
+    private void createDeleted() {
+        deletedEntries = schema.addEntity("DeletedEntries");
+        deletedEntries.addIdProperty();
+        deletedEntries.addStringProperty("tablename");
+        deletedEntries.addLongProperty("entryId");
 
         clearPojoFromGreenDaoCode(person);
         clearPojoFromGreenDaoCode(contact);

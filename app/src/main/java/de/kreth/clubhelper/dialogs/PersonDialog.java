@@ -24,11 +24,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
 import de.kreth.clubhelper.R;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.widgets.PersonTypeAdapter;
 
 /**

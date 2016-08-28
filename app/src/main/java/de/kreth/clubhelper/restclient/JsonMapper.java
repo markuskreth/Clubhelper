@@ -6,8 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import de.kreth.clubhelper.Data;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.SyncStatus;
 
 /**
  * Created by markus on 27.08.15.

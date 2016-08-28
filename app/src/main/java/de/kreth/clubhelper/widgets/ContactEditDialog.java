@@ -18,7 +18,7 @@ import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.Locale;
 
-import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.data.Contact;
 import de.kreth.clubhelper.R;
 
 /**

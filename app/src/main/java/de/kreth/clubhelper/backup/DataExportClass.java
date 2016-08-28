@@ -3,10 +3,10 @@ package de.kreth.clubhelper.backup;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.Relative;
 
 /**
  * Created by markus on 29.03.15.

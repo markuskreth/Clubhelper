@@ -2,7 +2,7 @@ package de.kreth.clubhelper.restclient;
 
 import android.os.AsyncTask;
 
-import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.data.Person;
 
 /**
  * Created by markus on 30.08.15.

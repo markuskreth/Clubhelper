@@ -1,4 +1,4 @@
-package de.kreth.clubhelper;
+package de.kreth.clubhelper.data;
 
 import de.greenrobot.dao.converter.PropertyConverter;
 

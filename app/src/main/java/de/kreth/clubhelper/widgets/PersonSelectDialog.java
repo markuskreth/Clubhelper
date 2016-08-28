@@ -3,7 +3,6 @@ package de.kreth.clubhelper.widgets;
 import android.app.AlertDialog;
 import android.app.Dialog;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.data.Person;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.DaoSession;
 
