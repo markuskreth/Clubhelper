@@ -24,9 +24,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
+import de.kreth.clubhelper.data.SyncStatus;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;

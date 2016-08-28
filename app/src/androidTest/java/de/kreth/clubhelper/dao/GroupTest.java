@@ -4,7 +4,7 @@ import java.util.Date;
 
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
 
-import de.kreth.clubhelper.Group;
+import de.kreth.clubhelper.data.Group;
 
 public class GroupTest extends AbstractDaoTestLongPk<GroupDao, Group> {
 

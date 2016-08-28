@@ -17,6 +17,10 @@ import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.SyncStatus;
 
 /**
  * Created by markus on 23.03.15.

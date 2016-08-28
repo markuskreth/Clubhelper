@@ -11,6 +11,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import de.kreth.clubhelper.backup.DataExportClass;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
+import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.restclient.JsonMapper;
 
 public class PersonJsonTest extends AndroidTestCase {

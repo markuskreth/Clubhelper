@@ -1,9 +1,6 @@
 package de.kreth.clubhelper.data;
 
 import android.content.res.Resources;
-import android.os.Bundle;
-
-import java.util.ResourceBundle;
 
 import de.kreth.clubhelper.R;
 

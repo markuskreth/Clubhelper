@@ -22,8 +22,8 @@ import de.greenrobot.dao.internal.DaoConfig;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
 import de.greenrobot.dao.query.WhereCondition;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.Synchronization;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.Synchronization;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.dao.SynchronizationDao;
@@ -44,7 +44,7 @@ public class SyncRestClientTest {
     private SyncRestClient syncClient;
 
     @Mock private MockDaoSession session;
-    private de.kreth.clubhelper.Synchronization synch;
+    private Synchronization synch;
     @Mock private AbstractDao<Person, Long> personDao;
     private List<Person> queryPersons;
 

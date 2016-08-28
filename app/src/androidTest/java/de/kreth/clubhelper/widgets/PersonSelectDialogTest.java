@@ -15,9 +15,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
+import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.TestActivity;
 import de.kreth.clubhelper.dao.DaoMaster;
 import de.kreth.clubhelper.dao.DaoSession;

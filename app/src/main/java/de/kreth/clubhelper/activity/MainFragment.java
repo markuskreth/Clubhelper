@@ -21,13 +21,12 @@ import android.widget.ListView;
 
 import java.util.Date;
 
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Person;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
 import de.kreth.clubhelper.R;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
-import de.kreth.clubhelper.dao.PersonGroupDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
 import de.kreth.clubhelper.dialogs.PersonDialog;
 import de.kreth.clubhelper.dialogs.PersonViewDialog;

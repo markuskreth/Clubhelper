@@ -5,6 +5,8 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,26 +34,12 @@ public class ClubDaoGenerator {
 
     public void generate() throws Exception {
 
-        schema = new Schema(DATABASE_VERSION, "de.kreth.clubhelper");
-        schema.setDefaultJavaPackageTest("de.kreth.clubhelper.dao");
+        schema = new Schema(DATABASE_VERSION, "de.kreth.clubhelper.data");
+        schema.setDefaultJavaPackageTest("de.kreth.clubhelper.data");
         schema.setDefaultJavaPackageDao("de.kreth.clubhelper.dao");
         schema.enableKeepSectionsByDefault();
 
-        createPerson();
-        createContact();
-        createAttendance();
-        createAdress();
-        createRelatives();
-        createGroup();
-        createSynchronization();
-
-        addGeneralProperties(person, true);
-        addGeneralProperties(contact, true);
-        addGeneralProperties(attendance, true);
-        addGeneralProperties(adress, true);
-        addGeneralProperties(relative, true);
-        addGeneralProperties(group, true);
-        addGeneralProperties(personGroup, true);
+        setupSchema(true);
 
         DaoGenerator daoGenerator = new DaoGenerator();
         File f = new File(".");
@@ -60,9 +48,23 @@ public class ClubDaoGenerator {
 
         daoGenerator.generateAll(schema, "app/src/main/java");
 
-        schema = new Schema(DATABASE_VERSION, "de.kreth.clubhelperbackend.pojo");
-        schema.setDefaultJavaPackageDao("de.kreth.clubhelperbackend.pojo.dao");
-        schema.enableKeepSectionsByDefault();
+        File[] files = new File("app/src/main/java/de/kreth/clubhelper/data").listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return !f.isDirectory() && f.getName().endsWith(".java") && !f.getName().equals("SyncStatus.java") && !f.getName().equals("Synchronization.java");
+            }
+        });
+
+        for (File toCopy: files) {
+            File destination = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/", toCopy.getName());
+            Files.copy(toCopy.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            cleanGeneratedFileFromDaoCode(destination);
+        }
+
+    }
+
+    private void setupSchema(boolean clientSide) {
 
         createPerson();
         createContact();
@@ -73,28 +75,16 @@ public class ClubDaoGenerator {
         createSynchronization();
         createDeleted();
 
-        addGeneralProperties(person, false);
-        addGeneralProperties(contact, false);
-        addGeneralProperties(attendance, false);
-        addGeneralProperties(adress, false);
-        addGeneralProperties(relative, false);
-        addGeneralProperties(group, false);
-        addGeneralProperties(personGroup, false);
+        addGeneralProperties(person, clientSide);
+        addGeneralProperties(contact, clientSide);
+        addGeneralProperties(attendance, clientSide);
+        addGeneralProperties(adress, clientSide);
+        addGeneralProperties(relative, clientSide);
+        addGeneralProperties(group, clientSide);
+        addGeneralProperties(personGroup, clientSide);
+        addGeneralProperties(deletedEntries, clientSide);
 
-        File backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java");
-        daoGenerator.generateAll(schema, backend.getAbsolutePath());
-        backend = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/");
-        File[] daos = backend.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() && pathname.getName().matches("dao");
-            }
-        });
-        if(daos.length>0) {
-            for(File d: daos) {
-                deleteDir(d);
-            }
-        }
+    }
 
     private void createDeleted() {
         deletedEntries = schema.addEntity("DeletedEntries");
@@ -102,13 +92,6 @@ public class ClubDaoGenerator {
         deletedEntries.addStringProperty("tablename");
         deletedEntries.addLongProperty("entryId");
 
-        clearPojoFromGreenDaoCode(person);
-        clearPojoFromGreenDaoCode(contact);
-        clearPojoFromGreenDaoCode(attendance);
-        clearPojoFromGreenDaoCode(adress);
-        clearPojoFromGreenDaoCode(relative);
-        clearPojoFromGreenDaoCode(group);
-        clearPojoFromGreenDaoCode(personGroup);
     }
 
     private void createSynchronization() {
@@ -143,27 +126,97 @@ public class ClubDaoGenerator {
 
     }
 
-    private void clearPojoFromGreenDaoCode(Entity entity) {
-        File f = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/" + entity.getClassName() + ".java");
-        File backup = new File(f.getAbsolutePath() + ".old");
-        f.renameTo(backup);
+    private void cleanGeneratedFileFromDaoCode(File destination) {
 
-        if(backup.exists()) {
+        if(destination.exists()) {
+
             try {
-                List<String> lines = new ArrayList<>();
 
                 Charset charset = Charset.defaultCharset();
-                for(String str : Files.readAllLines(backup.toPath(), charset)) {
-                    if(!str.matches(".*([D|d]ao).*") && !str.matches(".*KEEP.*") && !str.matches(".*List.*"))
-                        lines.add(str);
-                }
 
-                Files.write(f.toPath(), lines, charset, StandardOpenOption.CREATE_NEW);
+                Path toPath = destination.toPath();
+                List<String> fileLines = Files.readAllLines(toPath, charset);
+
+                destination.delete();
+
+                List<String> lines = filterLines(fileLines);
+                lines.remove(0);
+                lines.add(0, "package de.kreth.clubhelperbackend.pojo;");
+
+                Files.write(toPath, lines, charset, StandardOpenOption.CREATE);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
+    }
+
+    public List<String> filterLines(List<String> fileLines) {
+        List<String> lines = new ArrayList<>();
+
+        boolean lastLineEmpty = false;
+        int levelCount = 0;
+
+        for(String str : fileLines) {
+
+            str = cleanConstructorOfSyncStatus(str);
+            if(levelCount == 0
+                    && !isDoubleEmptyLine(lastLineEmpty, str)
+                    && isValidLine(str)) {
+                lines.add(str);
+
+                lastLineEmpty = str.length() == 0;
+            } else {
+                if(levelCount>0) {
+                    levelCount += str.split("\\{").length - 1;
+                    if(str.endsWith("{"))
+                        levelCount++;
+                    levelCount -= str.split("\\}").length - 1;
+                    if(str.endsWith("}"))
+                        levelCount--;
+                } else {
+                    if(isFunctionStart(str) && !isValidLine(str))
+                        levelCount++;
+                }
+            }
+
+        }
+
+        return lines;
+    }
+
+    private String cleanConstructorOfSyncStatus(String str) {
+        if(str.matches("\\s*(public|protected|private) [A-Z][\\w<>]+\\([\\w,\\. ]*\\)\\s*\\{\\s*")) {    // Is Constructor?
+            if(str.contains("SyncStatus")) {
+                str = str.replaceAll(",? *SyncStatus \\w+", "");
+            }
+        }
+        return str;
+    }
+
+    private boolean isFunctionStart(String str) {
+        return str.matches("\\s*(public|protected|private)\\s+[\\w<>]+ .*\\(.*\\)\\s*\\{\\s*")
+                || str.matches("\\s*if.+type.+\\.\\w+\\(\"tele\"\\).+type.+\\.\\w+\\(\"mobile\"\\)\\s*\\{\\s*");        // In Contact alles mit PhoneNumberUtil entfernen.
+    }
+
+    private boolean isDoubleEmptyLine(boolean lastLineEmpty, String str) {
+        return lastLineEmpty && str.length() == 0;
+    }
+
+    private boolean isValidLine(String str) {
+        return !str.matches(".*([D|d]ao).*")
+//                    && !str.matches(".*KEEP.*")
+                && !str.matches(".*List.*")
+                && !str.matches(".*android.*")
+                && !str.matches(".*KEEP.+END.*")
+                && !str.matches("\\s*public void (delete|update|refresh)\\(\\) \\{")
+                && !str.matches("\\s*this\\.(delete|update|refresh)\\(\\);")
+                && !str.matches("\\s*// KEEP.+custom.+here.*")
+                && !str.matches("\\s*/\\*.*\\*/")
+                && !str.matches(".*SyncStatus .*")
+                && !str.matches(".*this.syncStatus = syncStatus;.*")
+                && !str.matches("\\s*if.+type.+\\.\\w+\\(\"tele\"\\).+type.+\\.\\w+\\(\"mobile\"\\)\\s*\\{\\s*")
+                && !str.matches("\\s*//.*GENERATED BY.*");
     }
 
     private boolean deleteDir(File dir) {
@@ -250,7 +303,6 @@ public class ClubDaoGenerator {
         person.addIndex(index);
         person.addStringProperty("type").index();
         person.addDateProperty("birth");
-
     }
 
     private void addGeneralProperties(Entity e, boolean clientSide) {
@@ -258,10 +310,10 @@ public class ClubDaoGenerator {
         e.addDateProperty("created").notNull();
 
         if(clientSide)
-            e.addIntProperty("syncStatus").customType("de.kreth.clubhelper.SyncStatus", "de.kreth.clubhelper.SyncStatus.SyncStatusConverter");
+            e.addIntProperty("syncStatus").customType("de.kreth.clubhelper.data.SyncStatus", "de.kreth.clubhelper.data.SyncStatus.SyncStatusConverter");
 
         e.implementsInterface("Data");
-        e.implementsSerializable();
+//        e.implementsSerializable();
     }
 
     public static void main(String[] args) throws Exception {

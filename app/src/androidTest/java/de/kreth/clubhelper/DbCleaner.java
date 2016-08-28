@@ -1,14 +1,11 @@
 package de.kreth.clubhelper;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import de.kreth.clubhelper.dao.AdressDao;
-import de.kreth.clubhelper.dao.AttendanceDao;
-import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
-import de.kreth.clubhelper.dao.PersonDao;
-import de.kreth.clubhelper.dao.RelativeDao;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Attendance;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.Relative;
 
 /**
  * Created by markus on 28.03.15.

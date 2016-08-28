@@ -4,8 +4,7 @@ import java.util.Date;
 
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
 
-import de.kreth.clubhelper.Attendance;
-import de.kreth.clubhelper.dao.AttendanceDao;
+import de.kreth.clubhelper.data.Attendance;
 
 public class AttendanceTest extends AbstractDaoTestLongPk<AttendanceDao, Attendance> {
 

@@ -1,11 +1,9 @@
 package de.kreth.clubhelper.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -18,22 +16,19 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Attendance;
-import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.data.Contact;
 import de.kreth.clubhelper.DbCleaner;
 import de.kreth.clubhelper.MainActivity;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
 import de.kreth.clubhelper.R;
-import de.kreth.clubhelper.RelationType;
-import de.kreth.clubhelper.Relative;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.RelationType;
+import de.kreth.clubhelper.data.Relative;
+import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.dao.PersonDao;
 import de.kreth.clubhelper.datahelper.SessionHolder;
-import de.kreth.clubhelper.widgets.ContactTypeAdapter;
 
 /**
  * Created by markus on 16.02.15.

@@ -12,11 +12,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Contact;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
-import de.kreth.clubhelper.Relative;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
+import de.kreth.clubhelper.data.Relative;
 import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.ContactDao;
 import de.kreth.clubhelper.dao.DaoSession;
