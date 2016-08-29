@@ -8,4 +8,5 @@ import de.kreth.clubhelper.dao.DaoSession;
  */
 public interface SessionHolder {
     DaoSession getSession();
+    String getRestServerAdress();
 }

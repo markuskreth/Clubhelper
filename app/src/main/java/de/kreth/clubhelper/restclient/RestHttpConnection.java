@@ -1,8 +1,5 @@
 package de.kreth.clubhelper.restclient;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -66,6 +64,9 @@ public class RestHttpConnection {
     private HttpURLConnection getConnection() throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
 
         HttpURLConnection con = getConnection(url);
+        con.setConnectTimeout(10000);
+        con.setDefaultUseCaches(false);
+        con.setUseCaches(false);
 
         con.setRequestMethod(httpRequestType);
         con.setRequestProperty("User-Agent", USER_AGENT);
@@ -85,7 +86,7 @@ public class RestHttpConnection {
         return (HttpURLConnection) url.openConnection();
     }
 
-    public void send(String json) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+    public void send(String json) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, SocketTimeoutException {
         if (con != null)
             throw new IllegalStateException("Connection was used before");
 
@@ -100,7 +101,7 @@ public class RestHttpConnection {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Data> T send(T obj, Class<T> classOfT) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+    public <T extends Data> T send(T obj, Class<T> classOfT) throws IOException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, SocketTimeoutException {
         JsonMapper gson = new JsonMapper();
         send(gson.toJson(obj));
 

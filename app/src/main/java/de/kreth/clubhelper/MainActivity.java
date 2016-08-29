@@ -200,14 +200,14 @@ public class MainActivity extends AppCompatActivity implements SessionHolder, Ma
             public void onClick(DialogInterface dialog, int which) {
                 SyncRestClient.SyncFinishedListener listener = new SyncRestClient.SyncFinishedListener() {
                     @Override
-                    public void syncFinished() {
+                    public void syncFinished(Exception e) {
                         Toast.makeText(MainActivity.this, "Sync beendet.", Toast.LENGTH_LONG).show();
                         refreshFragmentView();
                     }
                 };
 
                 SyncRestClient client = new SyncRestClient(session, restServers.get(serverName), listener);
-                client.execute((Void) null);
+                client.execute();
 
             }
         }).setNegativeButton(R.string.lblCancel, null).setMessage("Server: " + restServers.get(serverName)).show();
@@ -299,6 +299,11 @@ public class MainActivity extends AppCompatActivity implements SessionHolder, Ma
     @Override
     public DaoSession getSession() {
         return session;
+    }
+
+    @Override
+    public String getRestServerAdress() {
+        return serverName;
     }
 
     @Override

@@ -2,9 +2,11 @@ package de.kreth.clubhelper.restclient;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +37,7 @@ import de.kreth.clubhelper.dao.SynchronizationDao;
  * {@link AsyncTask}, that synchronizes all date with REST server.
  * Created by markus on 30.08.15.
  */
-public class SyncRestClient extends AsyncTask<Void, Void, Void> {
+public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, Exception> {
 
     private final DaoSession session;
     private String uri;
@@ -56,21 +58,37 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
-        updateData(Person.class, Person[].class);
-        updateData(Contact.class, Contact[].class);
-        updateData(Adress.class, Adress[].class);
-        updateData(Relative.class, Relative[].class);
-        updateData(Attendance.class, Attendance[].class);
+    protected Exception doInBackground(ClassHolder... params) {
+        try {
+
+            if(params == null || params.length == 0) {
+                updateData(new ClassHolder<>(Person.class, Person[].class));
+                updateData(new ClassHolder<>(Contact.class, Contact[].class));
+                updateData(new ClassHolder<>(Adress.class, Adress[].class));
+                updateData(new ClassHolder<>(Relative.class, Relative[].class));
+                updateData(new ClassHolder<>(Attendance.class, Attendance[].class));
+            } else
+                updateSinge(params);
+
+        } catch (Exception e) {
+            return e;
+        }
+
         return null;
     }
 
-    public <T extends Data> void updateData(Class<T> classForType, Class<T[]> classForList) {
+    private void updateSinge(ClassHolder[] params) {
+        for (ClassHolder holder : params) {
+            updateData(holder);
+        }
+    }
 
-        final AbstractDao<?, ?> dao1 = session.getDao(classForType);
+    public <T extends Data> void updateData(ClassHolder<T> holder) {
+
+        final AbstractDao<?, ?> dao1 = session.getDao(holder.classForType);
         if (dao1 != null) {
             final AbstractDao<T, Long> dao = (AbstractDao<T, Long>) dao1;
-            final String simpleName = classForType.getSimpleName();
+            final String simpleName = holder.classForType.getSimpleName();
 
             Synchronization synchronization = synchronizationDao.queryBuilder()
                     .where(SynchronizationDao.Properties.Table_name.eq(dao.getTablename()))
@@ -102,12 +120,13 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
 
             final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + lastUpload.getTime());
 
-            final List<T> updated = Arrays.asList(loadUpdated(simpleName.toLowerCase(), lastDownload, classForList));
+            final List<T> updated = Arrays.asList(loadUpdated(simpleName.toLowerCase(), lastDownload, holder.classForList));
 
             mergeChanges(toUpload, updated);
 
             for (T c : updated) {
                 dao.insertOrReplace(c);
+                Log.i(getClass().getSimpleName(), "Stored " + c);
             }
 
             synchronization.setDownload_successful(now);
@@ -120,7 +139,10 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
                     if(data.getCreated().after(lastUpload))
                         method = RestHttpConnection.HTTP_REQUEST_POST;
 
-                    upload(simpleName.toLowerCase(), dao, data, method, classForType);
+                    T result = upload(simpleName.toLowerCase(), dao, data, method, holder.classForType);
+                    if(result == null && method == RestHttpConnection.HTTP_REQUEST_POST)
+                        upload(simpleName.toLowerCase(), dao, data, RestHttpConnection.HTTP_REQUEST_PUT, holder.classForType);
+                    Log.i(getClass().getSimpleName(), "Uploaded " + data + " -- Result " + result);
                 }
                 synchronization.setUpload_successful(now);
                 synchronizationDao.update(synchronization);
@@ -151,13 +173,15 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
         }
     }
 
-    private <T extends Data> void upload(String typeUri, AbstractDao<T, Long> dao, T data, String method, Class<T> classOfT) throws IOException {
+    private <T extends Data> T upload(String typeUri, AbstractDao<T, Long> dao, T data, String method, Class<T> classOfT) throws IOException {
+        T result = null;
 
             try {
                 URL url = new URL(uri + typeUri + "/" + data.getId());
                 RestHttpConnection con = new RestHttpConnection(url, method);
-                T result = con.send(data, classOfT);
-                if(! result.equals(data)) {
+                result = con.send(data, classOfT);
+                if(result != null && ! result.equals(data)) {
+                    result.setSyncStatus(SyncStatus.SYNCHRONIZED);
                     dao.update(result);
                 }
 
@@ -165,7 +189,7 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
                 throw new IOException("Upload failed", e);
             }
 
-        return;
+        return result;
     }
 
     private <T extends Data> T[] loadUpdated(String typeUri, Date lastChange, Class<T[]> classOf) {
@@ -203,7 +227,7 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
     }
 
     @NonNull
-    private RestHttpConnection sendRequest(String type, Date lastChange) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    private RestHttpConnection sendRequest(String type, Date lastChange) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, SocketTimeoutException {
         URL url = new URL(uri + type + "/changed/" + lastChange.getTime());
         RestHttpConnection con = new RestHttpConnection(url, RestHttpConnection.HTTP_REQUEST_GET);
         con.send("");
@@ -211,13 +235,42 @@ public class SyncRestClient extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(Exception e) {
+
         if(listener != null)
-            listener.syncFinished();
-        super.onPostExecute(aVoid);
+            listener.syncFinished(e);
+
+        super.onPostExecute(e);
     }
 
     public interface SyncFinishedListener {
-        void syncFinished();
+        /**
+         * Called when sync has finisched.
+         * @param e null if sync was successfull
+         */
+        void syncFinished(Exception e);
+    }
+
+    public static class ClassHolder<T> {
+        private final Class<T> classForType;
+        private final Class<T[]> classForList;
+
+        public ClassHolder(Class<T> classForType, Class<T[]> classForList) {
+            this.classForType = classForType;
+            this.classForList = classForList;
+        }
+
+        public Class<T> getClassForType() {
+            return classForType;
+        }
+
+        public Class<T[]> getClassForList() {
+            return classForList;
+        }
+
+        @Override
+        public String toString() {
+            return classForType.toString();
+        }
     }
 }

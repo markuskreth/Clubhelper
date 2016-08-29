@@ -31,18 +31,19 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-import de.kreth.clubhelper.Adress;
-import de.kreth.clubhelper.Contact;
+import de.kreth.clubhelper.data.Adress;
+import de.kreth.clubhelper.data.Contact;
 import de.kreth.clubhelper.MainActivity;
-import de.kreth.clubhelper.Person;
-import de.kreth.clubhelper.PersonType;
+import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonType;
 import de.kreth.clubhelper.R;
-import de.kreth.clubhelper.RelationType;
-import de.kreth.clubhelper.Relative;
-import de.kreth.clubhelper.SyncStatus;
+import de.kreth.clubhelper.data.RelationType;
+import de.kreth.clubhelper.data.Relative;
+import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.dao.AdressDao;
 import de.kreth.clubhelper.dao.DaoSession;
 import de.kreth.clubhelper.datahelper.SessionHolder;
+import de.kreth.clubhelper.restclient.SyncRestClient;
 import de.kreth.clubhelper.widgets.ContactEditDialog;
 import de.kreth.clubhelper.widgets.PersonSelectDialog;
 import de.kreth.clubhelper.widgets.PersonTypeAdapter;
@@ -75,6 +76,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     private MainFragment.OnMainFragmentEventListener fragmentEventListener = null;
     private Spinner spinnerPersonType;
     private PersonTypeAdapter personTypeAdapter;
+    private SyncRestClient restClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,7 +98,9 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
     private void editDetail() {
 
-        AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity()).setTitle(R.string.title_quest_which_info_toedit).setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
+        AlertDialog.Builder dlgBld = new AlertDialog.Builder(getActivity());
+        dlgBld.setTitle(R.string.title_quest_which_info_toedit);
+        dlgBld.setItems(R.array.person_detail_items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
@@ -129,18 +133,31 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                 .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final Contact c = contactList.get(which);
+                        final Contact toChange = contactList.get(which);
+                        final String type = toChange.getType();
+                        final String value = toChange.getValue();
 
                         ContactEditDialog.ContactEditDialogResult result = new ContactEditDialog.ContactEditDialogResult() {
                             @Override
-                            public void contactToStore(Contact contact) {
-                                if (!(c.getType().matches(contact.getType()) || c.getValue().matches(contact.getValue()))) {
-                                    contact.setChanged(new Date());
-                                    session.getContactDao().update(contact);
+                            public void contactToStore(final Contact contact) {
+                                try {
+
+                                    final boolean typeIsSame = type.equals(contact.getType());
+                                    final boolean valueIsSame = value.equals(contact.getValue());
+
+                                    if (!(typeIsSame && valueIsSame)) {
+                                        contact.setChanged(new Date());
+                                        session.getContactDao().update(contact);
+                                        restClient.updateData(new SyncRestClient.ClassHolder<>(Contact.class, Contact[].class));
+                                        refreshContacts(person.getContactList());
+                                    }
+
+                                } catch (Exception e) {
+                                    Log.e(getTag(), "Konnte nicht speichern: " + toChange, e);
+                                    new AlertDialog.Builder(getContext()).setMessage("Konnte nicht speichern!").show();
                                 }
                             }
                         };
-                        Contact toChange = new Contact(c.getId(), c.getType(), c.getValue(), c.getPersonId(), c.getChanged(), c.getCreated(), c.getSyncStatus());
                         new ContactEditDialog(getActivity(), toChange, result).show();
                     }
                 })
@@ -197,6 +214,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                             adress.setCity(city);
                             adress.setChanged(new Date());
                             adressDao.update(adress);
+                            restClient.updateData(new SyncRestClient.ClassHolder<>(Adress.class, Adress[].class));
                             person.resetAdressList();
                             refreshAdresses(person.getAdressList());
                         }
@@ -328,9 +346,12 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
         personId = getArguments().getLong(MainActivity.PERSONID);
 
-        session = ((SessionHolder) getActivity()).getSession();
+        SessionHolder sessionHolder = (SessionHolder) getActivity();
+        session = sessionHolder.getSession();
         if(session == null)
             return null;
+
+        restClient = new SyncRestClient(session, sessionHolder.getRestServerAdress());
 
         person = session.getPersonDao().load(personId);
         rootView = (TableLayout) inflater.inflate(R.layout.fragment_person_edit, container, false);
@@ -359,6 +380,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
             if(person.getId() != null)
                 try {
                     person.update();
+                    restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
                 } catch (RuntimeException e) {
                     Log.e(TAG, "Fehler bei update PersonType", e);
                 }
@@ -415,11 +437,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         btnRelations.setOnClickListener(onClickListener);
         btnAdresses.setOnClickListener(onClickListener);
 
-        List<Contact> contactList = person.getContactList();
-        for (Contact c : contactList) {
-            addContact(c);
-        }
-
+        refreshContacts(person.getContactList());
         refreshRelatives(person.getRelations());
         refreshAdresses(person.getAdressList());
 
@@ -428,13 +446,32 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onPause() {
 
+        boolean hasChanges = false;
+
         final String preNameString = preName.getText().toString();
         final String surnameString = surName.getText().toString();
         final PersonType type = (PersonType) spinnerPersonType.getSelectedItem();
+        if(!preNameString.equals(person.getPrename()))
+            hasChanges = true;
+        if(!surnameString.equals(person.getSurname()))
+            hasChanges = true;
+        if(person.getPersonType() != type)
+            hasChanges = true;
+
         person.setPrename(preNameString);
         person.setSurname(surnameString);
         person.setType(type.name());
+
+        if(person.getSyncStatus() == null) {
+            person.setSyncStatus(SyncStatus.NEW);
+        }
+
+        if(hasChanges && person.getSyncStatus() != SyncStatus.NEW) {
+            person.setSyncStatus(SyncStatus.CHANGED);
+        }
+
         person.update();
+        restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
 
         super.onPause();
     }
@@ -451,6 +488,18 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         if(btnAdresses.isChecked()) {
             setVisibleAdresses();
         }
+    }
+
+    private void refreshContacts(List<Contact> contactList) {
+        for (View conView : contactViews) {
+            rootView.removeView(conView);
+        }
+        contactViews.clear();
+
+        for (Contact c : contactList) {
+            addContact(c);
+        }
+
     }
 
     private void setVisibleAdresses() {
@@ -561,6 +610,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                                     .format(time));
         person.setChanged(new Date());
         session.getPersonDao().update(person);
+        restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
     }
 
     @Override
@@ -582,6 +632,7 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
                 txtBirth.setText("");
                 person.setChanged(new Date());
                 session.getPersonDao().update(person);
+                restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
             }
         });
         dlg.show();
@@ -589,6 +640,10 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void refreshView() {
+
+        refreshContacts(person.getContactList());
+        refreshRelatives(person.getRelations());
+        refreshAdresses(person.getAdressList());
 
     }
 
