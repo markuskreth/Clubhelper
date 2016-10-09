@@ -98,6 +98,7 @@ public class RestHttpConnection {
             str.close();
         }
         responseCode = con.getResponseCode();
+
     }
 
     @SuppressWarnings("unchecked")
@@ -120,7 +121,12 @@ public class RestHttpConnection {
     public String getResponse() throws IOException {
 
         if (this.response == null) {
-            final InputStream inputStream = con.getInputStream();
+            InputStream inputStream;
+            if(responseCode == HttpURLConnection.HTTP_OK)
+                inputStream = con.getInputStream();
+            else
+                inputStream = con.getErrorStream();
+
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(inputStream));
             String inputLine;

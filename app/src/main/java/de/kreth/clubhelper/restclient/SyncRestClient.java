@@ -6,8 +6,10 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -45,15 +47,23 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
     private final SynchronizationDao synchronizationDao;
     private final Date now;
 
-    public SyncRestClient(DaoSession session, String uri) {
+    public SyncRestClient(DaoSession session, String uri) throws IOException {
         this(session, uri, null);
     }
 
+    /**
+     * Inits this client, tests Server connection and sets now as sync timestamp.
+     * @param session
+     * @param uri
+     * @param listener
+     * @throws IOException  thrown if server connection test fails.
+     */
     public SyncRestClient(DaoSession session, String uri, SyncFinishedListener listener) {
         this.session = session;
         this.uri = uri;
         synchronizationDao = session.getSynchronizationDao();
         this.listener = listener;
+
         now = new Date();
     }
 
@@ -120,7 +130,8 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
 
             final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + lastUpload.getTime());
 
-            final List<T> updated = Arrays.asList(loadUpdated(simpleName.toLowerCase(), lastDownload, holder.classForList));
+            T[] downloaded = loadUpdated(simpleName.toLowerCase(), lastDownload, holder.classForList);
+            final List<T> updated = Arrays.asList(downloaded);
 
             mergeChanges(toUpload, updated);
 
@@ -208,6 +219,7 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
             } else {
                 System.out.println("Request Method: " + con.getRequestMethod());
                 System.out.println("Response Code: " + con.getResponseCode());
+                System.out.println("Resonse:\n" + con.getResponse());
             }
 
         } catch (IOException e) {

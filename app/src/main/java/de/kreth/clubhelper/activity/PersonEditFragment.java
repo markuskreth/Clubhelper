@@ -22,6 +22,7 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -351,7 +352,11 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         if(session == null)
             return null;
 
-        restClient = new SyncRestClient(session, sessionHolder.getRestServerAdress());
+        try {
+            restClient = new SyncRestClient(session, sessionHolder.getRestServerAdress());
+        } catch (IOException e) {
+            Log.e(getClass().getName(), "Server nicht gefunden", e);
+        }
 
         person = session.getPersonDao().load(personId);
         rootView = (TableLayout) inflater.inflate(R.layout.fragment_person_edit, container, false);
