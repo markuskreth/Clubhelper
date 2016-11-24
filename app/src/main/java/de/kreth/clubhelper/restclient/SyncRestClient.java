@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -131,7 +132,14 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
             final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + lastUpload.getTime());
 
             T[] downloaded = loadUpdated(simpleName.toLowerCase(), lastDownload, holder.classForList);
-            final List<T> updated = Arrays.asList(downloaded);
+
+            List<T> updated;
+
+            if(downloaded != null) {
+                updated = Arrays.asList(downloaded);
+            } else {
+                updated = Collections.emptyList();
+            }
 
             mergeChanges(toUpload, updated);
 

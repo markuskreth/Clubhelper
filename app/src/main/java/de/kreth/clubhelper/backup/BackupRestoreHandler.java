@@ -57,10 +57,16 @@ public class BackupRestoreHandler {
 
             session.clear();
             DataExportClass data = new DataExportClass();
+
             data.setPersons(session.getPersonDao().loadAll());
             data.setContacts(session.getContactDao().loadAll());
-            data.setAdresses(session.getAdressDao().loadAll());
+            data.setAdresss(session.getAdressDao().loadAll());
             data.setRelatives(session.getRelativeDao().loadAll());
+            data.setAttendances(session.getAttendanceDao().loadAll());
+            data.setGroups(session.getGroupDao().loadAll());
+            data.setPersonGroups(session.getPersonGroupDao().loadAll());
+            data.setSynchronizations(session.getSynchronizationDao().loadAll());
+
             json = gson.toJson(data);
 
         }

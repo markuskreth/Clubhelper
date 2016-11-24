@@ -79,7 +79,7 @@ public class PersonJsonTest extends AndroidTestCase {
 
         List<Adress> adresses = new ArrayList<>();
         adresses.add(new Adress(1L, "Markus Straße", "", "30555", "Hannover", 1L, now, now, SyncStatus.NEW));
-        data.setAdresses(adresses);
+        data.setAdresss(adresses);
 
         JsonMapper gson = new JsonMapper();
 
