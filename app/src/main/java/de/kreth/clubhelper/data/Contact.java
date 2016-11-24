@@ -143,7 +143,9 @@ public class Contact implements Data {
         if (value != null ? !value.equals(contact.value) : contact.value != null) return false;
         if (changed != null ? !changed.equals(contact.changed) : contact.changed != null)
             return false;
-        return !(created != null ? !created.equals(contact.created) : contact.created != null);
+        if (created != null ? !created.equals(contact.created) : contact.created != null)
+            return false;
+        return syncStatus == contact.syncStatus;
 
     }
 
@@ -155,8 +157,10 @@ public class Contact implements Data {
         result = 31 * result + (int) (personId ^ (personId >>> 32));
         result = 31 * result + (changed != null ? changed.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
+        result = 31 * result + (syncStatus != null ? syncStatus.hashCode() : 0);
         return result;
     }
+
     // KEEP METHODS END
 
 }

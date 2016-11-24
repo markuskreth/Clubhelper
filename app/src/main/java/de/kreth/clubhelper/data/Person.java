@@ -331,7 +331,9 @@ public class Person implements Data {
         if (birth != null ? !birth.equals(person.birth) : person.birth != null) return false;
         if (changed != null ? !changed.equals(person.changed) : person.changed != null)
             return false;
-        return !(created != null ? !created.equals(person.created) : person.created != null);
+        if (created != null ? !created.equals(person.created) : person.created != null)
+            return false;
+        return syncStatus == person.syncStatus;
 
     }
 
@@ -344,6 +346,7 @@ public class Person implements Data {
         result = 31 * result + (birth != null ? birth.hashCode() : 0);
         result = 31 * result + (changed != null ? changed.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
+        result = 31 * result + (syncStatus != null ? syncStatus.hashCode() : 0);
         return result;
     }
 

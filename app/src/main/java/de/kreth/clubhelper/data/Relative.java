@@ -132,7 +132,9 @@ public class Relative implements Data {
             return false;
         if (changed != null ? !changed.equals(relative.changed) : relative.changed != null)
             return false;
-        return !(created != null ? !created.equals(relative.created) : relative.created != null);
+        if (created != null ? !created.equals(relative.created) : relative.created != null)
+            return false;
+        return syncStatus == relative.syncStatus;
 
     }
 
@@ -145,8 +147,10 @@ public class Relative implements Data {
         result = 31 * result + (toPerson1Relation != null ? toPerson1Relation.hashCode() : 0);
         result = 31 * result + (changed != null ? changed.hashCode() : 0);
         result = 31 * result + (created != null ? created.hashCode() : 0);
+        result = 31 * result + (syncStatus != null ? syncStatus.hashCode() : 0);
         return result;
     }
+
     // KEEP METHODS END
 
 }
