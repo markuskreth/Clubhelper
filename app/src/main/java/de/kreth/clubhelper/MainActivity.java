@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements SessionHolder, Ma
 
     @Override
     public String getRestServerAdress() {
-        return serverName;
+        return restServers.get(serverName);
     }
 
     @Override

@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.kreth.clubhelper.data.Adress;
 import de.kreth.clubhelper.data.Contact;
@@ -476,8 +478,14 @@ public class PersonEditFragment extends Fragment implements View.OnClickListener
         }
 
         person.update();
-        restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
-
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                restClient.updateData(new SyncRestClient.ClassHolder<>(Person.class, Person[].class));
+            }
+        });
+        executor.shutdown();
         super.onPause();
     }
 
