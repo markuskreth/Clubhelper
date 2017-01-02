@@ -29,7 +29,10 @@ import de.kreth.clubhelper.data.Adress;
 import de.kreth.clubhelper.data.Attendance;
 import de.kreth.clubhelper.data.Contact;
 import de.kreth.clubhelper.data.Data;
+import de.kreth.clubhelper.data.DeletedEntries;
+import de.kreth.clubhelper.data.Group;
 import de.kreth.clubhelper.data.Person;
+import de.kreth.clubhelper.data.PersonGroup;
 import de.kreth.clubhelper.data.Relative;
 import de.kreth.clubhelper.data.SyncStatus;
 import de.kreth.clubhelper.data.Synchronization;
@@ -73,15 +76,20 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
         try {
 
             if(params == null || params.length == 0) {
-                updateData(new ClassHolder<>(Person.class, Person[].class));
-                updateData(new ClassHolder<>(Contact.class, Contact[].class));
-                updateData(new ClassHolder<>(Adress.class, Adress[].class));
-                updateData(new ClassHolder<>(Relative.class, Relative[].class));
-                updateData(new ClassHolder<>(Attendance.class, Attendance[].class));
+//                updateData(new ClassHolder<>(Person.class, Person[].class));
+//                updateData(new ClassHolder<>(Contact.class, Contact[].class));
+//                updateData(new ClassHolder<>(Adress.class, Adress[].class));
+//                updateData(new ClassHolder<>(Relative.class, Relative[].class));
+//                updateData(new ClassHolder<>(Attendance.class, Attendance[].class));
+//                updateData(new ClassHolder<>(Group.class, Group[].class));
+                updateData(new ClassHolder<>(PersonGroup.class, PersonGroup[].class));
+                updateData(new ClassHolder<>(DeletedEntries.class, DeletedEntries[].class));
+
             } else
                 updateSinge(params);
 
         } catch (Exception e) {
+            Log.e(getClass().getName(), "Fehler bei Synch", e);
             return e;
         }
 
@@ -110,7 +118,7 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
                 synchronization = new Synchronization();
                 synchronization.setTable_name(dao.getTablename());
 
-                final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from " + simpleName.toUpperCase() + ")";
+                final String sqlRaw = "WHERE CHANGED=(select max(CHANGED) from \"" + simpleName.toUpperCase() + "\")";
                 List<T> datas = dao.queryRaw(sqlRaw);
 
                 if (datas.size() > 0) {
@@ -129,14 +137,15 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
             Date lastUpload = synchronization.getUpload_successful();
             Date lastDownload = synchronization.getDownload_successful();
 
-            final List<T> toUpload = dao.queryRaw("WHERE CHANGED>" + lastUpload.getTime());
+            String where = "WHERE CHANGED>" + lastUpload.getTime();
+            final List<T> toUpload = dao.queryRaw(where);
 
             T[] downloaded = loadUpdated(simpleName.toLowerCase(), lastDownload, holder.classForList);
 
             List<T> updated;
 
             if(downloaded != null) {
-                updated = Arrays.asList(downloaded);
+                updated = new ArrayList<>(Arrays.asList(downloaded));
             } else {
                 updated = Collections.emptyList();
             }
@@ -155,8 +164,9 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
                 for (T data : toUpload) {
                     String method = RestHttpConnection.HTTP_REQUEST_PUT;
 
-                    if(data.getCreated().after(lastUpload))
+                    if(data.getCreated().after(lastUpload)) {
                         method = RestHttpConnection.HTTP_REQUEST_POST;
+                    }
 
                     T result = upload(simpleName.toLowerCase(), dao, data, method, holder.classForType);
                     if(result == null && method == RestHttpConnection.HTTP_REQUEST_POST)
@@ -166,9 +176,9 @@ public class SyncRestClient extends AsyncTask<SyncRestClient.ClassHolder, Void, 
                 synchronization.setUpload_successful(now);
                 synchronizationDao.update(synchronization);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(getClass().getName(), "Error on Sync", e);
             } catch (NullPointerException e) {
-                e.printStackTrace();
+                Log.e(getClass().getName(), "Error on Sync", e);
             }
         }
     }

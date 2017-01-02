@@ -19,7 +19,7 @@ import de.greenrobot.daogenerator.Schema;
 
 public class ClubDaoGenerator {
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     private Schema schema;
     private Entity person;
     private Entity contact;
@@ -56,7 +56,7 @@ public class ClubDaoGenerator {
         });
 
         for (File toCopy: files) {
-            File destination = new File("../../workspace_ee/ClubHelperBackend/src/main/java/de/kreth/clubhelperbackend/pojo/", toCopy.getName());
+            File destination = new File("../../workspace_ee/clubhelperdata/src/main/java/de/kreth/clubhelperbackend/pojo/", toCopy.getName());
             Files.copy(toCopy.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             cleanGeneratedFileFromDaoCode(destination);

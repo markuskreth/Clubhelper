@@ -38,6 +38,9 @@ public class DaoMigrator {
                     case 7:
                         migrateToVersion7();
                         break;
+                    case 8:
+                        migrateToVersion8();
+                        break;
                 }
             }
 
@@ -45,6 +48,12 @@ public class DaoMigrator {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void migrateToVersion8() {
+        boolean ifNotExists = true;
+        GroupDao.createTable(db, ifNotExists);
+        PersonGroupDao.createTable(db, ifNotExists);
     }
 
     private void migrateToVersion7() {

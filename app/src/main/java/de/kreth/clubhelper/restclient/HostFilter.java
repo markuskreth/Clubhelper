@@ -1,6 +1,7 @@
 package de.kreth.clubhelper.restclient;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -22,6 +23,7 @@ public class HostFilter extends AsyncTask<String, Void, List<String>> {
 
     public boolean testUri(String uri) {
         try {
+            Log.d(getClass().getName(), "Teste " + uri);
             URL url = new URL(uri);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             int responseCode = con.getResponseCode();
@@ -30,8 +32,10 @@ public class HostFilter extends AsyncTask<String, Void, List<String>> {
                 return false;
 
         } catch (MalformedURLException e) {
+            Log.w(getClass().getName(), "Fehler bei " + uri, e);
             return false;
         } catch (IOException e) {
+            Log.w(getClass().getName(), "Fehler bei " + uri, e);
             return false;
         }
 

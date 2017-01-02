@@ -25,6 +25,7 @@ public class Contact implements Data {
     private java.util.Date created;
     private SyncStatus syncStatus;
 
+
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
 
@@ -160,7 +161,6 @@ public class Contact implements Data {
         result = 31 * result + (syncStatus != null ? syncStatus.hashCode() : 0);
         return result;
     }
-
     // KEEP METHODS END
 
 }
